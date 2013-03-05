@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>9d128b8a-2409-4c31-8ca5-159fca30b55b</ProjectGuid>
+    <ProjectGuid>7ee274b7-c8a3-4299-b766-e00862b8ad5e</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Auth</RootNamespace>
-    <AssemblyName>Auth</AssemblyName>
+    <RootNamespace>Account</RootNamespace>
+    <AssemblyName>Account</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>Auth</Name>
+    <Name>Account</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +20,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Auth.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Account.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,7 +29,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Auth.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Account.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -41,14 +41,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Auth.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Account\Account.fsproj">
-      <Name>Account</Name>
-      <Project>{7ee274b7-c8a3-4299-b766-e00862b8ad5e}</Project>
-      <Private>True</Private>
-    </ProjectReference>
+    <Compile Include="Account.fs" />
+    <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

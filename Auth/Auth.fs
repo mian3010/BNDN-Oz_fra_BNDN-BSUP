@@ -7,12 +7,16 @@ module Auth =
     module internal Internal =
 
         /// True if the credentials correctly identifies a user, otherwise false
-        let validateUserPass user pass = true // Dummy implementation
+        let validateUserPass user pass =
+            try
+                Account.hasPassword (Account.getByUsername user) pass
+            with
+                | Account.NoSuchUser -> false
 
     ///////////////////////////////////////////////////////////////////////
 
     module Token =
-    
+        
         ///////////////////////////////////////////////////////////////////
 
         module Date =
@@ -30,6 +34,7 @@ module Auth =
         module internal Internal =
 
             let dataSep = " | "
+
             let cipherFrom = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/="
             let cipherTo   = "x9/weqrsPcflHIyz012hQMbiNODYtuVZaj3gk45mnvTUopdARS=EWF6G7K8JLBXC"
 
@@ -43,14 +48,14 @@ module Auth =
             let decipher (str:string) = translate cipherTo cipherFrom str
 
             /// Obscures a string to make it look like a token (discouraging direct manipulation of it)
-            let obscure (string:string) =
-                let bytesToEncode = System.Text.Encoding.UTF8.GetBytes(string)
+            let obscure (str:string) =
+                let bytesToEncode = System.Text.Encoding.UTF8.GetBytes(str)
                 let encoded = System.Convert.ToBase64String(bytesToEncode)
                 encipher encoded
             
             /// Reverses the process done by obscure
-            let unobscure (string:string) =
-                let base64 = decipher string
+            let unobscure (str:string) =
+                let base64 = decipher str
                 let decodedBytes = System.Convert.FromBase64String(base64)
                 System.Text.Encoding.UTF8.GetString(decodedBytes)
 
@@ -114,5 +119,5 @@ module Auth =
     /// The result is a tuple: (encodedToken, tokenExpirationString) aka (string * string)
     let authenticate user pass =
         if not (Internal.validateUserPass user pass) then raise AuthenticationFailed
-        let token = Token.create 24 user
+        let token = Token.create 24 user // Create a token which lasts for 24 hours
         (Token.encode token, Token.Date.toString token.expires)
