@@ -23,6 +23,4 @@ open System.Data
                 let values = Array.init (reader.FieldCount) (fun i -> reader.[i])
                 values |> printfn "%A"
                 
-            
-
             Internal.connDB.Close()
