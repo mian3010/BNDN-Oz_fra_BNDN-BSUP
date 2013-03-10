@@ -20,6 +20,7 @@ module Account =
                 let bytes = System.Text.Encoding.UTF8.GetBytes(str)
                 System.Convert.ToBase64String(bytes)
 
+
             /// Creates a cryptographic hash of a string
             let hash (str:string) =
                 let bytes = System.Text.Encoding.UTF8.GetBytes(str)
