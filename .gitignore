@@ -55,6 +55,37 @@ ipch/
 # ReSharper is a .NET coding add-in
 _ReSharper*
 
+# TeX
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.fdb_latexmk
+*.glg
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
+*.ist
+*.lof
+*.log
+*.lot
+*.nav
+*.nlo
+*.out
+*.pdfsync
+*.ps
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.maf
+*.mtc
+*.mtc0
+*.pdf
+*.bat
+
 # NCrunch
 *.ncrunch*
 .*crunch*.local.xml
