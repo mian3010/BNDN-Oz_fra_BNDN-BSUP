@@ -1,20 +1,6 @@
 ﻿namespace RentIt
 
 module Account =
-
-    ///////////////////////////////////////////////////////////////////////
-
-    module Permissions =
-
-        ///////////////////////////////////////////////////////////////////////
-
-        module internal Internal =
-        
-            let dummy = "Dummy"
-    
-        ///////////////////////////////////////////////////////////////////////
-        
-        let dummy = Internal.dummy
     
     ///////////////////////////////////////////////////////////////////////
 
@@ -102,12 +88,13 @@ module Account =
     // Common data for each account type
 
     type Account =              {
-                                    user : string;
+                                    user : string; // Usernames are case insensitive
                                     email : string;
                                     password : Password.Password; // password is hashed
                                     created : System.DateTime;
                                     banned : bool;
-                                    info : TypeInfo
+                                    info : TypeInfo;
+                                    version : System.UInt32; // to be used by persistence API
                                 }
     
     // Exceptions
@@ -120,7 +107,7 @@ module Account =
 
     ////// CREDO FUNCTIONS
 
-    /// Creates a new account with the given information. Upon successful invokation, the account will also be persisted
+    /// Creates a new account with the given information. Upon successful invokation, the account will also be persisted.
     let create typeinfo user email password :Account =
         raise (new System.NotImplementedException())
         

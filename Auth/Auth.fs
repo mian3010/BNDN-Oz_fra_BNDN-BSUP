@@ -27,7 +27,7 @@ module Auth =
             let toString (date:System.DateTime) = date.ToString(dateFormat)
                 
             /// Converts a date string in the format used by tokens into a DateTime date
-            let fromString string = System.DateTime.Parse(string)
+            let fromString str = System.DateTime.ParseExact(str, dateFormat, System.Globalization.CultureInfo.InvariantCulture)
 
         ///////////////////////////////////////////////////////////////////
 
@@ -73,6 +73,11 @@ module Auth =
         /// Authentication token type. user is in lower case!
         type AuthToken = { expires: System.DateTime; user: string }
 
+        exception TokenExpired  // Raised if a token is expired and was not supposed to be so
+        exception IllegalToken  // Raised if a token is malformed
+
+
+
         /// Creates a new token for {user} which expires in {hours} hours
         let create hours (user:string) =
             let date = System.DateTime.Now.AddHours(float(hours))
@@ -88,8 +93,6 @@ module Auth =
             let combined = date + Internal.dataSep + user   // yyyy-MM-dd HH:mm:ss zzz | user
             let checksum = Internal.checksum combined
             Internal.obscure checksum + Internal.dataSep + combined
-        
-        exception IllegalToken
 
         /// Decodes a {token} string into a token record
         /// Raises an IllegalToken exception if its checksum does not match the content or the token is illegally structured
@@ -113,11 +116,18 @@ module Auth =
 
     exception AuthenticationFailed
 
-    /// Retrieves an encoded token for the user {user}, together with an expiration date/time string.
-    /// The date/time string is formatted as follows "yyyy-MM-dd HH:mm:ss zzz" e.g. "2013-03-31 23:59:09 +01:00"
+    /// Retrieves an encoded token for the user {user}, together with an expiration date/time.
     /// Raises AuthenticationFailed if the credentials are incorrect
-    /// The result is a tuple: (encodedToken, tokenExpirationString) aka (string * string)
+    /// The result is a tuple: (encodedToken, tokenExpiration) aka (string * System.DateTime)
     let authenticate user pass =
         if not (Internal.validateUserPass user pass) then raise AuthenticationFailed
         let token = Token.create 24 user // Create a token which lasts for 24 hours
-        (Token.encode token, Token.Date.toString token.expires)
+        (Token.encode token, token.expires)
+
+    /// Retrieves the account for which {token} is a reference to.
+    /// Raises Auth.Token.IllegalToken if the token is malformed
+    /// Raises Auth.Token.TokenExpired if the token has expired
+    let accessAccount token =
+        let t = Token.decode token
+        if (Token.isExpired t) then raise Token.TokenExpired
+        Account.getByUsername t.user

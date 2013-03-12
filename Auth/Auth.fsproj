@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Auth.fs" />
+    <Compile Include="ControlledAuth.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Account\Account.fsproj">
