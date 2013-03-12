@@ -1,6 +1,20 @@
 ﻿namespace RentIt
 
 module Account =
+
+    ///////////////////////////////////////////////////////////////////////
+
+    module Permissions =
+
+        ///////////////////////////////////////////////////////////////////////
+
+        module internal Internal =
+        
+            let dummy = "Dummy"
+    
+        ///////////////////////////////////////////////////////////////////////
+        
+        let dummy = Internal.dummy
     
     ///////////////////////////////////////////////////////////////////////
 
@@ -36,6 +50,10 @@ module Account =
         
         type Password = {salt : string; hash : string;}
 
+        /// Produces a random password of {length} characters
+        let produce length :Password =
+            raise (new System.NotImplementedException())
+
         /// Produces a salted hash of the given unhashed password
         let create password =
             let salt = Internal.produceSalt
@@ -49,24 +67,74 @@ module Account =
             hashed.hash = hash
     
     ///////////////////////////////////////////////////////////////////////
-
-    type AccountInfo = unit // Dummy until the actual info to store is decided upon
-    type Account = {user : string; email : string; password : Password.Password; info : AccountInfo} // password is hashed
     
+    ////// TYPES
+
+    type Address =              {
+                                    address : string;
+                                    postal : int;
+                                    country : string;
+                                }
+
+    type AccountType =            Customer
+                                | ContentProvider
+                                | Admin
+
+    // Custom data for each type of account
+
+    type Customer =             {
+                                    name : string;              // null if not set
+                                    address : Address;          // null if not set
+                                    birth : System.DateTime;    // Date of Birth, null if not set
+                                    about : string;             // About Me
+                                    credits : int;
+                                }
+    type ContentProvider =      {
+                                    name : string;              // null if not set
+                                    address : Address;          // null if not set
+                                }
+    type Admin =                unit
+
+    type TypeInfo =               Customer
+                                | ContentProvider
+                                | Admin
+
+    // Common data for each account type
+
+    type Account =              {
+                                    user : string;
+                                    email : string;
+                                    password : Password.Password; // password is hashed
+                                    created : System.DateTime;
+                                    banned : bool;
+                                    info : TypeInfo
+                                }
+    
+    // Exceptions
+
     exception UserAlreadyExists // If one tries to create an account whose username already is taken
     exception EmailAddressInUse // If one associate an account with an email address which is used by another account
     exception NoSuchUser        // If one tries to retrieve/update an account, but no account is found for the passed identifier
+    exception OutdatedData      // If a call to 'update' cannot succeed, because the changes conflict with more recent changes
+
+
+    ////// CREDO FUNCTIONS
 
     /// Creates a new account with the given information. Upon successful invokation, the account will also be persisted
-    let create user email password :Account =
+    let create typeinfo user email password :Account =
         raise (new System.NotImplementedException())
         
     /// Retrieves an account from persistence based on its associated username
     let getByUsername user :Account =
         raise (new System.NotImplementedException())
     
-    /// Retrieves an account from persistence based on its associated email address
-    let getByEmail email :Account =
+    /// Retrieves all accounts of a specific type
+    let getAllByType (accType:AccountType) :Account list =
+        raise (new System.NotImplementedException())
+
+    /// Retrieves the date and time which the user {user} last authenticated
+    /// null means "never"
+    let getLastAuthTime user :System.DateTime =
         raise (new System.NotImplementedException())
 
     /// Deletes an previously created account. The account will be removed from persistence.
@@ -77,6 +145,8 @@ module Account =
     /// The account which is updated is the one with the identical username
     let update acc =
         raise (new System.NotImplementedException())
+
+    ////// HELPER FUNCTIONS
 
     /// True if the unhashed password {password} matches the password hash of the account {acc}
     let hasPassword acc password = Password.verify acc.password password
