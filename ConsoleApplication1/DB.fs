@@ -14,10 +14,7 @@ open System.Data
         ///////////////////////////////////////////////////////////////////////////////////
 
         type test = { 
-            Id:int
-            data1:int
-            data2:float
-            name:string }
+            Id:int}
 
         let testRead = seq {
             let sql  = "SELECT * FROM Table1" // Dummy SQL
@@ -28,11 +25,6 @@ open System.Data
 
             while reader.Read() do
                 yield { 
-                    Id = unbox (reader.["Id"])
-                    data1 = unbox (reader.["TestData1"])
-                    data2 = unbox (reader.["TestData2"])
-                    name = unbox (reader.["Name"]) }
-                //let values = Array.init (reader.FieldCount) (fun i -> reader.[i])
-                //values |> printfn "%A"
+                    Id = unbox (reader.["Id"])}
                 
             Internal.connDB.Close() }
