@@ -119,10 +119,10 @@ module Account =
             user = user;
             email = email;
             password = Password.create password;
-            created = (new System.DateTime.Now);
+            created = System.DateTime.Now;
             banned = false;
             info = typeinfo;
-            version = 0;    
+            version = uint32(0);    
         }
 
     ////// CREDO FUNCTIONS
@@ -153,6 +153,7 @@ module Account =
 
     /// Updates the persisted account record to the passed {acc} account record
     /// The account which is updated is the one with the identical username
+    /// Raises NoSuchUser if no account is associated with the given username
     /// Raises OutdatedData the account has been updated/changed since it was read (which could mean that the update is based on old data)
     let update (acc:Account) =
         raise (new System.NotImplementedException())
