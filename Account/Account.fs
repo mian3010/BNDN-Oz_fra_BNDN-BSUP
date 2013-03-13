@@ -62,6 +62,7 @@ module Account =
                                     country : string;
                                 }
 
+    // An 'enum' of the different account types
     type AccountType =            Customer
                                 | ContentProvider
                                 | Admin
@@ -81,9 +82,10 @@ module Account =
                                 }
     type Admin =                unit
 
-    type TypeInfo =               Customer
-                                | ContentProvider
-                                | Admin
+    // Like a 'supertype' of each kind of additional account info
+    type TypeInfo =               Customer of Customer
+                                | ContentProvider of ContentProvider
+                                | Admin of Admin
 
     // Common data for each account type
 
