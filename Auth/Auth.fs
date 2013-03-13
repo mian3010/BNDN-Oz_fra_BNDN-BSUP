@@ -35,8 +35,8 @@ module Auth =
 
             let dataSep = " | "
 
-            let cipherFrom = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/="
-            let cipherTo   = "x9/weqrsPcflHIyz012hQMbiNODYtuVZaj3gk45mnvTUopdARS=EWF6G7K8JLBXC"
+            let cipherFrom = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+            let cipherTo   = "x9/weqrsPcflHIyz012hQMbiNODYtuVZaj3gk45mnvT+UopdARS=EWF6G7K8JLBXC"
 
             // translate message m of alphabet a using the cipher c
             let translate (a:string) (c:string) (m:string) = String.map (fun char -> c.[a.IndexOf(char)]) m
