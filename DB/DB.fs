@@ -55,4 +55,14 @@ open System.Data
                 
                 result
 
-        let 
+        let getAllUsersByType (accType:Account.AccountType) :Account.Account list =
+            raise (new System.NotImplementedException())
+
+        let getUsersLastAuthTime (user:string) :System.DateTime option =
+            raise (new System.NotImplementedException())
+
+        let update (acc:Account.Account) =
+            raise (new System.NotImplementedException())
+
+        let createUser(acc:Account.Account) =
+            raise (new System.NotImplementedException())
