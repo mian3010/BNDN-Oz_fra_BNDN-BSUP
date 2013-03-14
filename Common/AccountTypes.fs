@@ -45,7 +45,7 @@ module AccountTypes =
     // Common data for each account type
 
     type Account =              {
-                                    user : string; // Usernames are case insensitive - record invariant: lower case
+                                    user : string; // Usernames are case insensitive
                                     email : string;
                                     password : PasswordTypes.Password; // password is hashed
                                     created : System.DateTime;

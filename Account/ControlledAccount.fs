@@ -71,6 +71,7 @@ module ControlledAccount =
         // We do not want to raise PermissionDenied for cases where the invoker did not try to change a restricted field
         // but the account has been updated since its retrieved its copy.
         if targetAcc.version > updatedAcc.version then raise Account.OutdatedData
+        elif targetAcc.version < updatedAcc.version then raise Account.BrokenInvariant
 
         let accessOk = AccountPermissions.mayPerformAccountUpdate invoker updatedAcc targetAcc
         if not accessOk then Internal.accessDenied invoker

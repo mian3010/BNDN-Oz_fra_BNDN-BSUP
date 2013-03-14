@@ -81,7 +81,7 @@ module Auth =
         /// Creates a new token for {user} which expires in {hours} hours
         let create hours (user:string) =
             let date = System.DateTime.Now.AddHours(float(hours))
-            { expires = date; user = user.ToLower() }
+            { expires = date; user = user }
 
         /// True if the token no longer is legal, otherwise false
         let isExpired token = System.DateTime.Now.Ticks >= token.expires.Ticks
