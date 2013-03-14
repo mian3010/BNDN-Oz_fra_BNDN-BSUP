@@ -2,15 +2,17 @@
 
 module ControlledAccount =
 
+    open Permissions
+
     ///////////////////////////////////////////////////////////////////////
 
     module internal Internal =
 
         // Raises the correct access denied exception
-        let accessDenied (invoker:Permissions.Invoker) =
+        let accessDenied (invoker:Invoker) =
             match invoker with
-                | Permissions.Invoker.Auth auth when auth.banned -> raise Permissions.AccountBanned
-                | _ ->                                              raise Permissions.PermissionDenied
+                | Invoker.Auth auth when auth.banned -> raise AccountBanned
+                | _ ->                                  raise PermissionDenied
 
     ///////////////////////////////////////////////////////////////////////
 

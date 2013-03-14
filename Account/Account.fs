@@ -110,7 +110,10 @@ module Account =
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
     let getByUsername (user:string) :Account =
-        raise (new System.NotImplementedException())
+        try
+            DB.getUserByName user
+        with
+            | DB.NoUserWithSuchName -> raise NoSuchUser
     
     /// Retrieves all accounts of a specific type
     let getAllByType (accType:AccountType) :Account list =
