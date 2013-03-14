@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Servic
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DB", "DB\DB.fsproj", "{5226B644-3DB6-43B1-BB57-959FE2B70E88}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Permissions", "Permissions\Permissions.fsproj", "{04A74C01-2866-459B-9A7F-84A3608A485A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{5226B644-3DB6-43B1-BB57-959FE2B70E88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5226B644-3DB6-43B1-BB57-959FE2B70E88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5226B644-3DB6-43B1-BB57-959FE2B70E88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04A74C01-2866-459B-9A7F-84A3608A485A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04A74C01-2866-459B-9A7F-84A3608A485A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04A74C01-2866-459B-9A7F-84A3608A485A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04A74C01-2866-459B-9A7F-84A3608A485A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
