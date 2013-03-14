@@ -32,11 +32,11 @@ module Account =
                 System.Convert.ToBase64String(bytes) // return salt
     
         ///////////////////////////////////////////////////////////////////////
-        
-        type Password = {salt : string; hash : string;}
+
+        type Password = AccountTypes.PasswordTypes.Password
 
         /// Produces a salted hash of the given unhashed password
-        let create password =
+        let create password :Password =
             let salt = Internal.produceSalt
             let password = Internal.toBase64 password
             {salt = salt; hash = Internal.hash (password+salt)}
@@ -52,7 +52,7 @@ module Account =
             create (helper (length, ""))
 
         /// Tests whether a hashed password matches a plain password
-        let verify hashed password =
+        let verify (hashed:Password) password =
             let password = Internal.toBase64 password
             let hash = Internal.hash (password+hashed.salt)
             hashed.hash = hash
@@ -61,48 +61,23 @@ module Account =
     
     ////// TYPES
 
-    type Address =              {
-                                    address : string option;
-                                    postal : int option;
-                                    country : string option;
-                                }
+    type Address = AccountTypes.Address
 
     // An 'enum' of the different account types
-    type AccountType =            Customer
-                                | ContentProvider
-                                | Admin
+    type AccountType =          AccountTypes.AccountType
 
     // Custom data for each type of account
 
-    type Customer =             {
-                                    name : string option;
-                                    address : Address;
-                                    birth : System.DateTime option;    // Date of Birth
-                                    about : string option;             // About Me
-                                    credits : int;
-                                }
-    type ContentProvider =      {
-                                    name : string option;
-                                    address : Address;
-                                }
-    type Admin =                unit
+    type Customer =             AccountTypes.Customer
+    type ContentProvider =      AccountTypes.ContentProvider
+    type Admin =                AccountTypes.Admin
 
     // Like a 'supertype' of each kind of additional account info
-    type TypeInfo =               Customer of Customer
-                                | ContentProvider of ContentProvider
-                                | Admin of Admin
+    type TypeInfo =             AccountTypes.TypeInfo
 
     // Common data for each account type
 
-    type Account =              {
-                                    user : string; // Usernames are case insensitive - record invariant: lower case
-                                    email : string;
-                                    password : Password.Password; // password is hashed
-                                    created : System.DateTime;
-                                    banned : bool;
-                                    info : TypeInfo;
-                                    version : System.UInt32; // to be used by persistence API. 0 if not persisted yet
-                                }
+    type Account =              AccountTypes.Account
 
     // Exceptions
 
