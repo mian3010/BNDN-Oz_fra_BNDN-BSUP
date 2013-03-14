@@ -61,15 +61,15 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Service1.svc" />
+    <Content Include="RentItService.svc" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JsonUtility.cs" />
-    <Compile Include="Service1.svc.cs">
-      <DependentUpon>Service1.svc</DependentUpon>
+    <Compile Include="RentItService.svc.cs">
+      <DependentUpon>RentItService.svc</DependentUpon>
     </Compile>
-    <Compile Include="IService1.cs" />
+    <Compile Include="IRentItService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +84,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Account\Account.fsproj">
+      <Project>{7ee274b7-c8a3-4299-b766-e00862b8ad5e}</Project>
+      <Name>Account</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Auth\Auth.fsproj">
+      <Project>{9d128b8a-2409-4c31-8ca5-159fca30b55b}</Project>
+      <Name>Auth</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common\Common.fsproj">
       <Project>{1a2ef8ab-e695-43ca-a3db-e9c0d71ee5be}</Project>
       <Name>Common</Name>
