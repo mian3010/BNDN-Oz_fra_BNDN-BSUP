@@ -17,24 +17,30 @@ open System.Data
              connDB.Open()
              cmd.ExecuteReader()
 
+            ////// Persistence
+            type Cache() = class
+                let mutable cachedUsers = Map.empty : Map<string, Account.Account>
+
+                member x.CachedUsers = Map.empty : Map<string, Account.Account>
+
+                member x.addUser(key, value) = cachedUsers <- cachedUsers.Add(key, value)
+            end
+
+        
+
         ///////////////////////////////////////////////////////////////////////////////////
 
         // Exceptions
         exception NoUserWithSuchName
+        exception UsernameAlreadyInUse
+        exception NewerVersionExist
 
-        // Persistence
-        type Cache() = class
-            let mutable cachedUsers = Map.empty : Map<string, Account.Account>
+        let internal cache = new Internal.Cache()
 
-            member x.CachedUsers = Map.empty : Map<string, Account.Account>
+        ////// API functions
 
-            member x.addUser(key, value) = cachedUsers <- cachedUsers.Add(key, value)
-        end
-
-        let cache = new Cache()
-
-        // API functions
-
+        /// Retrieves an account from persistence based on its associated username
+        /// Raises NoUserWithSuchName
         let getUserByName userName :Account.Account =
             if (Map.containsKey userName cache.CachedUsers) 
             then Map.find userName cache.CachedUsers
@@ -55,14 +61,26 @@ open System.Data
                 
                 result
 
+        /// Retrieves all accounts of a specific type
         let getAllUsersByType (accType:Account.AccountType) :Account.Account list =
+            
+
+
             raise (new System.NotImplementedException())
 
+        /// Retrieves the date and time which the user {user} last authenticated
+        /// 'None' means that the user never has authenticated
+        /// Raises NoUserWithSuchName
         let getUsersLastAuthTime (user:string) :System.DateTime option =
             raise (new System.NotImplementedException())
 
+        /// Updates the persisted account record to the passed {acc} account record
+        /// The account which is updated is the one with the identical username
+        /// Raises NoUserWithSuchName
+        /// Raises NewerVersionExist
         let update (acc:Account.Account) =
             raise (new System.NotImplementedException())
 
+        /// Raises UsernameAlreadyInUse
         let createUser(acc:Account.Account) =
             raise (new System.NotImplementedException())
