@@ -3,7 +3,7 @@
 open System
 open System.Data
 
-    module DB =
+    module Db =
 
         module internal Internal =
 
@@ -60,26 +60,28 @@ open System.Data
                                     version = uint32(0) }
                     cache.addUser(result.user, result)
                     result
-
             lock cache (fun() -> internalFun)
-
 
         /// Retrieves all accounts of a specific type
         let getAllUsersByType (accType:AccountTypes.AccountType) :AccountTypes.Account list =
-            let sql = "SELECT * FROM [TABLE] where = " + accType.ToString() // Query is not right!
-            use reader = Internal.performSql sql
-            let result =    [ while reader.Read() do
-                                let tmp :AccountTypes.Account = {
-                                    user = "dude";
-                                    email = "where.is@my.car";
-                                    password = {salt = "123"; hash = "456" };
-                                    created = System.DateTime.Now;
-                                    banned = false;
-                                    info = AccountTypes.TypeInfo.Admin ();
-                                    version = uint32(0) }
-                                yield tmp
-                            ]
-            result
+            let internalFun =
+                let sql = "SELECT * FROM [TABLE] where = " + accType.ToString() // Query is not right!
+                use reader = Internal.performSql sql
+                let result =    [ while reader.Read() do
+                                    let tmp :AccountTypes.Account = {
+                                        user = "dude";
+                                        email = "where.is@my.car";
+                                        password = {salt = "123"; hash = "456" };
+                                        created = System.DateTime.Now;
+                                        banned = false;
+                                        info = AccountTypes.TypeInfo.Admin ();
+                                        version = uint32(0) }
+                                    yield tmp
+                                    if not (Map.containsKey tmp.user cache.CachedUsers) then
+                                        cache.addUser(tmp.user, tmp)
+                                ]
+                result
+            lock cache (fun() -> internalFun)
 
         /// Retrieves the date and time which the user {user} last authenticated
         /// 'None' means that the user never has authenticated
@@ -92,7 +94,11 @@ open System.Data
         /// Raises NoUserWithSuchName
         /// Raises NewerVersionExist
         let update (acc:AccountTypes.Account) =
-            raise (new System.NotImplementedException())
+            let internalFun =
+                let sql = "UPDATE"
+                let a' = Internal.performSql sql
+                cache.addUser(acc.user, acc)
+            lock cache (fun() -> internalFun)
 
         /// Raises UsernameAlreadyInUse
         let createUser(acc:AccountTypes.Account) =
