@@ -116,7 +116,7 @@ module Account =
     /// Constructs a new Account record with the given information.
     let make (typeinfo:TypeInfo) (user:string) (email:string) (password:string) :Account =
         {
-            user = user;
+            user = user.ToLower();
             email = email;
             password = Password.create password;
             created = System.DateTime.Now;
