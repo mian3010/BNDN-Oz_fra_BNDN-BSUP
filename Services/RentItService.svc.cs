@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using RentIt.Auth;
+using System.Net;
 
 namespace RentIt
 {
@@ -14,29 +15,116 @@ namespace RentIt
     public class RentItService : IRentItService
     { 
 
+        /// <summary>
+        /// This method authenticates a given user when logging in on a client.
+        /// </summary>
+        /// <param name="user">The username to be autenticated</param>
+        /// <param name="password">The corrosponding password</param>
+        /// <returns>A token if authentication is complete, otherwise a HTTP error</returns>
         public string Authorise(string user, string password)
         {
             try
             {
-                ControlledAuth.authenticate(user, password);
+                string token = "token: '";
+               Tuple<string,DateTime> t = ControlledAuth.authenticate(user, password);
+               token += t.Item1 +"', expires: '" +JsonUtility.dateTimeToString(t.Item2) + "'";
+               return token;
             }
-            catch (Exception e)
+            catch (RentIt.Permissions.AccountBanned)
             {
-
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
             }
         }
 
-        public CompositeType GetDataUsingDataContract(CompositeType composite)
+        
+        public string GetAccounts(string types, string info, bool include_banned)
         {
-            if (composite == null)
+            try
             {
-                throw new ArgumentNullException("composite");
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotImplemented;
+                return null;
             }
-            if (composite.BoolValue)
+            catch (RentIt.Account.NoSuchUser)
             {
-                composite.StringValue += "Suffix";
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotFound;
+                return null;
             }
-            return composite;
+            catch (RentIt.Permissions.PermissionDenied)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (RentIt.Permissions.AccountBanned)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
+            }
         }
+
+        
+        public string UpdateAccount(string USERNAME, string email, string name, string address, string birth, string about, string password)
+        {
+            try
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotImplemented;
+                return null;
+            }
+            catch (RentIt.Account.NoSuchUser)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotFound;
+                return null;
+            }
+            catch (RentIt.Permissions.PermissionDenied)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (RentIt.Permissions.AccountBanned)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
+            }
+        }
+
+        
+        string CreateAccount(string USERNAME, string email, string name, string address, string birth, string about, string password, string type)
+        {
+            try
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotImplemented;
+                return null;
+            }
+            catch (RentIt.Permissions.PermissionDenied)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (RentIt.Permissions.AccountBanned)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
+            }
+
+        }
+
     }
 }

@@ -28,51 +28,32 @@ namespace RentIt
         [WebGet(UriTemplate = "/accounts",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
-        CompositeType GetDataUsingDataContract(CompositeType composite);
+        string GetAccounts(string types, string info, bool include_banned);
 
         [OperationContract]
         [WebGet(UriTemplate = "/acounts/{USERNAME}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
-        string GetData(int value);
+        string GetAccount(string USERNAME);
 
         [OperationContract]
         [WebInvoke(Method = "PUT",
             UriTemplate = "/acounts/{USERNAME}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
-        string GetData(int value);
+        string UpdateAccount(string USERNAME, string email, string name, string address, string birth, string about, string password);
 
         [OperationContract]
         [WebInvoke(Method = "POST",
             UriTemplate = "/accounts/{USERNAME}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
-        string GetData(int value);
+        string CreateAccount(string USERNAME, string email, string name, string address, string birth, string about, string password, string type);
 
         #endregion
-    }
 
+        #region Products
 
-    // Use a data contract as illustrated in the sample below to add composite types to service operations.
-    [DataContract]
-    public class CompositeType
-    {
-        bool boolValue = true;
-        string stringValue = "Hello ";
-
-        [DataMember]
-        public bool BoolValue
-        {
-            get { return boolValue; }
-            set { boolValue = value; }
-        }
-
-        [DataMember]
-        public string StringValue
-        {
-            get { return stringValue; }
-            set { stringValue = value; }
-        }
+        #endregion
     }
 }
