@@ -5,11 +5,14 @@ using System.Web;
 
 namespace RentIt
 {
+    using AccountType = AccountTypes.AccountType;
+
     /// <summary>
     /// A small utility to handle data transmitted by JSON via the REST API
     /// </summary>
     public static class JsonUtility
     {
+
         private static CultureInfo provider = CultureInfo.InvariantCulture;
 
         #region Date/time handling
@@ -73,11 +76,11 @@ namespace RentIt
         /// </summary>
         /// <param name="accType">The account type to convert to string</param>
         /// <returns>The string representation of the account type according to the REST API</returns>
-        public static string accountTypeToString(Account.AccountType accType){
+        public static string accountTypeToString(AccountType accType){
         
-            if(accType.Equals(Account.AccountType.Admin))           return "Admin";
-            if(accType.Equals(Account.AccountType.ContentProvider)) return "Customer";
-            if(accType.Equals(Account.AccountType.Customer))        return "Content Provider";
+            if(accType.Equals(AccountType.Admin))           return "Admin";
+            if(accType.Equals(AccountType.ContentProvider)) return "Customer";
+            if(accType.Equals(AccountType.Customer))        return "Content Provider";
 
             throw new NotImplementedException("No implementation is given for the type: " + accType);
         }
@@ -87,11 +90,11 @@ namespace RentIt
         /// </summary>
         /// <param name="str">The string representation of an account type identifier</param>
         /// <returns>The actual account type identifier represented by the string</returns>
-        public static Account.AccountType stringToAccountType(string str){
+        public static AccountType stringToAccountType(string str){
         
-            if("Admin".Equals(str))             return Account.AccountType.Admin;
-            if("Content Provider".Equals(str))  return Account.AccountType.ContentProvider;
-            if("Customer".Equals(str))          return Account.AccountType.Customer;
+            if("Admin".Equals(str))             return AccountType.Admin;
+            if("Content Provider".Equals(str))  return AccountType.ContentProvider;
+            if("Customer".Equals(str))          return AccountType.Customer;
 
             throw new NotImplementedException("No implementation is given for the type: " + str);
         }
