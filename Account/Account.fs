@@ -84,6 +84,7 @@ module Account =
     exception UserAlreadyExists // If one tries to create/persist an account whose username already is taken
     exception NoSuchUser        // If one tries to retrieve/update an account, but no account is found for the passed identifier
     exception OutdatedData      // If a call to 'update' cannot succeed, because the changes conflict with more recent changes
+    exception BrokenInvariant   // If a function is invoked on an account whose invariants have been broken
 
 
     ////// CONSTRUCTOR FUNCTIONS
@@ -135,16 +136,18 @@ module Account =
         raise (new System.NotImplementedException())
 
     /// Updates the persisted account record to the passed {acc} account record
-    /// The account which is updated is the one with the identical username
+    /// The account which is updated is the one with the identical username.
+    /// The function returns an Account record which has the data of the given record, but with an updated version binding.
+    /// The return value should be used as base for future updates to avoid OutdatedData exceptions
     /// Raises NoSuchUser if no account is associated with the given username
     /// Raises OutdatedData the account has been updated/changed since it was read (which could mean that the update is based on old data)
-    let update (acc:Account) =
+    let update (acc:Account) :Account =
         try
             DB.update acc
         with
             | DB.NoUserWithSuchName -> raise NoSuchUser
             | DB.NewerVersionExist -> raise OutdatedData
-
+            | DB.IllegalAccountVersion -> raise BrokenInvariant
     ////// HELPER FUNCTIONS
 
     /// True if the unhashed password {password} matches the password hash of the account {acc}
