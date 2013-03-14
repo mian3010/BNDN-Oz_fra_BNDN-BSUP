@@ -34,7 +34,6 @@ open System.Data
         exception NoUserWithSuchName
         exception UsernameAlreadyInUse
         exception NewerVersionExist
-        exception NoSuchAccountTypeExits
 
         // Cache elements
         let internal cache = new Internal.Cache()
@@ -66,11 +65,9 @@ open System.Data
 
 
         /// Retrieves all accounts of a specific type
-        /// Raises NoSuchAccountTypeExits
         let getAllUsersByType (accType:AccountTypes.AccountType) :AccountTypes.Account list =
             let sql = "SELECT * FROM [TABLE] where = " + accType.ToString() // Query is not right!
             use reader = Internal.performSql sql
-            if reader.HasRows = false then raise NoSuchAccountTypeExits
             let result =    [ while reader.Read() do
                                 let tmp :AccountTypes.Account = {
                                     user = "dude";
