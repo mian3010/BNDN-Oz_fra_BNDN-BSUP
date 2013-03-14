@@ -50,6 +50,13 @@
     <Compile Include="DB.fs" />
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Account\Account.fsproj">
+      <Name>Account</Name>
+      <Project>{7ee274b7-c8a3-4299-b766-e00862b8ad5e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>

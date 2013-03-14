@@ -11,20 +11,48 @@ open System.Data
             let database = "test"
 
             let connDB = new SqlClient.SqlConnection("server=" + server + ";Integrated Security=True;Database=" + database)
+
+            let performSql sql =
+             let cmd = new SqlClient.SqlCommand(sql, connDB)
+             connDB.Open()
+             cmd.ExecuteReader()
+
         ///////////////////////////////////////////////////////////////////////////////////
 
-        type test = { 
-            Id:int}
+        // Exceptions
+        exception NoUserWithSuchName
 
-        let testRead = seq {
-            let sql  = "SELECT * FROM Table1" // Dummy SQL
-            let cmd = new SqlClient.SqlCommand(sql, Internal.connDB)
-            //let cmd = Internal.connDB?GetProducts
-            Internal.connDB.Open()
-            let reader = cmd.ExecuteReader()
+        // Persistence
+        type Cache() = class
+            let mutable cachedUsers = Map.empty : Map<string, Account.Account>
 
-            while reader.Read() do
-                yield { 
-                    Id = unbox (reader.["Id"])}
+            member x.CachedUsers = Map.empty : Map<string, Account.Account>
+
+            member x.addUser(key, value) = cachedUsers <- cachedUsers.Add(key, value)
+        end
+
+        let cache = new Cache()
+
+        // API functions
+
+        let getUserByName userName :Account.Account =
+            if (Map.containsKey userName cache.CachedUsers) 
+            then Map.find userName cache.CachedUsers
+            else
+                let sql = "SELECT * FROM [table] where [username] =" ^ userName
+                use reader = Internal.performSql sql
+                if reader.HasRows = false then raise NoUserWithSuchName
+                let result :Account.Account =  {
+                                user = "dude";
+                                email = "where.is@my.car";
+                                password = {salt = "123"; hash = "456" };
+                                created = System.DateTime.Now;
+                                banned = false;
+                                info = Account.TypeInfo.Admin ();
+                                version = uint32(0) }
+                Internal.connDB.Close()
+                let a = cache.addUser(result.user, result)
                 
-            Internal.connDB.Close() }
+                result
+
+        let 
