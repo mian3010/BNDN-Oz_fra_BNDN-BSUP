@@ -105,7 +105,10 @@ module Account =
     /// Persists a new Account, making the account visible to the outside world
     /// Raises UserAlreadyExists if the username already is occupied
     let persist (acc:Account) =
-        raise (new System.NotImplementedException())
+        try
+            DB.createUser acc
+        with
+            | DB.UsernameAlreadyInUse -> raise UserAlreadyExists
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -116,14 +119,16 @@ module Account =
             | DB.NoUserWithSuchName -> raise NoSuchUser
     
     /// Retrieves all accounts of a specific type
-    let getAllByType (accType:AccountType) :Account list =
-        raise (new System.NotImplementedException())
+    let getAllByType (accType:AccountType) :Account list = DB.getAllUsersByType accType
 
     /// Retrieves the date and time which the user {user} last authenticated
     /// 'None' means that the user never has authenticated
     /// Raises NoSuchUser if no account is associated with the given username
     let getLastAuthTime (user:string) :System.DateTime option =
-        raise (new System.NotImplementedException())
+        try
+            DB.getUsersLastAuthTime user
+        with
+            | DB.NoUserWithSuchName -> raise NoSuchUser
 
     /// Deletes an previously created account. The account will be removed from persistence.
     let delete (acc:Account) =
@@ -134,7 +139,11 @@ module Account =
     /// Raises NoSuchUser if no account is associated with the given username
     /// Raises OutdatedData the account has been updated/changed since it was read (which could mean that the update is based on old data)
     let update (acc:Account) =
-        raise (new System.NotImplementedException())
+        try
+            DB.update acc
+        with
+            | DB.NoUserWithSuchName -> raise NoSuchUser
+            | DB.NewerVersionExist -> raise OutdatedData
 
     ////// HELPER FUNCTIONS
 
