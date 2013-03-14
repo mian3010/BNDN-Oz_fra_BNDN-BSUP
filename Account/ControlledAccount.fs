@@ -75,3 +75,12 @@ module ControlledAccount =
         let accessOk = AccountPermissions.mayPerformAccountUpdate invoker updatedAcc targetAcc
         if not accessOk then Internal.accessDenied invoker
         Account.update updatedAcc
+
+    /// Wrapper for Account.resetPassword, with the addition of {invoker}
+    /// {invoker} is of type Permissions.Invoker
+    /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
+    /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
+    let resetPassword invoker user =
+        let accessOk = AccountPermissions.mayResetPassword invoker user
+        if not accessOk then Internal.accessDenied invoker
+        Account.resetPassword user
