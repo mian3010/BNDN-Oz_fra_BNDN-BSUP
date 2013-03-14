@@ -2,7 +2,7 @@
 
 module ControlledAuth =
     
-    open Permissions
+    open AccountPermissions
 
     /// Wrapper for Auth.authenticate
     /// Adds a check for banned accounts, meaning that banned users cannot authenticate (Permissions.AccountBanned is raised)

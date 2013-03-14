@@ -2,7 +2,7 @@
 
 module ControlledAccount =
 
-    open Permissions
+    open AccountPermissions
 
     ///////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let persist invoker acc =
-        let accessOk = Permissions.Account.mayCreateAccount invoker acc
+        let accessOk = AccountPermissions.mayCreateAccount invoker acc
         if not accessOk then Internal.accessDenied invoker
         Account.persist acc
         
@@ -30,7 +30,7 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let getByUsername invoker user =
-        let accessOk = Permissions.Account.mayRetrieveAccount invoker user
+        let accessOk = AccountPermissions.mayRetrieveAccount invoker user
         if not accessOk then Internal.accessDenied invoker
         Account.getByUsername user
     
@@ -39,7 +39,7 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let getAllByType invoker accType =
-        let accessOk = Permissions.Account.mayRetrieveAccounts invoker accType
+        let accessOk = AccountPermissions.mayRetrieveAccounts invoker accType
         if not accessOk then Internal.accessDenied invoker
         Account.getAllByType accType
 
@@ -48,7 +48,7 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let getLastAuthTime invoker user =
-        let accessOk = Permissions.Account.mayReadAuthTime invoker user
+        let accessOk = AccountPermissions.mayReadAuthTime invoker user
         if not accessOk then Internal.accessDenied invoker
         Account.getLastAuthTime user
 
@@ -57,7 +57,7 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let delete invoker acc =
-        let accessOk = Permissions.Account.mayDeleteAccount invoker acc
+        let accessOk = AccountPermissions.mayDeleteAccount invoker acc
         if not accessOk then Internal.accessDenied invoker
         Account.delete acc
 
@@ -72,6 +72,15 @@ module ControlledAccount =
         // but the account has been updated since its retrieved its copy.
         if targetAcc.version > updatedAcc.version then raise Account.OutdatedData
 
-        let accessOk = Permissions.Account.mayPerformAccountUpdate invoker updatedAcc targetAcc
+        let accessOk = AccountPermissions.mayPerformAccountUpdate invoker updatedAcc targetAcc
         if not accessOk then Internal.accessDenied invoker
         Account.update updatedAcc
+
+    /// Wrapper for Account.resetPassword, with the addition of {invoker}
+    /// {invoker} is of type Permissions.Invoker
+    /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
+    /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
+    let resetPassword invoker user =
+        let accessOk = AccountPermissions.mayResetPassword invoker user
+        if not accessOk then Internal.accessDenied invoker
+        Account.resetPassword user
