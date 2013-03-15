@@ -114,6 +114,7 @@ module Account =
             Db.createUser acc
         with
             | Db.UsernameAlreadyInUse -> raise UserAlreadyExists
+            | Db.IllegalAccountVersion -> raise BrokenInvariant
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username

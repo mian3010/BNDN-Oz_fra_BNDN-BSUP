@@ -56,6 +56,11 @@
       <Project>{5226b644-3db6-43b1-bb57-959fe2b70e88}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Permissions\Permissions.fsproj">
+      <Name>Permissions</Name>
+      <Project>{04a74c01-2866-459b-9a7f-84a3608a485a}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
