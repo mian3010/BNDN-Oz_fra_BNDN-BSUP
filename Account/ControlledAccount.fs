@@ -73,7 +73,7 @@ module ControlledAccount =
         if targetAcc.version > updatedAcc.version then raise Account.OutdatedData
         elif targetAcc.version < updatedAcc.version then raise Account.BrokenInvariant
 
-        let accessOk = AccountPermissions.mayPerformAccountUpdate invoker updatedAcc targetAcc
+        let accessOk = AccountPermissions.mayPerformAccountUpdate invoker targetAcc updatedAcc
         if not accessOk then Internal.accessDenied invoker
         Account.update updatedAcc
 

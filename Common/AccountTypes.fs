@@ -42,6 +42,12 @@ module AccountTypes =
                                 | ContentProvider of ContentProvider
                                 | Admin of Admin
 
+    let typeInfoToString (info:TypeInfo) :string =
+        match info with
+        | Customer c ->         "Customer"
+        | ContentProvider cp -> "Content Provider"
+        | Admin a ->            "Admin"
+
     // Common data for each account type
 
     type Account =              {
@@ -51,5 +57,5 @@ module AccountTypes =
                                     created : System.DateTime;
                                     banned : bool;
                                     info : TypeInfo;
-                                    version : System.UInt32; // to be used by persistence API. 0 if not persisted yet
+                                    version : uint32; // to be used by persistence API. 0 if not persisted yet
                                 }
