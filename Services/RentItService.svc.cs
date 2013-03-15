@@ -44,11 +44,20 @@ namespace RentIt
             }
         }
 
-        
+
         public string GetAccounts(string types, string info, bool include_banned)
         {
             try
             {
+                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
+                string tokenString = headers.Keys.Get(1);
+                string[] tokenSplit = tokenString.Split(',');
+                string token = tokenSplit[0].Substring(8,tokenSplit[0].Length-1);
+                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
+
+                DateTime dateTime = JsonUtility.stringToDateTime(date);
+                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
+
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.NotImplemented;
                 return null;
@@ -73,11 +82,56 @@ namespace RentIt
             }
         }
 
-        
+
+        string GetAccount(string USERNAME)
+        {
+            try
+            {
+                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
+                string tokenString = headers.Keys.Get(1);
+                string[] tokenSplit = tokenString.Split(',');
+                string token = tokenSplit[0].Substring(8, tokenSplit[0].Length - 1);
+                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
+
+                DateTime dateTime = JsonUtility.stringToDateTime(date);
+                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
+
+                ControlledAuth.accessAccount(token);
+            }
+            catch (RentIt.Account.NoSuchUser)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotFound;
+                return null;
+            }
+            catch (RentIt.Permissions.PermissionDenied)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (RentIt.Permissions.AccountBanned)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
+            }
+        }
+
+
         public string UpdateAccount(string USERNAME, string email, string name, string address, string birth, string about, string password)
         {
             try
             {
+                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
+                string tokenString = headers.Keys.Get(1);
+                string[] tokenSplit = tokenString.Split(',');
+                string token = tokenSplit[0].Substring(8, tokenSplit[0].Length - 1);
+                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
+
+                DateTime dateTime = JsonUtility.stringToDateTime(date);
+                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
+
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.NotImplemented;
                 return null;
@@ -107,6 +161,15 @@ namespace RentIt
         {
             try
             {
+                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
+                string tokenString = headers.Keys.Get(1);
+                string[] tokenSplit = tokenString.Split(',');
+                string token = tokenSplit[0].Substring(8, tokenSplit[0].Length - 1);
+                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
+
+                DateTime dateTime = JsonUtility.stringToDateTime(date);
+                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
+
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.NotImplemented;
                 return null;
