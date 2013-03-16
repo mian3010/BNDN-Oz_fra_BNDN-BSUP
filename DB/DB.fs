@@ -6,6 +6,13 @@ open System.Security
 
     module Db =
 
+        // Exceptions
+        exception NoUserWithSuchName
+        exception UsernameAlreadyInUse
+        exception NewerVersionExist
+        exception IllegalAccountVersion
+        exception NuSuchAccountType
+
         module internal Internal =
 
             ////// Persistence
@@ -27,19 +34,19 @@ open System.Security
             let pass = "ZAQ12wsx"
 
             let secPass = new SecureString()
-            for i in "ZAQ12wsx" do
+            for i in pass do
                 secPass.AppendChar(i)
 
             secPass.MakeReadOnly()
 
-            let connectionString = "server=" + server + ";Database=" + database// + ";Uid=" + userName + ";Pwd=" + pass
-            //let connectionString = "Data Source=" + server + ";Initial Catalog=" + database + ";Integrated Security=True;User ID=" + userName + ";Password=" + pass
+            let connectionString = "server=" + server + ";Database=" + database
             
             let cred = SqlClient.SqlCredential(userName, secPass)
             
             let connDB = new SqlClient.SqlConnection(connectionString, cred)
 
             let performSql sql =
+                connDB.Close()
                 let cmd = new SqlClient.SqlCommand(sql, connDB)
                 connDB.Open()
                 cmd.ExecuteReader()
@@ -49,23 +56,45 @@ open System.Security
                 let parts = dbPass.Split [|':'|]
                 { salt = parts.[0]; hash = parts.[1] }
 
-            let getNextLoggableID =
+            let getNextLoggableID () :int =
                 let sql = "SELECT MAX(Id) FROM loggable"
                 use reader = performSql sql
-                if reader.HasRows then 
-                    let result = unbox (reader.["Id"])
-                    connDB.Close()
+                if reader.Read() then
+                    let result = reader.GetInt32(0)
                     result
                 else
-                    connDB.Close()
                     0
-        ///////////////////////////////////////////////////////////////////////////////////
 
-        // Exceptions
-        exception NoUserWithSuchName
-        exception UsernameAlreadyInUse
-        exception NewerVersionExist
-        exception IllegalAccountVersion
+            let getTypeInfoFromString (info:string) (reader:SqlClient.SqlDataReader) :AccountTypes.TypeInfo =
+                match info with
+                | "Admin" -> AccountTypes.TypeInfo.Admin()
+                | "Content Provider" -> AccountTypes.TypeInfo.ContentProvider
+                                                                {
+                                                                    name = Some "John Doe";
+                                                                    address = 
+                                                                        {
+                                                                            address = Some (reader.GetString 3);
+                                                                            postal = Some (reader.GetInt32 11);
+                                                                            country = Some (reader.GetString 12)
+                                                                        }
+                                                                }
+                | "Customer" -> AccountTypes.TypeInfo.Customer
+                                                    {
+                                                        name = Some "John Doe";
+                                                        address = 
+                                                            {
+                                                                address = Some (reader.GetString 3);
+                                                                postal = Some (reader.GetInt32 11);
+                                                                country = Some (reader.GetString 12)
+                                                            };
+                                                        birth = Some (reader.GetDateTime 4);
+                                                        about = Some (reader.GetString 8);
+                                                        credits = reader.GetInt32 10
+                                                    }
+                | _ -> raise NuSuchAccountType
+                
+
+        ///////////////////////////////////////////////////////////////////////////////////
 
         ////// API functions
 
@@ -76,21 +105,22 @@ open System.Security
                 if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache.CachedUsers) then 
                     Map.find<string, AccountTypes.Account> userName Internal.cache.CachedUsers
                 else
-                    let sql = "SELECT * FROM [table] where [username] =" + userName
+                    let sql = "SELECT [user].* FROM [user] WHERE (Username = '" + userName + "')"
                     use reader = Internal.performSql sql
 
-                    if reader.HasRows = false then raise NoUserWithSuchName
-                    
-                    let result :AccountTypes.Account =  {
-                                    user = unbox (reader.["Username"]);
-                                    email = unbox (reader.["Email"]);
-                                    password = Internal.splitDbPass (unbox (reader.["Password"]));
-                                    created = unbox (reader.["Created_date"]);
-                                    banned = false;
-                                    info = AccountTypes.TypeInfo.Admin ();
-                                    version = uint32(0) }
-                    Internal.cache.addUser(result.user, result)
-                    result
+                    if reader.Read() then
+                        let result :AccountTypes.Account =  {
+                            user = reader.GetString 1 //unbox (reader.["Username"]);
+                            email = reader.GetString 2 //unbox (reader.["Email"]);
+                            password = Internal.splitDbPass (reader.GetString 5) //unbox (reader.["Password"]))
+                            created = reader.GetDateTime 6 //unbox (reader.["Created_date"]);
+                            banned = if reader.GetByte 7 = byte 0 then false else true
+                            info = Internal.getTypeInfoFromString (reader.GetString 9) reader
+                            version = uint32 0 }
+                        Internal.cache.addUser(result.user, result)
+                        result
+                    else
+                        raise NoUserWithSuchName
             lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves all accounts of a specific type
