@@ -48,6 +48,13 @@
     <Compile Include="Permissions.fs" />
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Persistence\Persistence.fsproj">
+      <Name>Persistence</Name>
+      <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>
