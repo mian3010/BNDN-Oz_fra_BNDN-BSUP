@@ -92,7 +92,11 @@ open System.Security
                                                         credits = reader.GetInt32 10
                                                     }
                 | _ -> raise NuSuchAccountType
-                
+
+            let accTypeToString = function
+                | AccountTypes.AccountType.Admin -> "Admin"
+                | AccountTypes.AccountType.ContentProvider -> "Content Provider"
+                | AccountTypes.AccountType.Customer -> "Customer"
 
         ///////////////////////////////////////////////////////////////////////////////////
 
@@ -105,7 +109,7 @@ open System.Security
                 if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache.CachedUsers) then 
                     Map.find<string, AccountTypes.Account> userName Internal.cache.CachedUsers
                 else
-                    let sql = "SELECT [user].* FROM [user] WHERE (Username = '" + userName + "')"
+                    let sql = "SELECT * FROM [user] WHERE (Username = '" + userName + "')"
                     use reader = Internal.performSql sql
 
                     if reader.Read() then
@@ -126,18 +130,19 @@ open System.Security
         /// Retrieves all accounts of a specific type
         let getAllUsersByType (accType:AccountTypes.AccountType) :AccountTypes.Account list =
             let internalFun =
-                let sql = "SELECT * FROM [TABLE] where [?] = " + accType.ToString() // Query is not right!
+                let sql = "SELECT * FROM [user] where (Type_name = '" + Internal.accTypeToString accType + "')"
                 use reader = Internal.performSql sql
                 let result =    [ 
                         while reader.Read() do
                         let tmp :AccountTypes.Account = {
-                            user = "dude";
-                            email = "where.is@my.car";
-                            password = Internal.splitDbPass "123:abc";
-                            created = System.DateTime.Now;
-                            banned = false;
-                            info = AccountTypes.TypeInfo.Admin ();
-                            version = uint32(0) }
+                            user = reader.GetString 1
+                            email = reader.GetString 2
+                            password = Internal.splitDbPass (reader.GetString 5)
+                            created = reader.GetDateTime 6
+                            banned = if reader.GetByte 7 = byte 0 then false else true
+                            info = Internal.getTypeInfoFromString (reader.GetString 9) reader
+                            version = uint32 0
+                        }
                         yield tmp
                         if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache.CachedUsers) then
                             Internal.cache.addUser(tmp.user, tmp) ]
@@ -164,7 +169,25 @@ open System.Security
                 elif (cu.version < acc.version) then
                     raise IllegalAccountVersion
                 
-                let sql = "UPDATE"
+                let sql =   "UPDATE [user] SET 
+                            Email = '" + acc.email + "',
+                            Password = '" + acc.password.salt + ":" + acc.password.hash + "',
+                            Banned = " + if acc.banned then "1" else "0"
+                let sql = sql + 
+                            let accType = AccountTypes.typeInfoToString acc.info
+                            if accType = "Content Provider" || accType = "Customer" then
+                                "Address = '" + "Dummy" + "'" +
+                                if accType = "Customer" then
+                                    "Date_of_birth = " + "11-11-2008 13:23:44" + ", 
+                                    About_me = '" + "Dummy" + "', 
+                                    Balance = " + "0" + ", 
+                                    Zipcode = " + "2400" + ", 
+                                    Country_Name = '" + "Dummy" + "'"
+                                else
+                                    ""
+                            else
+                                ""
+                let sql = sql + "WHERE (Username = '" + acc.user + "')"
                 let a' = Internal.performSql sql
                 let newAcc :AccountTypes.Account = {
                                         user = acc.user;
