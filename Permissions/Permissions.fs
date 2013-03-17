@@ -49,7 +49,9 @@
     // Returns true/false
     let CheckUserPermission (id:string) (permission:string) :bool =
       // Find User Type for User
-      let user = Persistence.Get "User" [{field="id";operator="=";value=id}]    
+      let user = Persistence.Get "User" [{field="id";operator="=";value=id}] 
+      if user.Length = 0 then false
+      else   
       let userType = user.Item(0).Item("Type_name") //TODO Defens
 
       // Find Action Groups with desired Action
