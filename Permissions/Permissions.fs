@@ -2,7 +2,7 @@
 
   module Permissions = 
     
-    type Identity =   Auth of string // username
+    (*type Identity =   Auth of string // username
                     | Unauth         // unauthenticated users
 
     type Permission =    CREATE_CUSTOMER
@@ -42,13 +42,13 @@
                        | EDIT_OWN
                        | EDIT_CUSTOMER
                        | EDIT_CONTENT_PROVIDER
-                       | EDIT_ADMIN
+                       | EDIT_ADMIN*)
 
-    let checkPermissions (id:Identity) (permission:Permission) :bool =
+    let checkPermissions (id:string) (permission:string) :bool =
       raise (new System.NotImplementedException())
 
-    let assignPermissionToUser (id:Identity) (permission:Permission) =
+    let assignPermissionToUser (id:string) (permission:string) =
       raise (new System.NotImplementedException())
 
-    let unassignPermissionFromUser (id:Identity) (permission:Permission) = 
+    let unassignPermissionFromUser (id:string) (permission:string) = 
       raise (new System.NotImplementedException())
