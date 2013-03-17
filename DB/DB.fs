@@ -154,7 +154,7 @@ open System.Security
         /// 'None' means that the user never has authenticated
         /// Raises NoUserWithSuchName
         let getUsersLastAuthTime (user:string) :System.DateTime option =
-            raise (new System.NotImplementedException())
+            None
 
         /// Updates the persisted account record to the passed {acc} account record
         /// The account which is updated is the one with the identical username
