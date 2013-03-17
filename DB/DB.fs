@@ -56,7 +56,7 @@ open System.Security
                 let parts = dbPass.Split [|':'|]
                 { salt = parts.[0]; hash = parts.[1] }
 
-            let getNextLoggableID () :int =
+            let getNextLoggableID() :int =
                 let sql = "SELECT MAX(Id) FROM loggable"
                 use reader = performSql sql
                 if reader.Read() then
@@ -64,6 +64,7 @@ open System.Security
                     result
                 else
                     0
+
 
             let getTypeInfoFromString (info:string) (reader:SqlClient.SqlDataReader) :AccountTypes.TypeInfo =
                 match info with
@@ -205,7 +206,38 @@ open System.Security
         /// Raises UsernameAlreadyInUse
         let createUser (acc:AccountTypes.Account) =
             let internalFun =
-                let sql = "insert into"
+                let nextId = Internal.getNextLoggableID() + 1
+                let sql = "INSERT INTO [loggable] (Id) VALUES (" + string nextId + ");"
+                //let sql = sql + "INSERT INTO [user] (Id, Username) VALUES (" + string nextId + ", 'kruger2')"
+                let sql = sql + "INSERT INTO [user]
+                            (Id, Username, Email, Password, Banned, Created_date, Type_name, Country_Name" +
+                            let accType = AccountTypes.typeInfoToString acc.info
+                            if accType = "Content Provider" || accType = "Customer" then
+                                ",Address, Zipcode" +
+                                    if accType = "Customer" then
+                                        ", Date_of_birth,  About_me, Balance)"
+                                    else
+                                        ")"
+                            else
+                                ")"
+                let sql = sql + " VALUES (" + string nextId + "," + 
+                                            "'" + acc.user + "'," + 
+                                            "'" + acc.email + "'," + 
+                                            "'" + acc.password.salt + ":" + acc.password.hash + "'," +
+                                            if acc.banned then "1" else "0"
+                                            + "," + 
+                                            "'" + string DateTime.Now + "'," + 
+                                            "'" + AccountTypes.typeInfoToString acc.info + "'" +
+                                            ",'DK'" +
+                                            let accType = AccountTypes.typeInfoToString acc.info
+                                            if accType = "Content Provider" || accType = "Customer" then
+                                                ",'Ferskenvej 3', 2400" +
+                                                if accType = "Customer" then
+                                                    ",11-11-2008 13:23:44,  'About_me', '999')"
+                                                else
+                                                    ")"
+                                            else ")"
                 let a' = Internal.performSql sql
                 Internal.cache.addUser(acc.user, acc)
+                printf "%s" sql
             lock Internal.cache (fun() -> internalFun)
