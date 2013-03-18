@@ -6,13 +6,42 @@ namespace RentIt
 module Main = 
     [<EntryPoint>]
     let main argv = 
-        let result = Persistence.Get "user" [{field="Username";operator="=";value="tumpe"}]
-        let rec outString (inResult:Map<string,string> List) = 
-         match inResult with
-          | [] -> ""
-          | x::xs -> (Map.find "Username" x) + "\n\r" + outString xs
-        printfn "%A" (outString result)
-
+        let fieldsQ:Persistence.Types.SelectField List = [
+            {
+                field={
+                        objectName="User";
+                        field="";
+                        processor=Persistence.Field.AllInObject
+                };
+                processor=Persistence.SelectField.Default
+            }
+        ]
+        let baseObjectNameQ = "User"
+        let joinsQ = []
+        let filtersQ:Persistence.Types.Filter List = [
+            {
+                field={
+                        objectName="User";
+                        field="Username";
+                        processor=Persistence.Field.Default
+                };
+                operator="=";
+                value="tumpe";
+                processor=Persistence.Filter.Default;
+            }
+        ]
+        let processorQ = Persistence.Select.Default
+        let selectQ:Persistence.Types.Select = {
+            fields=fieldsQ;
+            baseObjectName=baseObjectNameQ;
+            joins=joinsQ;
+            filters=filtersQ;
+            processor=processorQ;
+        }
+        let result = Persistence.Api.Read selectQ
+        printfn "%A" result
+        let s = System.Console.ReadLine()
+(*
         let data:Map<string,string> = Map.empty
         let data = data.Add("Address", "New address2")
         let data = data.Add("Banned", "1")
@@ -37,6 +66,6 @@ module Main =
         printfn "%A" result3
 
         let result4 = Persistence.Delete "user" [{field="Username";operator="=";value="tumpe2"}]
-        printfn "%A" result4
-
+        printfn "%A" result
+        *)
         0 // return an integer exit code

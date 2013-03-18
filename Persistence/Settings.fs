@@ -1,4 +1,4 @@
-﻿namespace RentIt
+﻿namespace RentIt.Persistence
 open System
 open System.Data
 

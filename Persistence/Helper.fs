@@ -1,8 +1,8 @@
-﻿namespace RentIt
+﻿namespace RentIt.Persistence
 open System
 open System.Data
     module Helper = 
-
+    (*
         // joinFilter returns Filter as a string
         let internal joinFilter (filter:Filter.Filter) = filter.field + " " + filter.operator + " '" + filter.value + "'"
 
@@ -40,12 +40,12 @@ open System.Data
            let key = nextKey data
            let data2 = data.Remove(key)
            joinInsertDataItem (joinInsertData data2) key data.[key]
-
+           *)
         // Takes a query and performs it on the database
         let internal performSql sql = 
          let cmd = new SqlClient.SqlCommand(sql, Settings.connDb)
          cmd.ExecuteReader()
-
+        
         // Read a row
         let internal extractRow (reader:SqlClient.SqlDataReader) data =
          let rec readData = function
@@ -59,4 +59,3 @@ open System.Data
                       let start:Map<string,string> = Map.empty
                       yield (extractRow reader start)
          ]
-
