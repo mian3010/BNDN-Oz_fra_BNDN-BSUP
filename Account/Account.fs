@@ -33,7 +33,7 @@ module Account =
     
         ///////////////////////////////////////////////////////////////////////
 
-        type Password = AccountTypes.PasswordTypes.Password
+        type Password = AccountTypes.Password
 
         /// Produces a salted hash of the given unhashed password
         let create password :Password =
@@ -59,29 +59,14 @@ module Account =
     
     ///////////////////////////////////////////////////////////////////////
     
-    ////// TYPES
-
-    type Address = AccountTypes.Address
-
-    // An 'enum' of the different account types
-    type AccountType =          AccountTypes.AccountType
-
-    // Custom data for each type of account
-
-    type Customer =             AccountTypes.Customer
-    type ContentProvider =      AccountTypes.ContentProvider
-    type Admin =                AccountTypes.Admin
-
-    // Like a 'supertype' of each kind of additional account info
-    type TypeInfo =             AccountTypes.TypeInfo
-
-    // Common data for each account type
-
+    type Address =              AccountTypes.Address
+    type ExtraAccInfo =         AccountTypes.ExtraAccInfo
     type Account =              AccountTypes.Account
 
     // Exceptions
 
     exception UserAlreadyExists // If one tries to create/persist an account whose username already is taken
+    exception UnknownAccType    // If no account type exists which matches the specified account type string
     exception NoSuchUser        // If one tries to retrieve/update an account, but no account is found for the passed identifier
     exception OutdatedData      // If a call to 'update' cannot succeed, because the changes conflict with more recent changes
     exception BrokenInvariant   // If a function is invoked on an account whose invariants have been broken
@@ -91,7 +76,8 @@ module Account =
 
     /// Constructs a new Account record with the given information.
     /// Raises BrokenInvariant if any of the passed strings are null
-    let make (typeinfo:TypeInfo) (user:string) (email:string) (password:string) :Account =
+    let make (accType:string) (user:string) (email:string) (password:string) (info:ExtraAccInfo) :Account =
+        if accType = null then raise BrokenInvariant
         if user = null then raise BrokenInvariant
         if email = null then raise BrokenInvariant
         if password = null then raise BrokenInvariant
@@ -101,7 +87,8 @@ module Account =
             password = Password.create password;
             created = System.DateTime.Now;
             banned = false;
-            info = typeinfo;
+            info = info;
+            accType = accType;
             version = uint32(0);    
         }
 
@@ -109,12 +96,14 @@ module Account =
 
     /// Persists a new Account, making the account visible to the outside world
     /// Raises UserAlreadyExists if the username already is occupied
+    /// Raises UnknownAccType if the specified account type does not exist
     let persist (acc:Account) =
         try
             Db.createUser acc
         with
             | Db.UsernameAlreadyInUse -> raise UserAlreadyExists
             | Db.IllegalAccountVersion -> raise BrokenInvariant
+            |  -> raise UnknownAccType
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -125,7 +114,7 @@ module Account =
             | Db.NoUserWithSuchName -> raise NoSuchUser
     
     /// Retrieves all accounts of a specific type
-    let getAllByType (accType:AccountType) :Account list = Db.getAllUsersByType accType
+    let getAllByType (accType:string) :Account list = Db.getAllUsersByType accType // SHOULD THIS THROW EXCEPTION FOR UNKNOWN TYPES??????
 
     /// Retrieves the date and time which the user {user} last authenticated
     /// 'None' means that the user never has authenticated
