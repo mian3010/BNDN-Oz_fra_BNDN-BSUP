@@ -7,7 +7,7 @@ open System.Data
     // This module works with a SQL database
     module Api =
         // Get stuff from database. Takes a List of Filters
-        let Read (readQuery:Types.Select) =
+        let Read (readQuery:Types.Read) =
          use reader = Helper.performSql (readQuery.processor readQuery)
          Helper.extractData reader
          (*

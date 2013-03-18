@@ -6,14 +6,14 @@ namespace RentIt
 module Main = 
     [<EntryPoint>]
     let main argv = 
-        let fieldsQ:Persistence.Types.SelectField List = [
+        let fieldsQ:Persistence.Types.ReadField List = [
             {
                 field={
                         objectName="User";
                         field="";
                         processor=Persistence.Field.AllInObject
                 };
-                processor=Persistence.SelectField.Default
+                processor=Persistence.ReadField.Default
             }
         ]
         let baseObjectNameQ = "User"
@@ -30,8 +30,8 @@ module Main =
                 processor=Persistence.Filter.Default;
             }
         ]
-        let processorQ = Persistence.Select.Default
-        let selectQ:Persistence.Types.Select = {
+        let processorQ = Persistence.Read.Default
+        let selectQ:Persistence.Types.Read = {
             fields=fieldsQ;
             baseObjectName=baseObjectNameQ;
             joins=joinsQ;

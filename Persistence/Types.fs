@@ -11,9 +11,9 @@
          value : string;
          processor : Filter -> string;
         }
-        type SelectField = {
+        type ReadField = {
          field : Field;
-         processor : SelectField -> string;
+         processor : ReadField -> string;
         }
         type DataOut = {
          field : Field;
@@ -27,12 +27,21 @@
          fieldFrom : Field;
          fieldTo : Field;
         }
-        type Select = {
-         fields : SelectField List;
+        type Create = {
+         lol : bool;
+        }
+        type Read = {
+         fields : ReadField List;
          baseObjectName : string;
          joins : ObjectJoin List;
          filters : Filter List;
-         processor : Select -> string
+         processor : Read -> string
+        }
+        type Update = {
+         lol : bool;
+        }
+        type Delete = {
+         lol : bool;
         }
 
     //Field processors supported
@@ -47,13 +56,13 @@
         let Default (filter:Types.Filter) =
             (filter.field.processor filter.field)+filter.operator+"'"+filter.value+"'"
 
-    //Select processors supported
-    module SelectField = 
-        let Default (selectField:Types.SelectField) = 
-            (selectField.field.processor selectField.field)
-        let Max (selectField:Types.SelectField) = 
-            "MAX("+Default selectField+")"
-        let All (selectField:Types.SelectField) =
+    //Read processors supported
+    module ReadField = 
+        let Default (readField:Types.ReadField) = 
+            (readField.field.processor readField.field)
+        let Max (readField:Types.ReadField) = 
+            "MAX("+Default readField+")"
+        let All (readField:Types.ReadField) =
             "*"
 
     //ObjectJoin processors supported
@@ -61,13 +70,13 @@
         let Default (objectJoin:Types.ObjectJoin) =
             "JOIN "+objectJoin.fieldTo.objectName+" ON "+objectJoin.fieldFrom.processor objectJoin.fieldFrom+"="+objectJoin.fieldTo.processor objectJoin.fieldTo
 
-    //Select processors supported
-    module Select =
-        let rec internal joinSelectFields (fields:Types.SelectField List) =
+    //Read processors supported
+    module Read =
+        let rec internal joinReadFields (fields:Types.ReadField List) =
             match fields with 
                 | [] -> ""
                 | x::[] -> x.processor x
-                | x::xs -> x.processor x+","+joinSelectFields xs
+                | x::xs -> x.processor x+","+joinReadFields xs
         let rec internal joinJoins (fields:Types.ObjectJoin List) =
             match fields with 
                 | [] -> ""
@@ -78,5 +87,5 @@
                 | [] -> ""
                 | x::[] -> x.processor x
                 | x::xs -> x.processor x+","+joinFilters xs
-        let Default (select:Types.Select) =
-            "SELECT "+joinSelectFields select.fields+" FROM ["+select.baseObjectName+"] "+joinJoins select.joins+" WHERE "+joinFilters select.filters
+        let Default (read:Types.Read) =
+            "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilters read.filters
