@@ -42,10 +42,10 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Filter.fs" />
+    <Compile Include="Types.fs" />
     <Compile Include="Settings.fs" />
     <Compile Include="Helper.fs" />
-    <Compile Include="Persistence.fs" />
+    <Compile Include="Api.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.fsproj">
