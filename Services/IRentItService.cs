@@ -15,7 +15,7 @@ namespace RentIt
         #region Authentication
 
         [OperationContract]
-        [WebGet(UriTemplate="/auth?user={USERNAME}&password={PASSWORD}",
+        [WebGet(UriTemplate = "/auth?user={USERNAME}&password={PASSWORD}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
         string Authorise(string USERNAME, string PASSWORD);
@@ -25,7 +25,7 @@ namespace RentIt
         #region Accounts
 
         [OperationContract]
-        [WebGet(UriTemplate = "/accounts",
+        [WebGet(UriTemplate = "/accounts?types={types}&info={info}&include_banned={include_banned}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
         string GetAccounts(string types, string info, bool include_banned);
@@ -51,50 +51,38 @@ namespace RentIt
         string CreateAccount(string user, AccountData data);
 
         #endregion
-        
+
         #region Products
 
         #endregion
 
-        #region Account Data Contract
-
-        [DataContract]
-        public class AccountData
-        {
-            [DataMember]
-            public string user { get; set; }
-            
-            [DataMember]
-            public string password { get; set; }
-            
-            [DataMember]
-            public string email { get; set; }
-            
-            [DataMember]
-            public string address { get; set; }
-            
-            [DataMember]
-            public string dateOfBirth { get; set; }
-            
-            [DataMember]
-            public bool banned { get; set; }
-            
-            [DataMember]
-            public string aboutMe { get; set; }
-
-            [DataMember]
-            public int balance { get; set; }
-
-            [DataMember]
-            public string accountType { get; set; }
-
-            [DataMember]
-            public int zipcode { get; set; }
-
-            [DataMember]
-            public string countryName { get; set; }
-        }
-
-        #endregion
     }
+
+    [DataContract]
+    public class AccountData
+    {
+        [DataMember]
+        public string user { get; set; }
+        [DataMember]
+        public string password { get; set; }
+        [DataMember]
+        public string email { get; set; }
+        [DataMember]
+        public string address { get; set; }
+        [DataMember]
+        public string dateOfBirth { get; set; }
+        [DataMember]
+        public bool banned { get; set; }
+        [DataMember]
+        public string aboutMe { get; set; }
+        [DataMember]
+        public int balance { get; set; }
+        [DataMember]
+        public string accountType { get; set; }
+        [DataMember]
+        public int zipcode { get; set; }
+        [DataMember]
+        public string countryName { get; set; }
+    }
+
 }

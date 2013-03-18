@@ -83,21 +83,16 @@ namespace RentIt
         }
 
 
-        string GetAccount(string user)
+        public string GetAccount(string user)
         {
             try
             {
                 WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                if (headers.Count == 2)
-                {
                     string tokenString = headers.Keys.Get(1);
-
-                    ControlledAuth.accessAccount(tokenString);
-                    var acc = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
+                    OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                    response.StatusCode = HttpStatusCode.NotImplemented;
+                    return null;
                     
-                }
-                else
-                    throw new AccountPermissions.AccountBanned(); //returns bad request error
             }
             catch (RentIt.Account.NoSuchUser)
             {
@@ -120,7 +115,7 @@ namespace RentIt
         }
 
 
-        public string UpdateAccount(string user, IRentItService.AccountData data)
+        public string UpdateAccount(string user, AccountData data)
         {
             try
             {
@@ -132,6 +127,9 @@ namespace RentIt
                     ControlledAuth.accessAccount(tokenString);
                     var acc = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
 
+                    OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                    response.StatusCode = HttpStatusCode.NotImplemented;
+                    return null;
                 }
                 else
                     throw new AccountPermissions.AccountBanned(); //returns bad request error
@@ -157,12 +155,16 @@ namespace RentIt
         }
 
 
-        string CreateAccount(string user, IRentItService.AccountData data)
+        public string CreateAccount(string user, AccountData data)
         {
 
             try
-            {
-               var Uaccount =  Account.make(type, user, email, password);
+            { 
+               //var typeInfo = AccountTypes.TypeInfo.NewCustomer(;
+               //var Uaccount =  Account.make(, user, data.email, data.password);
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotImplemented;
+                return null;
             }
              catch (AccountPermissions.PermissionDenied)
             {
