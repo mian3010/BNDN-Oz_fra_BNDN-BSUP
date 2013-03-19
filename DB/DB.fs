@@ -15,7 +15,7 @@ open System.Security
 
         module internal Internal =
 
-            // Cache elements
+            // Cache element
             let mutable cache = Map.empty : Map<string, AccountTypes.Account>
 
             // Database connection
@@ -43,7 +43,7 @@ open System.Security
                 cmd.ExecuteReader()
 
             ////// Helper functions
-            let splitDbPass (dbPass:string) :AccountTypes.Password =
+            let splitDbPass (dbPass:string) :AccountTypes.PasswordTypes.Password =
                 let parts = dbPass.Split [|':'|]
                 { salt = parts.[0]; hash = parts.[1] }
 
@@ -55,6 +55,40 @@ open System.Security
                     result
                 else
                     0
+
+
+            let getTypeInfoFromString (info:string) (reader:SqlClient.SqlDataReader) :AccountTypes.TypeInfo =
+                match info with
+                | "Admin" -> AccountTypes.TypeInfo.Admin()
+                | "Content Provider" -> AccountTypes.TypeInfo.ContentProvider
+                                                                {
+                                                                    name = Some "John Doe";
+                                                                    address = 
+                                                                        {
+                                                                            address = Some (reader.GetString 3);
+                                                                            postal = Some (reader.GetInt32 11);
+                                                                            country = Some (reader.GetString 12)
+                                                                        }
+                                                                }
+                | "Customer" -> AccountTypes.TypeInfo.Customer
+                                                    {
+                                                        name = Some "John Doe";
+                                                        address = 
+                                                            {
+                                                                address = Some (reader.GetString 3);
+                                                                postal = Some (reader.GetInt32 11);
+                                                                country = Some (reader.GetString 12)
+                                                            };
+                                                        birth = Some (reader.GetDateTime 4);
+                                                        about = Some (reader.GetString 8);
+                                                        credits = reader.GetInt32 10
+                                                    }
+                | _ -> raise NoSuchAccountType
+
+            let accTypeToString = function
+                | AccountTypes.AccountType.Admin -> "Admin"
+                | AccountTypes.AccountType.ContentProvider -> "Content Provider"
+                | AccountTypes.AccountType.Customer -> "Customer"
 
         ///////////////////////////////////////////////////////////////////////////////////
 
@@ -77,27 +111,18 @@ open System.Security
                             password = Internal.splitDbPass (reader.GetString 5) //unbox (reader.["Password"]))
                             created = reader.GetDateTime 6 //unbox (reader.["Created_date"]);
                             banned = if reader.GetByte 7 = byte 0 then false else true
-                            info = {
-                                    name = None ;
-                                    address = {
-                                                address = None;
-                                                postal  = None;
-                                                country = None };
-                                    birth   = None;
-                                    about   = None;
-                                    credits = None }
-                            accType = "Admin"
+                            info = Internal.getTypeInfoFromString (reader.GetString 9) reader
                             version = uint32 0 }
-                        Internal.cache <- Internal.cache.Add (result.user, result)
+                        Internal.cache <- Internal.cache.Add(result.user, result)
                         result
                     else
                         raise NoUserWithSuchName
             lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves all accounts of a specific type
-        let getAllUsersByType accType :AccountTypes.Account list =
+        let getAllUsersByType (accType:AccountTypes.AccountType) :AccountTypes.Account list =
             let internalFun =
-                let sql = "SELECT * FROM [user] where (Type_name = '" + accType + "')"
+                let sql = "SELECT * FROM [user] where (Type_name = '" + Internal.accTypeToString accType + "')"
                 use reader = Internal.performSql sql
                 let result =    [ 
                         while reader.Read() do
@@ -107,21 +132,12 @@ open System.Security
                             password = Internal.splitDbPass (reader.GetString 5)
                             created = reader.GetDateTime 6
                             banned = if reader.GetByte 7 = byte 0 then false else true
-                            info = {
-                                    name = None ;
-                                    address = {
-                                                address = None;
-                                                postal  = None;
-                                                country = None };
-                                    birth   = None;
-                                    about   = None;
-                                    credits = None }
-                            accType = "Admin"
+                            info = Internal.getTypeInfoFromString (reader.GetString 9) reader
                             version = uint32 0
                         }
                         yield tmp
-                        if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache.CachedUsers) then
-                            Internal.cache <- Internal.cache.Add (tmp.user, tmp) ]
+                        if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache) then
+                            Internal.cache <- Internal.cache.Add(tmp.user, tmp) ]
                 result
             lock Internal.cache (fun() -> internalFun)
 
@@ -149,13 +165,20 @@ open System.Security
                             Email = '" + acc.email + "',
                             Password = '" + acc.password.salt + ":" + acc.password.hash + "',
                             Banned = " + if acc.banned then "1" else "0"
-                            + "Address = '" + "Dummy" + "'" +
-                            "Date_of_birth = " + "11-11-2008 13:23:44" + ", 
-                            About_me = '" + "Dummy" + "', 
-                            Balance = " + "0" + ", 
-                            Zipcode = " + "2400" + ", 
-                            Country_Name = '" + "Dummy" + "'"
-                                
+                let sql = sql + 
+                            let accType = AccountTypes.typeInfoToString acc.info
+                            if accType = "Content Provider" || accType = "Customer" then
+                                "Address = '" + "Dummy" + "'" +
+                                if accType = "Customer" then
+                                    "Date_of_birth = " + "11-11-2008 13:23:44" + ", 
+                                    About_me = '" + "Dummy" + "', 
+                                    Balance = " + "0" + ", 
+                                    Zipcode = " + "2400" + ", 
+                                    Country_Name = '" + "Dummy" + "'"
+                                else
+                                    ""
+                            else
+                                ""
                 let sql = sql + "WHERE (Username = '" + acc.user + "')"
                 let a' = Internal.performSql sql
                 let newAcc :AccountTypes.Account = {
@@ -164,17 +187,8 @@ open System.Security
                                         password = acc.password;
                                         created = acc.created;
                                         banned = acc.banned;
-                                        info = {
-                                                name = None ;
-                                                address = {
-                                                            address = None;
-                                                            postal  = None;
-                                                            country = None };
-                                                birth   = None;
-                                                about   = None;
-                                                credits = None }
-                                        accType = "Admin"
-                                        version = uint32 0 }
+                                        info = acc.info;
+                                        version = acc.version + uint32(1) }
                 Internal.cache <- Internal.cache.Add(acc.user, acc)
                 newAcc
                     
@@ -187,8 +201,16 @@ open System.Security
                 let sql = "INSERT INTO [loggable] (Id) VALUES (" + string nextId + ");"
                 //let sql = sql + "INSERT INTO [user] (Id, Username) VALUES (" + string nextId + ", 'kruger2')"
                 let sql = sql + "INSERT INTO [user]
-                            (Id, Username, Email, Password, Banned, Created_date, Type_name, Country_Name ,Address, Zipcode, Date_of_birth,  About_me, Balance)"
-                            
+                            (Id, Username, Email, Password, Banned, Created_date, Type_name, Country_Name" +
+                            let accType = AccountTypes.typeInfoToString acc.info
+                            if accType = "Content Provider" || accType = "Customer" then
+                                ",Address, Zipcode" +
+                                    if accType = "Customer" then
+                                        ", Date_of_birth,  About_me, Balance)"
+                                    else
+                                        ")"
+                            else
+                                ")"
                 let sql = sql + " VALUES (" + string nextId + "," + 
                                             "'" + acc.user + "'," + 
                                             "'" + acc.email + "'," + 
@@ -196,11 +218,16 @@ open System.Security
                                             if acc.banned then "1" else "0"
                                             + "," + 
                                             "'" + string DateTime.Now + "'," + 
-                                            "'" + acc.accType + "'" +
+                                            "'" + AccountTypes.typeInfoToString acc.info + "'" +
                                             ",'DK'" +
-                                            ",'Ferskenvej 3', 2400" +
-                                            ",11-11-2008 13:23:44,  'About_me', '999')"
+                                            let accType = AccountTypes.typeInfoToString acc.info
+                                            if accType = "Content Provider" || accType = "Customer" then
+                                                ",'Ferskenvej 3', 2400" +
+                                                if accType = "Customer" then
+                                                    ",11-11-2008 13:23:44,  'About_me', '999')"
+                                                else
+                                                    ")"
+                                            else ")"
                 let a' = Internal.performSql sql
                 Internal.cache <- Internal.cache.Add(acc.user, acc)
-                printf "%s" sql
             lock Internal.cache (fun() -> internalFun)
