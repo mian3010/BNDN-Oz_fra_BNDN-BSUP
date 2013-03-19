@@ -6,10 +6,49 @@ open System.Data
     // The Persistence module is used for reading and wrting data.
     // This module works with a SQL database
     module Api =
-        // Get stuff from database. Takes a List of Filters
-        let Read (readQuery:Types.Read) =
-         use reader = Helper.performSql (readQuery.processor readQuery)
-         Helper.extractData reader
+        //Create functions
+        let createQ (createQuery:Types.Create) =
+            try
+                use reader = Helper.performSql (Create.Default createQuery)
+                Helper.extractData reader
+            with
+                | _ -> raise Types.PersistenceException
+
+        let create objectName data =
+            let createQuery:Types.Create = {
+                objectName=objectName;
+                data=data;
+            }
+            createQ createQuery
+
+        //Read functions
+        let readQ (readQuery:Types.Read) =
+            try 
+                use reader = Helper.performSql (readQuery.processor readQuery)
+                Helper.extractData reader
+            with
+                | _ -> raise Types.PersistenceException
+
+        let read fields objectName joins filters =
+            let readQuery:Types.Read = {
+                fields=fields;
+                baseObjectName=objectName;
+                joins=joins;
+                filters=filters;
+                processor=Read.Default;
+            }
+            readQ readQuery
+
+        let readProc fields objectName joins filters processor =
+            let selectQ:Types.Read = {
+                fields=fields;
+                baseObjectName=objectName;
+                joins=joins;
+                filters=filters;
+                processor=processor;
+            }
+            readQ selectQ
+
          (*
         let Insert objectName data = 
          let tupleData = Helper.joinInsertData data
