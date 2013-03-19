@@ -1,37 +1,49 @@
 ﻿namespace RentIt.Persistence
+    ///Containing all the types needed by persistence API.
+    ///Processor field is the function to transform data to a string used by query.
     module Types =
+        ///Exception being raised whenever something is wrong with query
         exception PersistenceException
+        ///A generic type defining a field anywhere. SELECT Field FROM .. or .. WHERE Field = ..
         type Field = {
             objectName : string;
             field : string; 
             processor : Field -> string;
         }
+        ///Defining a filter in a query. In WHERE clause
         type Filter = {
             field : Field;
             operator : string;
             value : string;
             processor : Filter -> string;
         }
+        ///Defining a field to be read by a select query. SELECT ReadField FROM ..
         type ReadField = {
             field : Field;
             processor : ReadField -> string;
         }
+        ///Defining a fields value from result of select query.
+        ///TODO Not used. Don't know whether or not it should be
         type DataOut = {
             field : Field;
             value : string;
         }
+        ///Defining the value of a field in the query. UPDATE .. SET DataIn ..
         type DataIn = {
             field : Field;
             value : string;
         }
+        ///Defining a join between two tables in database. .. JOIN ObjectJoin ..
         type ObjectJoin = {
             fieldFrom : Field;
             fieldTo : Field;
         }
+        ///Defining a create query, and the information needed
         type Create = {
             objectName : string;
             data : DataIn List;
         }
+        ///Defining a read query, and the information needed
         type Read = {
             fields : ReadField List;
             baseObjectName : string;
@@ -39,129 +51,14 @@
             filters : Filter List;
             processor : Read -> string
         }
+        ///Defining an update query, and the information needed
         type Update = {
             objectName : string;
             filters : Filter List;
             data : DataIn List;
         }
+        ///Defining a delete query, and the information needed
         type Delete = {
             objectName : string;
             filters : Filter List;
         }
-
-    module Field =
-        //Field processors supported
-        let Default (field:Types.Field) =
-            "["+field.objectName+"]."+field.field
-        let AllInObject (field:Types.Field) =
-            "["+field.objectName+"].*"
-
-        //Factory functions
-        let createField (list:Types.Field List) objectName field =
-            list@[({objectName=objectName;field=field;processor=Default}:Types.Field)]
-        let createFieldProc (list:Types.Field List) objectName field processor =
-            list@[({objectName=objectName;field=field;processor=processor}:Types.Field)]
-
-    module Filter =
-        //Filter processors supported
-        let Default (filter:Types.Filter) =
-            (filter.field.processor filter.field)+filter.operator+"'"+filter.value+"'"
-
-        //Factory functions
-        let createFilter (list:Types.Filter List) objectName field operator value =
-            list@[({field=(Field.createField [] objectName field).Head;operator=operator;value=value;processor=Default}:Types.Filter)]
-        let createFilterProc (list:Types.Filter List) objectName field operator value processor =
-            list@[({field=(Field.createField [] objectName field).Head;operator=operator;value=value;processor=processor}:Types.Filter)]
-        let createFilterField (list:Types.Filter List) field operator value =
-            list@[({field=field;operator=operator;value=value;processor=Default}:Types.Filter)]
-        let createFilterFieldProc (list:Types.Filter List) field operator value processor =
-            list@[({field=field;operator=operator;value=value;processor=processor}:Types.Filter)]
-
-    module ReadField = 
-        //Read processors supported
-        let Default (readField:Types.ReadField) = 
-            (readField.field.processor readField.field)
-        let Max (readField:Types.ReadField) = 
-            "MAX("+Default readField+") AS "+readField.field.objectName+"_"+readField.field.field+"_Max"
-        let All (readField:Types.ReadField) =
-            "*"
-
-        //Factory functions
-        let createReadField (list:Types.ReadField List) objectName field =
-            list@[({field = (Field.createField [] objectName field).Head; processor = Default}:Types.ReadField)]
-        let createReadFieldProc (list:Types.ReadField List) objectName field processor =
-            list@[({field=(Field.createField [] objectName field).Head;processor=processor}:Types.ReadField)]
-        let createReadFieldField (list:Types.ReadField List) field =
-            list@[({field=field;processor=Default}:Types.ReadField)]
-        let createReadFieldFieldProc (list:Types.ReadField List) field processor =
-            list@[({field=field;processor=processor}:Types.ReadField)]
-
-    module ObjectJoin =
-        //ObjectJoin processors supported
-        let Default (objectJoin:Types.ObjectJoin) =
-            "JOIN "+objectJoin.fieldTo.objectName+" ON "+objectJoin.fieldFrom.processor objectJoin.fieldFrom+"="+objectJoin.fieldTo.processor objectJoin.fieldTo
-
-        //Factory functions
-        let createObjectJoin (list:Types.ObjectJoin List) fromObjectName fromField toObjectName toField = 
-            list@[({fieldFrom=(Field.createField [] fromObjectName fromField).Head;fieldTo=(Field.createField [] toObjectName toField).Head}:Types.ObjectJoin)]
-        let createObjectJoinFields (list:Types.ObjectJoin List) fromField toField = 
-            list@[({fieldFrom=fromField;fieldTo=toField}:Types.ObjectJoin)]
-
-    module DataIn =
-        //DataIn processors supported
-        let Default (dataIn:Types.DataIn) =
-            (dataIn.field.processor dataIn.field)+"='"+dataIn.value+"'"
-
-        //Factory functions
-        let createDataIn (list:Types.DataIn List) objectName field value =
-            list@[({field=(Field.createField [] objectName field).Head;value=value;}:Types.DataIn)]
-        let createDataInField (list:Types.DataIn List) field value =
-            list@[({field=field;value=value;}:Types.DataIn)]
-
-
-    module Create =
-        let internal joinTuple (ok,ov) k v =
-             (ok+", "+k, ov+", '"+v+"'")
-        let rec internal extractData (data:Types.DataIn List) =
-            match data with 
-                | [] -> ("", "")
-                | x::[] -> (x.field.processor x.field, "'"+x.value+"'")
-                | x::xs -> joinTuple (extractData xs) (x.field.processor x.field) x.value
-        let Default (create:Types.Create) =
-            let data = extractData create.data
-            "INSERT INTO ["+create.objectName+"] ("+fst data+") OUTPUT INSERTED.* VALUES ("+snd data+")"
-
-    //Read processors supported
-    module Read =
-        let rec internal joinReadFields (fields:Types.ReadField List) =
-            match fields with 
-                | [] -> ""
-                | x::[] -> x.processor x
-                | x::xs -> x.processor x+","+joinReadFields xs
-        let rec internal joinJoins (fields:Types.ObjectJoin List) =
-            match fields with 
-                | [] -> ""
-                | x::[] -> ObjectJoin.Default x
-                | x::xs -> ObjectJoin.Default x+","+joinJoins xs
-        let rec internal joinFilters (fields:Types.Filter List) =
-            match fields with 
-                | [] -> "1=1"
-                | x::[] -> x.processor x
-                | x::xs -> x.processor x+","+joinFilters xs
-        let Default (read:Types.Read) =
-            "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilters read.filters
-
-    //Update processors supported
-    module Update =
-        let rec internal joinUpdateData (data:Types.DataIn List) =
-            match data with
-                | [] -> ""
-                | x::[] -> DataIn.Default x
-                | x::xs -> DataIn.Default x+","+joinUpdateData xs
-        let Default (update:Types.Update) =
-            "UPDATE ["+update.objectName+"] SET "+joinUpdateData update.data+" OUTPUT INSERTED.* WHERE "+Read.joinFilters update.filters
-
-    //Delete processors supported
-    module Delete =
-        let Default (delete:Types.Delete) =
-            "DELETE FROM ["+delete.objectName+"] OUTPUT DELETED.* WHERE "+Read.joinFilters delete.filters

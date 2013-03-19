@@ -1,19 +1,18 @@
 ﻿namespace RentIt.Persistence
-
 open System
 open System.Data
 
     // The Persistence module is used for reading and wrting data.
     // This module works with a SQL database
     module Api =
-        //Create functions
+        ///Execute a create query
         let createQ (createQuery:Types.Create) =
             try
                 use reader = Helper.performSql (Create.Default createQuery)
                 Helper.extractData reader
             with
                 | _ -> raise Types.PersistenceException
-
+        ///Execute a create query taking the contents of it
         let create objectName data =
             let createQuery:Types.Create = {
                 objectName=objectName;
@@ -21,14 +20,14 @@ open System.Data
             }
             createQ createQuery
 
-        //Read functions
+        ///Execute a read query
         let readQ (readQuery:Types.Read) =
             try 
                 use reader = Helper.performSql (readQuery.processor readQuery)
                 Helper.extractData reader
             with
                 | _ -> raise Types.PersistenceException
-
+        ///Execute a read query taking the contents of it
         let read fields objectName joins filters =
             let readQuery:Types.Read = {
                 fields=fields;
@@ -38,7 +37,7 @@ open System.Data
                 processor=Read.Default;
             }
             readQ readQuery
-
+        ///Execute a read query taking the contents of it with a specific processor
         let readProc fields objectName joins filters processor =
             let readQuery:Types.Read = {
                 fields=fields;
@@ -49,13 +48,14 @@ open System.Data
             }
             readQ readQuery
 
-        //Update functions
+        ///Execute an update query
         let updateQ (updateQuery:Types.Update) =
             try
                 use reader = Helper.performSql (Update.Default updateQuery)
                 Helper.extractData reader
             with
                 | _ -> raise Types.PersistenceException
+        ///Execute an update query taking the contents of it
         let update objectName filters dataIn =
             let updateQuery:Types.Update = {
                 objectName=objectName;
@@ -64,40 +64,17 @@ open System.Data
             }
             updateQ updateQuery
 
-        //Delete functions
+        ///Execute a delete query
         let deleteQ (deleteQuery:Types.Delete) =
             try
                 use reader = Helper.performSql (Delete.Default deleteQuery)
                 Helper.extractData reader
             with
                 | _ -> raise Types.PersistenceException
+        ///Execute a delete query taking the contents of it
         let delete objectName filters =
             let deleteQuery:Types.Delete = {
                 objectName = objectName;
                 filters=filters;
             }
             deleteQ deleteQuery
-
-         (*
-        let Insert objectName data = 
-         let tupleData = Helper.joinInsertData data
-         use reader = Helper.performSql ("INSERT INTO [" + objectName + "] (" + fst tupleData + ") VALUES (" + snd tupleData + ")")
-         if reader.RecordsAffected > 0 then true
-         else false
-
-        let Update objectName (filters:Filter.Filter List) (data:Map<string,string>) = 
-         use reader = Helper.performSql ("UPDATE [" + objectName + "] SET " + Helper.joinData data + " WHERE " + Helper.joinFilters filters)
-         if reader.RecordsAffected > 0 then true
-         else false
-
-        let Delete objectName (filters:Filter.Filter List) = 
-         use reader = Helper.performSql ("DELETE FROM [" + objectName + "] WHERE " + Helper.joinFilters filters)
-         if reader.RecordsAffected > 0 then true
-         else false
-
-        let InitTransaction a =
-         raise (new System.NotImplementedException())
-
-        let ExecTransaction a =
-         raise (new System.NotImplementedException())
-         *)
