@@ -15,7 +15,7 @@ open System.Security
 
         module internal Internal =
 
-            // Cache element
+            // Cache elements
             let mutable cache = Map.empty : Map<string, AccountTypes.Account>
 
             // Database connection
@@ -43,52 +43,18 @@ open System.Security
                 cmd.ExecuteReader()
 
             ////// Helper functions
-            let splitDbPass (dbPass:string) :AccountTypes.PasswordTypes.Password =
+            let splitDbPass (dbPass:string) :AccountTypes.Password =
                 let parts = dbPass.Split [|':'|]
                 { salt = parts.[0]; hash = parts.[1] }
 
             let getNextLoggableID() :int =
-                let sql = "SELECT MAX(Id) FROM loggable"
-                use reader = performSql sql
-                if reader.Read() then
-                    let result = reader.GetInt32(0)
-                    result
-                else
+                let fieldQ = Persistence.ReadField.createReadFieldProc [] "loggable" "Id" Persistence.ReadField.Max
+                let reader = Persistence.Api.read fieldQ "loggable" [] []
+
+                if reader.IsEmpty then
                     0
-
-
-            let getTypeInfoFromString (info:string) (reader:SqlClient.SqlDataReader) :AccountTypes.TypeInfo =
-                match info with
-                | "Admin" -> AccountTypes.TypeInfo.Admin()
-                | "Content Provider" -> AccountTypes.TypeInfo.ContentProvider
-                                                                {
-                                                                    name = Some "John Doe";
-                                                                    address = 
-                                                                        {
-                                                                            address = Some (reader.GetString 3);
-                                                                            postal = Some (reader.GetInt32 11);
-                                                                            country = Some (reader.GetString 12)
-                                                                        }
-                                                                }
-                | "Customer" -> AccountTypes.TypeInfo.Customer
-                                                    {
-                                                        name = Some "John Doe";
-                                                        address = 
-                                                            {
-                                                                address = Some (reader.GetString 3);
-                                                                postal = Some (reader.GetInt32 11);
-                                                                country = Some (reader.GetString 12)
-                                                            };
-                                                        birth = Some (reader.GetDateTime 4);
-                                                        about = Some (reader.GetString 8);
-                                                        credits = reader.GetInt32 10
-                                                    }
-                | _ -> raise NoSuchAccountType
-
-            let accTypeToString = function
-                | AccountTypes.AccountType.Admin -> "Admin"
-                | AccountTypes.AccountType.ContentProvider -> "Content Provider"
-                | AccountTypes.AccountType.Customer -> "Customer"
+                else
+                    int(reader.Item(0).Item("loggable_Id_Max"))
 
         ///////////////////////////////////////////////////////////////////////////////////
 
@@ -98,46 +64,93 @@ open System.Security
         /// Raises NoUserWithSuchName
         let getUserByName userName :AccountTypes.Account =
             let internalFun =
-                if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache) then 
+                // If the user already exist in the cache, get him/her from there!
+                if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache) then
                     Map.find<string, AccountTypes.Account> userName Internal.cache
                 else
-                    let sql = "SELECT * FROM [user] WHERE (Username = '" + userName + "')"
-                    use reader = Internal.performSql sql
-
-                    if reader.Read() then
-                        let result :AccountTypes.Account =  {
-                            user = reader.GetString 1 //unbox (reader.["Username"]);
-                            email = reader.GetString 2 //unbox (reader.["Email"]);
-                            password = Internal.splitDbPass (reader.GetString 5) //unbox (reader.["Password"]))
-                            created = reader.GetDateTime 6 //unbox (reader.["Created_date"]);
-                            banned = if reader.GetByte 7 = byte 0 then false else true
-                            info = Internal.getTypeInfoFromString (reader.GetString 9) reader
-                            version = uint32 0 }
-                        Internal.cache <- Internal.cache.Add(result.user, result)
-                        result
-                    else
+                    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "user" "Username" Persistence.ReadField.All
+                    let filterQ = Persistence.Filter.createFilter [] "user" "Username" "=" userName
+                    let read    = Persistence.Api.read fieldsQ "user" [] filterQ
+                    
+                    // Oooops, no user with that username. Hmm, u stupid or some?
+                    if read.IsEmpty then
                         raise NoUserWithSuchName
+
+                    // Get the first, and (hopefully) only result
+                    let result = read.Item(0)
+
+                    // Create the account, using the information from "result"
+                    let acc :AccountTypes.Account = {
+                        user = result.Item "Username"
+                        email = result.Item"Email"
+                        password = Internal.splitDbPass (result.Item "Password")
+                        created = DateTime.Parse (result.Item "Created_date")
+                        banned = if result.Item "Banned" = "0" then false else true
+                        info = {
+                                name = None;
+                                address = {
+                                            address = result.TryFind "Address"
+                                            postal = 
+                                                let zipString = result.TryFind "Zipcode"
+                                                if zipString = None then 
+                                                    None else Some (int (string zipString))
+                                            country = Some (result.Item "Country_Name") }
+                                birth =
+                                    let bodString = result.TryFind "Date_of_birth"
+                                    if bodString = None then 
+                                        None else Some (DateTime.Parse (string bodString))
+                                        
+                                about = result.TryFind "About_me"
+                                credits =
+                                    let cString = result.TryFind "Balance"
+                                    if cString = None then
+                                        None else Some (int (string cString)) }
+                        accType = result.Item "Type_name"
+                        version = uint32 0 }
+                    // Add the new account to the cache
+                    Internal.cache <- Internal.cache.Add (acc.user, acc)
+                    acc // Return him (or her)!
+                        
             lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves all accounts of a specific type
-        let getAllUsersByType (accType:AccountTypes.AccountType) :AccountTypes.Account list =
+        let getAllUsersByType accType list =
             let internalFun =
-                let sql = "SELECT * FROM [user] where (Type_name = '" + Internal.accTypeToString accType + "')"
-                use reader = Internal.performSql sql
-                let result =    [ 
-                        while reader.Read() do
-                        let tmp :AccountTypes.Account = {
-                            user = reader.GetString 1
-                            email = reader.GetString 2
-                            password = Internal.splitDbPass (reader.GetString 5)
-                            created = reader.GetDateTime 6
-                            banned = if reader.GetByte 7 = byte 0 then false else true
-                            info = Internal.getTypeInfoFromString (reader.GetString 9) reader
-                            version = uint32 0
-                        }
-                        yield tmp
-                        if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache) then
-                            Internal.cache <- Internal.cache.Add(tmp.user, tmp) ]
+                let fieldsQ = Persistence.ReadField.createReadFieldProc [] "user" "Username" Persistence.ReadField.All
+                let filterQ = Persistence.Filter.createFilter [] "user" "Type_name" "=" accType
+                let reader  = Persistence.Api.read fieldsQ "user" [] filterQ
+                let result = [
+                    for map in reader do
+                    let tmp :AccountTypes.Account = {
+                        user = map.Item "Username"
+                        email = map.Item"Email"
+                        password = Internal.splitDbPass (map.Item "Password")
+                        created = DateTime.Parse (map.Item "Created_date")
+                        banned = if map.Item "Banned" = "0" then false else true
+                        info = {
+                                name = None;
+                                address = {
+                                            address = map.TryFind "Address"
+                                            postal = 
+                                                let zipString = map.TryFind "Zipcode"
+                                                if zipString = None then 
+                                                    None else Some (int (string zipString))
+                                            country = Some (map.Item "Country_Name") }
+                                birth =
+                                    let bodString = map.TryFind "Date_of_birth"
+                                    if bodString = None then 
+                                        None else Some (DateTime.Parse (string bodString))
+                                        
+                                about = map.TryFind "About_me"
+                                credits =
+                                    let cString = map.TryFind "Balance"
+                                    if cString = None then
+                                        None else Some (int (string cString)) }
+                        accType = map.Item "Type_name"
+                        version = uint32 0 }
+                    yield tmp
+                    if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache.CachedUsers) then
+                        Internal.cache <- Internal.cache.Add (tmp.user, tmp) ]
                 result
             lock Internal.cache (fun() -> internalFun)
 
@@ -161,24 +174,21 @@ open System.Security
                 elif (cu.version < acc.version) then
                     raise IllegalAccountVersion
                 
-                let sql =   "UPDATE [user] SET 
+                (*let tableName = "user"
+                let dataQ = Persistence.DataIn.createDataIn [] *)
+
+
+                let sql = "UPDATE [user] SET
                             Email = '" + acc.email + "',
                             Password = '" + acc.password.salt + ":" + acc.password.hash + "',
                             Banned = " + if acc.banned then "1" else "0"
-                let sql = sql + 
-                            let accType = AccountTypes.typeInfoToString acc.info
-                            if accType = "Content Provider" || accType = "Customer" then
-                                "Address = '" + "Dummy" + "'" +
-                                if accType = "Customer" then
-                                    "Date_of_birth = " + "11-11-2008 13:23:44" + ", 
-                                    About_me = '" + "Dummy" + "', 
-                                    Balance = " + "0" + ", 
-                                    Zipcode = " + "2400" + ", 
-                                    Country_Name = '" + "Dummy" + "'"
-                                else
-                                    ""
-                            else
-                                ""
+                            + "Address = '" + "Dummy" + "'" +
+                           "Date_of_birth = " + "11-11-2008 13:23:44" + ",
+                            About_me = '" + "Dummy" + "',
+                            Balance = " + "0" + ",
+                            Zipcode = " + "2400" + ",
+                            Country_Name = '" + "Dummy" + "'"
+                                
                 let sql = sql + "WHERE (Username = '" + acc.user + "')"
                 let a' = Internal.performSql sql
                 let newAcc :AccountTypes.Account = {
@@ -187,8 +197,17 @@ open System.Security
                                         password = acc.password;
                                         created = acc.created;
                                         banned = acc.banned;
-                                        info = acc.info;
-                                        version = acc.version + uint32(1) }
+                                        info = {
+                                                name = None ;
+                                                address = {
+                                                            address = None;
+                                                            postal = None;
+                                                            country = None };
+                                                birth = None;
+                                                about = None;
+                                                credits = None }
+                                        accType = "Admin"
+                                        version = uint32 0 }
                 Internal.cache <- Internal.cache.Add(acc.user, acc)
                 newAcc
                     
@@ -198,36 +217,28 @@ open System.Security
         let createUser (acc:AccountTypes.Account) =
             let internalFun =
                 let nextId = Internal.getNextLoggableID() + 1
-                let sql = "INSERT INTO [loggable] (Id) VALUES (" + string nextId + ");"
-                //let sql = sql + "INSERT INTO [user] (Id, Username) VALUES (" + string nextId + ", 'kruger2')"
-                let sql = sql + "INSERT INTO [user]
-                            (Id, Username, Email, Password, Banned, Created_date, Type_name, Country_Name" +
-                            let accType = AccountTypes.typeInfoToString acc.info
-                            if accType = "Content Provider" || accType = "Customer" then
-                                ",Address, Zipcode" +
-                                    if accType = "Customer" then
-                                        ", Date_of_birth,  About_me, Balance)"
-                                    else
-                                        ")"
-                            else
-                                ")"
-                let sql = sql + " VALUES (" + string nextId + "," + 
-                                            "'" + acc.user + "'," + 
-                                            "'" + acc.email + "'," + 
-                                            "'" + acc.password.salt + ":" + acc.password.hash + "'," +
-                                            if acc.banned then "1" else "0"
-                                            + "," + 
-                                            "'" + string DateTime.Now + "'," + 
-                                            "'" + AccountTypes.typeInfoToString acc.info + "'" +
-                                            ",'DK'" +
-                                            let accType = AccountTypes.typeInfoToString acc.info
-                                            if accType = "Content Provider" || accType = "Customer" then
-                                                ",'Ferskenvej 3', 2400" +
-                                                if accType = "Customer" then
-                                                    ",11-11-2008 13:23:44,  'About_me', '999')"
-                                                else
-                                                    ")"
-                                            else ")"
-                let a' = Internal.performSql sql
+
+                let talbeName = "loggable"
+                let fieldProcessor = Persistence.Field.Default
+                let dataQ = Persistence.DataIn.createDataIn []    talbeName "Id" (string nextId)
+                let createR = Persistence.Api.create talbeName dataQ
+
+                let tableName = "user"
+                let fieldProcessor = Persistence.Field.Default
+                let dataQ = Persistence.DataIn.createDataIn []    talbeName "Id" (string nextId)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Username" acc.user
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Email" acc.email
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Address" (string acc.info.address.address)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Date_of_birth" (string acc.info.birth)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Password" (string acc.password.hash + ":" + acc.password.salt)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Created_date" (string acc.created)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Banned" (if acc.banned then "1" else "0")
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "About_me" (string acc.info.about)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Type_name" acc.accType
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Balance" (string acc.info.credits)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Zipcode" (string acc.info.address.postal)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Country_Name" (string acc.info.address.country)
+                let createR = Persistence.Api.create talbeName dataQ
+                
                 Internal.cache <- Internal.cache.Add(acc.user, acc)
             lock Internal.cache (fun() -> internalFun)
