@@ -76,7 +76,7 @@ namespace RentIt
         /// </summary>
         /// <param name="email">The email address to validate</param>
         /// <returns>True if the email address probably is valid, false if it by guarantee is not valid</returns>
-        public static bool validateEmail(string email){
+        public static bool ValidateEmail(string email){
         
             throw new NotImplementedException("Yet to find a good implementation....");
         }
