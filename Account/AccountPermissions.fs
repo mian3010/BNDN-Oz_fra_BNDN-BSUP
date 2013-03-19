@@ -1,44 +1,5 @@
 ﻿namespace RentIt
 
-    (*type Permission =    CREATE_CUSTOMER
-                       | CREATE_CONTENT_PROVIDER
-                       | CREATE_ADMIN
-                      // Full read permissions to own account or to accounts of a specific type. Includes "overview" operation.
-                       | READ_OWN
-                       | READ_CUSTOMER
-                       | READ_CONTENT_PROVIDER
-                       | READ_ADMIN
-                      // Read the last time of authentication of own account or for account of a specific type.
-                       | READ_OWN_AUTH_INFO
-                       | READ_AUTH_INFO
-                      // Ban/unban accounts of a specific type
-                       | BAN_UNBAN_CUSTOMER
-                       | BAN_UNBAN_CONTENT_PROVIDER
-                       | BAN_UNBAN_ADMIN
-                      // Give/take credits from a customer account
-                       | GIVE_OWN_CREDITS // Without this permission a customer cannot buy more credits
-                       | TAKE_OWN_CREDITS // Without this permission a customer cannot do any product purchase
-                       | GIVE_CREDITS
-                       | TAKE_CREDITS
-                      // Change various specific fields (email / password) of own account or for account of a specific type.
-                       | CHANGE_OWN_PASSWORD
-                       | CHANGE_CUSTOMER_PASSWORD
-                       | CHANGE_CONTENT_PROVIDER_PASSWORD
-                       | CHANGE_ADMIN_PASSWORD
-                       | RESET_OWN_PASSWORD
-                       | RESET_CUSTOMER_PASSWORD
-                       | RESET_CONTENT_PROVIDER_PASSWORD
-                       | RESET_ADMIN_PASSWORD
-                       | CHANGE_OWN_EMAIL
-                       | CHANGE_CUSTOMER_EMAIL
-                       | CHANGE_CONTENT_PROVIDER_EMAIL
-                       | CHANGE_ADMIN_EMAIL
-                      // Change all non-specific fields (except immutable data, such as Created) of own account or for account of a specific type.
-                       | EDIT_OWN
-                       | EDIT_CUSTOMER
-                       | EDIT_CONTENT_PROVIDER
-                       | EDIT_ADMIN*)
-
 module AccountPermissions =  
 
     // The different kinds of users which may wish to attempt actions
@@ -94,37 +55,32 @@ module AccountPermissions =
                 version = uint32(0);    // Default: 0
             }
         
-        /// Checks whether the banned status of account A and B is the same, and if not, whether the change is allowed
-        let bannedOk invoker (targetAcc:Account) (updatedAcc:Account) =
-            not (targetAcc.banned = updatedAcc.banned) &&
+        /// Whether {invoker} may change the ban status of one account to something else
+        let bannedOk invoker (targetAcc:Account) (banned:bool) =
+            not (targetAcc.banned = banned) &&
             check invoker "BAN_UNBAN" targetAcc.accType
 
-        /// Checks whether the email field of account A and B is the same, and if not, whether the change is allowed
-        /// {invoker} is the user trying to carry out this change
-        let emailOk invoker (targetAcc:Account) (updatedAcc:Account) =
-            if not (targetAcc.email = updatedAcc.email) then
+        /// Whether {invoker} may change the email address of one account to something else
+        let emailOk invoker (targetAcc:Account) (email:string) =
+            if not (targetAcc.email = email) then
                 let check = check invoker "CHANGE_EMAIL"
                 match invoker with
                 | Invoker.Auth a when a.user = targetAcc.user   -> check own
                 | _                                             -> check targetAcc.accType
             else not (targetAcc.email = null)
 
-        /// Checks whether the password of account A and B is the same, and if not, whether the change is allowed
-        /// {invoker} is the user trying to carry out this change
-        let passwordOk invoker (targetAcc:Account) (updatedAcc:Account) =
-            if not (targetAcc.password = updatedAcc.password) then
+        /// Whether {invoker} may change the password of one account to something else
+        let passwordOk invoker (targetAcc:Account) (password:Password) =
+            if not (targetAcc.password = password) then
                 let check = check invoker "CHANGE_PASSWORD"
                 match invoker with
                 | Invoker.Auth a when a.user = targetAcc.user   -> check own
                 | _                                             -> check targetAcc.accType
             else true
 
-        /// Checks whether the credits of the customer account described by A may change to the credits described by B, if they are different
-        /// {invoker} is the user trying to carry out this change
-        /// {user} is the username associated with the account partially described by A
-        let creditsOk invoker (targetAcc:Account) (updatedAcc:Account) =
+        /// Whether {invoker} may change the credits of one account to something else
+        let creditsOk invoker (targetAcc:Account) (updated:int option) =
             let current = targetAcc.info.credits
-            let updated = updatedAcc.info.credits
 
             if current = updated then true
             else
@@ -161,10 +117,10 @@ module AccountPermissions =
         elif   not (A.created = B.created)  then false
         elif   not (A.accType = B.accType)  then false
         else // Test the fields, which may change, against permissions
-            (bannedOk   invoker A B) &&
-            (emailOk    invoker A B) &&
-            (passwordOk invoker A B) &&
-            (creditsOk  invoker A B)
+            (bannedOk   invoker A B.banned) &&
+            (emailOk    invoker A B.email) &&
+            (passwordOk invoker A B.password) &&
+            (creditsOk  invoker A B.info.credits)
 
     /// Whether some invoker may create the account {newAcc} incl. all stated info
     let mayCreateAccount invoker (newAcc:Account) =
@@ -175,7 +131,9 @@ module AccountPermissions =
         elif N.accType = null then                  false
         elif N.created > (System.DateTime.Now) then false
         else
-            let nonDefaultsOk = mayPerformAccountUpdate invoker (defaultFrom N) N // Creator must have permissions to create accounts with non-default values (credits, banned, ...)
+            // Creator must have permissions to create accounts with non-default values (credits, banned, ...)
+            let nonDefaultsOk = mayPerformAccountUpdate invoker (defaultFrom N) N
+
             nonDefaultsOk && (check invoker "CREATE" newAcc.accType)
 
     /// Whether some invoker may delete some account
@@ -199,13 +157,9 @@ module AccountPermissions =
     /// Whether some invoker may read the authentication log info about the account with username {accUser}
     let mayReadAuthTime invoker accUser =
         let check = check invoker "READ_AUTH_INFO"
-        try
-            let accType = (Account.getByUsername accUser).accType
-            match invoker with
-            | Invoker.Auth a when a.user = accUser  -> check own
-            | _                                     -> check any
-        with
-        | NoSuchUser -> false                             
+        match invoker with
+        | Invoker.Auth a when a.user = accUser  -> check own
+        | _                                     -> check any                   
 
     /// Whether some invoker may reset the password of some account with username {accUser}
     let mayResetPassword invoker accUser =

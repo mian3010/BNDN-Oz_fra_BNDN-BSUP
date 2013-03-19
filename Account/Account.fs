@@ -101,9 +101,9 @@ module Account =
         try
             Db.createUser acc
         with
-            | Db.UsernameAlreadyInUse -> raise UserAlreadyExists
-            | Db.IllegalAccountVersion -> raise BrokenInvariant
-            |  -> raise UnknownAccType
+            | Db.UsernameAlreadyInUse   -> raise UserAlreadyExists
+            | Db.IllegalAccountVersion  -> raise BrokenInvariant
+            | Db.NoSuchAccountType      -> raise UnknownAccType
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -114,7 +114,11 @@ module Account =
             | Db.NoUserWithSuchName -> raise NoSuchUser
     
     /// Retrieves all accounts of a specific type
-    let getAllByType (accType:string) :Account list = Db.getAllUsersByType accType // SHOULD THIS THROW EXCEPTION FOR UNKNOWN TYPES??????
+    let getAllByType (accType:string) :Account list =
+        try
+            Db.getAllUsersByType accType
+        with
+            | Db.NoSuchAccountType -> raise UnknownAccType
 
     /// Retrieves the date and time which the user {user} last authenticated
     /// 'None' means that the user never has authenticated

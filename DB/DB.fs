@@ -11,7 +11,7 @@ open System.Security
         exception UsernameAlreadyInUse
         exception NewerVersionExist
         exception IllegalAccountVersion
-        exception NuSuchAccountType
+        exception NoSuchAccountType
 
         module internal Internal =
 
