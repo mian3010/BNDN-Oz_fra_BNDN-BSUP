@@ -6,7 +6,7 @@ open RentIt
     type Identity =   Auth of string // Username
                     | Unauth         // Unauthenticated users
     
-    type Target =     Type of string // Tartet type
+    type Target =     Type of string // Target type
                     | Own            // Own
                     | Any            // Not specific type
     
@@ -17,9 +17,9 @@ open RentIt
     // Takes UserId and Permission. Both as strings
     // Returns true/false
     let CheckUserPermission (id:Identity) (permission:string) (tp:Target) :bool =
-      let mutable perm = permission
-      match tp with
-      | Type x -> perm <- permission + "_" + x
+      let perm = match tp with
+                 | Type x -> permission + "_" + x
+                 | _ -> permission
 
       match id with
       | Unauth -> PermissionsHelper.checkUserTypePermission "Unauth" perm
