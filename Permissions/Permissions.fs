@@ -5,17 +5,15 @@
     type Identity =   Auth of string // username
                     | Unauth         // unauthenticated users
     
-    // Check if a User has Permission to Action
-    // Takes UserId and Permission. Both as strings
-    // Returns true/false
-    let CheckUserPermission (id:string) (permission:string) :bool =
+    let internal findUserType id:string =
       // Find User Type for User
       let user = Persistence.Get "User" [{field="id";operator="=";value=id}] 
-      if user.Length = 0 then false
+      if user.Length = 0 then ""
       else   
-      let userType = user.Item(0).Item("Type_name") //TODO Defens
+      userType = user.Item(0).Item("Type_name") //TODO Defens
 
-      // Find Action Groups with desired Action
+    let checkUserTypePermission (usertype:string) (permission:string) :bool=
+    // Find Action Groups with desired Action
       let actionGroups = Persistence.Get "ActionGroup_has_AllowedAction" [{field="AllowedAction_name";operator="=";value=permission}]
 
       // Check if any results
@@ -25,13 +23,25 @@
         let mutable typeActions:List<Map<string,string>> = List.empty
         for actionGroup in actionGroups do
           let ac = actionGroup.Item("Name")
-          typeActions <- Persistence.Get "UserType_has_ActionGroup" [{field="UserType_name";operator="=";value=userType}; {field="ActionGroup_name";operator="=";value=ac}]
+          typeActions <- Persistence.Get "UserType_has_ActionGroup" [{field="UserType_name";operator="=";value=usertype}; {field="ActionGroup_name";operator="=";value=ac}]
              
         // Does user have reference to Allowed Action?
         if typeActions.IsEmpty then false
         else true
       else true
+
+    let internal checkUserPermission (id:string) (permission:string) :bool=
+      let userType = findUserType id
+      checkUserTypePermission userType permission
     
+    // Check if a User has Permission to Action
+    // Takes UserId and Permission. Both as strings
+    // Returns true/false
+    let CheckUserPermission (id:Identity) (permission:string) :bool =
+      match id with
+      | Unauth -> checkUserTypePermission "Unauth" permission
+      | Auth x -> checkUserPermission x permission
+
     // Assign a Permission to an ActionGroup
     // Takes ActionGroup Name and Permission. Both as strings
     let AssignPermissionToActionGroup (name:string) (permission:string) =
