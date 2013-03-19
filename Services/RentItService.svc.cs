@@ -5,7 +5,6 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
-using RentIt.Auth;
 using System.Net;
 
 namespace RentIt
@@ -25,12 +24,12 @@ namespace RentIt
         {
             try
             {
-                string token = "token: '";
+                string token = "{token: \"";
                Tuple<string,DateTime> t = ControlledAuth.authenticate(user, password);
-               token += t.Item1 +"', expires: '" +JsonUtility.dateTimeToString(t.Item2) + "'";
+               token += t.Item1 +"\", expires: \"" +JsonUtility.dateTimeToString(t.Item2) + "\"}";
                return token;
             }
-            catch (RentIt.Permissions.AccountBanned)
+            catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
@@ -58,6 +57,7 @@ namespace RentIt
                 DateTime dateTime = JsonUtility.stringToDateTime(date);
                 Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
 
+                
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.NotImplemented;
                 return null;
@@ -68,13 +68,13 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.NotFound;
                 return null;
             }
-            catch (RentIt.Permissions.PermissionDenied)
+            catch (AccountPermissions.PermissionDenied)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
                 return null;
             }
-            catch (RentIt.Permissions.AccountBanned)
+            catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
@@ -83,20 +83,16 @@ namespace RentIt
         }
 
 
-        string GetAccount(string USERNAME)
+        public string GetAccount(string user)
         {
             try
             {
                 WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                string tokenString = headers.Keys.Get(1);
-                string[] tokenSplit = tokenString.Split(',');
-                string token = tokenSplit[0].Substring(8, tokenSplit[0].Length - 1);
-                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
-
-                DateTime dateTime = JsonUtility.stringToDateTime(date);
-                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
-
-                ControlledAuth.accessAccount(token);
+                    string tokenString = headers.Keys.Get(1);
+                    OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                    response.StatusCode = HttpStatusCode.NotImplemented;
+                    return null;
+                    
             }
             catch (RentIt.Account.NoSuchUser)
             {
@@ -104,13 +100,13 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.NotFound;
                 return null;
             }
-            catch (RentIt.Permissions.PermissionDenied)
+            catch (AccountPermissions.PermissionDenied)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
                 return null;
             }
-            catch (RentIt.Permissions.AccountBanned)
+            catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
@@ -119,22 +115,24 @@ namespace RentIt
         }
 
 
-        public string UpdateAccount(string USERNAME, string email, string name, string address, string birth, string about, string password)
+        public string UpdateAccount(string user, AccountData data)
         {
             try
             {
                 WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                string tokenString = headers.Keys.Get(1);
-                string[] tokenSplit = tokenString.Split(',');
-                string token = tokenSplit[0].Substring(8, tokenSplit[0].Length - 1);
-                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
+                if (headers.Count == 2)
+                {
+                    string tokenString = headers.Keys.Get(1);
 
-                DateTime dateTime = JsonUtility.stringToDateTime(date);
-                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
+                    ControlledAuth.accessAccount(tokenString);
+                    var acc = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
 
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotImplemented;
-                return null;
+                    OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                    response.StatusCode = HttpStatusCode.NotImplemented;
+                    return null;
+                }
+                else
+                    throw new AccountPermissions.AccountBanned(); //returns bad request error
             }
             catch (RentIt.Account.NoSuchUser)
             {
@@ -142,13 +140,13 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.NotFound;
                 return null;
             }
-            catch (RentIt.Permissions.PermissionDenied)
+            catch (AccountPermissions.PermissionDenied)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
                 return null;
             }
-            catch (RentIt.Permissions.AccountBanned)
+            catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
@@ -156,37 +154,42 @@ namespace RentIt
             }
         }
 
-        
-        string CreateAccount(string USERNAME, string email, string name, string address, string birth, string about, string password, string type)
+
+        public string CreateAccount(string user, AccountData data)
         {
+
             try
-            {
-                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                string tokenString = headers.Keys.Get(1);
-                string[] tokenSplit = tokenString.Split(',');
-                string token = tokenSplit[0].Substring(8, tokenSplit[0].Length - 1);
-                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
-
-                DateTime dateTime = JsonUtility.stringToDateTime(date);
-                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
-
+            { 
+               //var typeInfo = AccountTypes.TypeInfo.NewCustomer(;
+               //var Uaccount =  Account.make(, user, data.email, data.password);
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.NotImplemented;
                 return null;
             }
-            catch (RentIt.Permissions.PermissionDenied)
+             catch (AccountPermissions.PermissionDenied)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
                 return null;
             }
-            catch (RentIt.Permissions.AccountBanned)
+            catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
                 return null;
             }
 
+        }
+
+        private string getToken()
+        {
+            WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
+            if (headers[1].Contains("token"))
+            {
+                return headers[1];
+            }
+            else
+                throw new Account.BrokenInvariant();
         }
 
     }
