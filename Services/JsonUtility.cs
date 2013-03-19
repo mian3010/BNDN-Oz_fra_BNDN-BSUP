@@ -69,38 +69,6 @@ namespace RentIt
 
         #endregion
 
-        #region AccountType handling   MAYBE NOT NEEDED
-
-        /// <summary>
-        /// Converts an account type identifier into the string format used by the REST API
-        /// </summary>
-        /// <param name="accType">The account type to convert to string</param>
-        /// <returns>The string representation of the account type according to the REST API</returns>
-        public static string AccountTypeToString(AccountType accType){
-        
-            if(accType.Equals(AccountType.Admin))           return "Admin";
-            if(accType.Equals(AccountType.ContentProvider)) return "Content Provider";
-            if (accType.Equals(AccountType.Customer))       return "Customer";
-
-            throw new NotImplementedException("No implementation is given for the type: " + accType);
-        }
-
-        /// <summary>
-        /// Converts the string form of an account type identifier (from the REST API) into an actual type
-        /// </summary>
-        /// <param name="str">The string representation of an account type identifier</param>
-        /// <returns>The actual account type identifier represented by the string</returns>
-        public static AccountType StringToAccountType(string str){
-        
-            if("Admin".Equals(str))             return AccountType.Admin;
-            if("Content Provider".Equals(str))  return AccountType.ContentProvider;
-            if("Customer".Equals(str))          return AccountType.Customer;
-
-            throw new NotImplementedException("No implementation is given for the type: " + str);
-        }
-
-        #endregion
-
         #region Other
 
         /// <summary>
