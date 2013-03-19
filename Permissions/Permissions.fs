@@ -19,7 +19,8 @@ open RentIt
     let CheckUserPermission (id:Identity) (permission:string) (tp:Target) :bool =
       let mutable perm = permission
       match tp with
-      | Type x -> perm <- permission + "_" + x
+      | Type x -> perm <- permission + "TYPE_" + x
+      | Own -> perm <- permission + "OWN"
 
       match id with
       | Unauth -> PermissionsHelper.checkUserTypePermission "Unauth" perm
