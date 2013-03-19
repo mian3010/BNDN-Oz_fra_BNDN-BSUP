@@ -7,6 +7,7 @@ module Main =
     [<EntryPoint>]
     let main argv =
         //Testing Create
+        printfn "%A" "---------- Create query ----------"
         let objectName = "User"
         let fieldProcessor = Persistence.Field.Default
         let dataQ = Persistence.DataIn.createDataIn []    objectName "Id" "2"
@@ -26,6 +27,7 @@ module Main =
         printfn "%A" createR
 
         //Testing Read
+        printfn "%A" "---------- Read 1 query ----------"
         let fieldsQ         = Persistence.ReadField.createReadField [] "User" "Username"
         let fieldsQ         = Persistence.ReadField.createReadField fieldsQ "Country" "Name"
         let baseObjectNameQ = "User"
@@ -35,12 +37,29 @@ module Main =
         printfn "%A" readR1
         
         //Testing Read again
+        printfn "%A" "---------- Read 2 query ----------"
         let fieldsQ         = Persistence.ReadField.createReadFieldProc [] "User" "Date_of_birth" Persistence.ReadField.Max
         let baseObjectNameQ = "User"
         let joinsQ          = []
         let filtersQ        = []
         let readR2 = Persistence.Api.read fieldsQ baseObjectNameQ joinsQ filtersQ
         printfn "%A" readR2
+
+        //Testing Update
+        printfn "%A" "---------- Update query ----------"
+        let objectName = "User"
+        let dataQ      = Persistence.DataIn.createDataIn [] "User" "Address" "Updated address"
+        let filtersQ   = Persistence.Filter.createFilter [] "User" "Username" "=" "tumpe2"
+        let updateR = Persistence.Api.update objectName filtersQ dataQ
+        printfn "%A" updateR
+
+        //Testing Delete
+        printfn "%A" "---------- Delete query ----------"
+        let objectName = "User"
+        let filtersQ   = Persistence.Filter.createFilter [] "User" "Id" "=" "2"
+        let deleteR = Persistence.Api.delete objectName filtersQ
+        printfn "%A" deleteR
+
 (*
         let data:Map<string,string> = Map.empty
         let data = data.Add("Address", "New address2")

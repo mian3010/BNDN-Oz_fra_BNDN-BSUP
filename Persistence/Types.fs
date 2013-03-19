@@ -2,48 +2,51 @@
     module Types =
         exception PersistenceException
         type Field = {
-         objectName : string;
-         field : string;
-         processor : Field -> string;
+            objectName : string;
+            field : string; 
+            processor : Field -> string;
         }
         type Filter = {
-         field : Field;
-         operator : string;
-         value : string;
-         processor : Filter -> string;
+            field : Field;
+            operator : string;
+            value : string;
+            processor : Filter -> string;
         }
         type ReadField = {
-         field : Field;
-         processor : ReadField -> string;
+            field : Field;
+            processor : ReadField -> string;
         }
         type DataOut = {
-         field : Field;
-         value : string;
+            field : Field;
+            value : string;
         }
         type DataIn = {
-         field : Field;
-         value : string;
+            field : Field;
+            value : string;
         }
         type ObjectJoin = {
-         fieldFrom : Field;
-         fieldTo : Field;
+            fieldFrom : Field;
+            fieldTo : Field;
         }
         type Create = {
-         objectName : string;
-         data : DataIn List;
+            objectName : string;
+            data : DataIn List;
         }
         type Read = {
-         fields : ReadField List;
-         baseObjectName : string;
-         joins : ObjectJoin List;
-         filters : Filter List;
-         processor : Read -> string
+            fields : ReadField List;
+            baseObjectName : string;
+            joins : ObjectJoin List;
+            filters : Filter List;
+            processor : Read -> string
         }
         type Update = {
-         lol : bool;
+            objectName : string;
+            filters : Filter List;
+            data : DataIn List;
         }
         type Delete = {
-         lol : bool;
+            objectName : string;
+            filters : Filter List;
         }
 
     module Field =
@@ -85,7 +88,7 @@
 
         //Factory functions
         let createReadField (list:Types.ReadField List) objectName field =
-            list@[({field=(Field.createField [] objectName field).Head;processor=Default}:Types.ReadField)]
+            list@[({field = (Field.createField [] objectName field).Head; processor = Default}:Types.ReadField)]
         let createReadFieldProc (list:Types.ReadField List) objectName field processor =
             list@[({field=(Field.createField [] objectName field).Head;processor=processor}:Types.ReadField)]
         let createReadFieldField (list:Types.ReadField List) field =
@@ -105,11 +108,28 @@
             list@[({fieldFrom=fromField;fieldTo=toField}:Types.ObjectJoin)]
 
     module DataIn =
+        //DataIn processors supported
+        let Default (dataIn:Types.DataIn) =
+            (dataIn.field.processor dataIn.field)+"='"+dataIn.value+"'"
+
         //Factory functions
         let createDataIn (list:Types.DataIn List) objectName field value =
             list@[({field=(Field.createField [] objectName field).Head;value=value;}:Types.DataIn)]
         let createDataInField (list:Types.DataIn List) field value =
             list@[({field=field;value=value;}:Types.DataIn)]
+
+
+    module Create =
+        let internal joinTuple (ok,ov) k v =
+             (ok+", "+k, ov+", '"+v+"'")
+        let rec internal extractData (data:Types.DataIn List) =
+            match data with 
+                | [] -> ("", "")
+                | x::[] -> (x.field.processor x.field, "'"+x.value+"'")
+                | x::xs -> joinTuple (extractData xs) (x.field.processor x.field) x.value
+        let Default (create:Types.Create) =
+            let data = extractData create.data
+            "INSERT INTO ["+create.objectName+"] ("+fst data+") OUTPUT INSERTED.* VALUES ("+snd data+")"
 
     //Read processors supported
     module Read =
@@ -131,14 +151,17 @@
         let Default (read:Types.Read) =
             "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilters read.filters
 
-    module Create =
-        let internal joinTuple (ok,ov) k v =
-             (ok+", "+k, ov+", '"+v+"'")
-        let rec internal extractData (data:Types.DataIn List) =
-            match data with 
-                | [] -> ("", "")
-                | x::[] -> (x.field.processor x.field, "'"+x.value+"'")
-                | x::xs -> joinTuple (extractData xs) (x.field.processor x.field) x.value
-        let Default (create:Types.Create) =
-            let data = extractData create.data
-            "INSERT INTO ["+create.objectName+"] ("+fst data+") VALUES ("+snd data+")"
+    //Update processors supported
+    module Update =
+        let rec internal joinUpdateData (data:Types.DataIn List) =
+            match data with
+                | [] -> ""
+                | x::[] -> DataIn.Default x
+                | x::xs -> DataIn.Default x+","+joinUpdateData xs
+        let Default (update:Types.Update) =
+            "UPDATE ["+update.objectName+"] SET "+joinUpdateData update.data+" OUTPUT INSERTED.* WHERE "+Read.joinFilters update.filters
+
+    //Delete processors supported
+    module Delete =
+        let Default (delete:Types.Delete) =
+            "DELETE FROM ["+delete.objectName+"] OUTPUT DELETED.* WHERE "+Read.joinFilters delete.filters

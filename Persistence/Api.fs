@@ -40,14 +40,43 @@ open System.Data
             readQ readQuery
 
         let readProc fields objectName joins filters processor =
-            let selectQ:Types.Read = {
+            let readQuery:Types.Read = {
                 fields=fields;
                 baseObjectName=objectName;
                 joins=joins;
                 filters=filters;
                 processor=processor;
             }
-            readQ selectQ
+            readQ readQuery
+
+        //Update functions
+        let updateQ (updateQuery:Types.Update) =
+            try
+                use reader = Helper.performSql (Update.Default updateQuery)
+                Helper.extractData reader
+            with
+                | _ -> raise Types.PersistenceException
+        let update objectName filters dataIn =
+            let updateQuery:Types.Update = {
+                objectName=objectName;
+                filters=filters;
+                data=dataIn;
+            }
+            updateQ updateQuery
+
+        //Delete functions
+        let deleteQ (deleteQuery:Types.Delete) =
+            try
+                use reader = Helper.performSql (Delete.Default deleteQuery)
+                Helper.extractData reader
+            with
+                | _ -> raise Types.PersistenceException
+        let delete objectName filters =
+            let deleteQuery:Types.Delete = {
+                objectName = objectName;
+                filters=filters;
+            }
+            deleteQ deleteQuery
 
          (*
         let Insert objectName data = 
