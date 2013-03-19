@@ -10,6 +10,9 @@ open RentIt
                     | Own            // Own
                     | Any            // Not specific type
     
+    let CheckUserTypePermission (usertype:string) (permission:string) :bool =
+      PermissionsHelper.checkUserTypePermission usertype permission
+    
     // Check if a User has Permission to Action
     // Takes UserId and Permission. Both as strings
     // Returns true/false
