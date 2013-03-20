@@ -78,3 +78,13 @@ open System.Data
                 filters=filters;
             }
             deleteQ deleteQuery
+
+        ///Execute a transaction query
+        let transactionQ (transactionQuery:Types.Transaction) =
+            try
+                use reader = Helper.performSql (Transaction.Default transactionQuery)
+                let output = Helper.extractData reader
+                if output.IsEmpty then false
+                else true
+            with
+                | _ -> raise Types.PersistenceException
