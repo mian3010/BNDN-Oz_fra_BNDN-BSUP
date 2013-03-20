@@ -18,8 +18,8 @@ open RentIt
     // Returns true/false
     let checkUserPermission (id:Identity) (permission:string) (tp:Target) :bool =
       let perm = match tp with
-                 | Type x -> permission + "TYPE_" + x
-                 | Own -> permission + "OWN"
+                 | Type x -> permission + "_TYPE_" + x
+                 | Own -> permission + "_OWN"
                  | _ -> permission
 
       match id with
