@@ -1,4 +1,4 @@
-﻿namespace RentIt.Permissions
+﻿namespace RentIt
 open RentIt
 
   module Permissions = 

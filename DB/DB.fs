@@ -114,7 +114,7 @@ open System.Security
             lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves all accounts of a specific type
-        let getAllUsersByType accType list =
+        let getAllUsersByType accType :AccountTypes.Account list =
             let internalFun =
                 let fieldsQ = Persistence.ReadField.createReadFieldProc [] "user" "Username" Persistence.ReadField.All
                 let filterQ = Persistence.Filter.createFilter [] "user" "Type_name" "=" accType

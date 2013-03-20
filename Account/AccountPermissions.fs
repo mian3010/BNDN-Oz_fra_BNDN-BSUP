@@ -17,23 +17,23 @@ module AccountPermissions =
 
     module internal Internal =
 
-        let own = Permissions.Target.Own
-        let any = Permissions.Target.Any
+        type CheckTarget =   Other of Permissions.Target
+                           | Type of string
 
-        type Target =   Permissions.Target 
-                      | string
+        let own = CheckTarget.Other Permissions.Target.Own
+        let any = CheckTarget.Other Permissions.Target.Any
 
         let invokerToId = function
         | Invoker.Auth acc -> Permissions.Auth acc.user
         | Invoker.Unauth   -> Permissions.Unauth
 
-        let check (invoker:Invoker) (permission:string) (target:Target) =
+        let check (invoker:Invoker) (permission:string) (target:CheckTarget) =
             match invoker with
             | Invoker.Auth acc when acc.banned  ->  false
             | _                                 ->  let check = Permissions.checkUserPermission (invokerToId invoker) permission
                                                     match target with
-                                                    | string as t   -> check (Permissions.Target.Type t)
-                                                    | x             -> check x
+                                                    | Other x -> check x
+                                                    | Type t  -> check (Permissions.Target.Type t)
 
         let hasPermission (accType:string) (permission:string) = true
 
@@ -60,7 +60,7 @@ module AccountPermissions =
         /// Whether {invoker} may change the ban status of one account to something else
         let bannedOk invoker (targetAcc:Account) (banned:bool) =
             not (targetAcc.banned = banned) &&
-            check invoker "BAN_UNBAN" targetAcc.accType
+            check invoker "BAN_UNBAN" (CheckTarget.Type targetAcc.accType)
 
         /// Whether {invoker} may change the email address of one account to something else
         let emailOk invoker (targetAcc:Account) (email:string) =
@@ -68,7 +68,7 @@ module AccountPermissions =
                 let check = check invoker "CHANGE_EMAIL"
                 match invoker with
                 | Invoker.Auth a when a.user = targetAcc.user   -> check own
-                | _                                             -> check targetAcc.accType
+                | _                                             -> check (CheckTarget.Type targetAcc.accType)
             else not (targetAcc.email = null)
 
         /// Whether {invoker} may change the password of one account to something else
@@ -77,7 +77,7 @@ module AccountPermissions =
                 let check = check invoker "CHANGE_PASSWORD"
                 match invoker with
                 | Invoker.Auth a when a.user = targetAcc.user   -> check own
-                | _                                             -> check targetAcc.accType
+                | _                                             -> check (CheckTarget.Type targetAcc.accType)
             else true
 
         /// Whether {invoker} may change the credits of one account to something else
@@ -136,7 +136,7 @@ module AccountPermissions =
             // Creator must have permissions to create accounts with non-default values (credits, banned, ...)
             let nonDefaultsOk = mayPerformAccountUpdate invoker (defaultFrom N) N
 
-            nonDefaultsOk && (check invoker "CREATE" newAcc.accType)
+            nonDefaultsOk && (check invoker "CREATE" (CheckTarget.Type N.accType))
 
     /// Whether some invoker may delete some account
     let mayDeleteAccount invoker targetAcc = false // Not supported
@@ -148,13 +148,13 @@ module AccountPermissions =
             let accType = (Account.getByUsername accUser).accType
             match invoker with
             | Invoker.Auth a when a.user = accUser  -> check own
-            | _                                     -> check accType
+            | _                                     -> check (CheckTarget.Type accType)
         with
         | NoSuchUser -> false
 
     /// Whether some invoker may retrieve all accounts of a specific type
     let mayRetrieveAccounts invoker (targetType:string) =
-        check invoker "READ" targetType
+        check invoker "READ" (CheckTarget.Type targetType)
 
     /// Whether some invoker may read the authentication log info about the account with username {accUser}
     let mayReadAuthTime invoker accUser =
@@ -170,6 +170,6 @@ module AccountPermissions =
             let accType = (Account.getByUsername accUser).accType
             match invoker with
             | Invoker.Auth a when a.user = accUser  -> check own
-            | _                                     -> check accType
+            | _                                     -> check (CheckTarget.Type accType)
         with
         | NoSuchUser -> false

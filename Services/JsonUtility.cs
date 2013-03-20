@@ -5,8 +5,6 @@ using System.Web;
 
 namespace RentIt
 {
-    using AccountType = AccountTypes.AccountType;
-
     /// <summary>
     /// A small utility to handle data transmitted by JSON via the REST API
     /// </summary>
