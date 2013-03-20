@@ -28,9 +28,9 @@ module AccountPermissions =
         let check (invoker:Invoker) (permission:string) target =
             match invoker with
             | Invoker.Auth acc when acc.banned  ->  false
-            | _                                 ->  let check = Permissions.checkPermissions (invokerToId invoker) permission
+            | _                                 ->  let check = Permissions.checkUserPermission (invokerToId invoker) permission
                                                     match target with
-                                                    | string as t   -> (Permissions.Target.Type t)
+                                                    | string as t   -> check (Permissions.Target.Type t)
                                                     | x             -> check x
 
         let hasPermission (accType:string) (permission:string) = true

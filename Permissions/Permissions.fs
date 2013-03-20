@@ -16,7 +16,7 @@ open RentIt
     // Check if a User has Permission to Action
     // Takes UserId and Permission. Both as strings
     // Returns true/false
-    let CheckUserPermission (id:Identity) (permission:string) (tp:Target) :bool =
+    let checkUserPermission (id:Identity) (permission:string) (tp:Target) :bool =
       let perm = match tp with
                  | Type x -> permission + "TYPE_" + x
                  | Own -> permission + "OWN"
