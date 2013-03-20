@@ -65,6 +65,8 @@
       <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Account\Account.fsproj">
       <Name>Account</Name>
       <Project>{7ee274b7-c8a3-4299-b766-e00862b8ad5e}</Project>

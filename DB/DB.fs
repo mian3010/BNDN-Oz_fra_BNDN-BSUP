@@ -114,7 +114,7 @@ open System.Security
             lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves all accounts of a specific type
-        let getAllUsersByType accType list =
+        let getAllUsersByType accType :AccountTypes.Account list =
             let internalFun =
                 let fieldsQ = Persistence.ReadField.createReadFieldProc [] "user" "Username" Persistence.ReadField.All
                 let filterQ = Persistence.Filter.createFilter [] "user" "Type_name" "=" accType
@@ -149,7 +149,7 @@ open System.Security
                         accType = map.Item "Type_name"
                         version = uint32 0 }
                     yield tmp
-                    if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache.CachedUsers) then
+                    if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache) then
                         Internal.cache <- Internal.cache.Add (tmp.user, tmp) ]
                 result
             lock Internal.cache (fun() -> internalFun)
