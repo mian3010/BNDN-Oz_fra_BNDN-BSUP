@@ -21,11 +21,13 @@ module AccountPermissions =
         let own = Permissions.Target.Own
         let any = Permissions.Target.Any
 
+        type Target = Permissions.Target | string
+
         let invokerToId = function
         | Invoker.Auth acc -> Permissions.Auth acc.user
         | Invoker.Unauth   -> Permissions.Unauth
 
-        let check (invoker:Invoker) (permission:string) target =
+        let check (invoker:Invoker) (permission:string) (target:Target) =
             match invoker with
             | Invoker.Auth acc when acc.banned  ->  false
             | _                                 ->  let check = Permissions.checkUserPermission (invokerToId invoker) permission
