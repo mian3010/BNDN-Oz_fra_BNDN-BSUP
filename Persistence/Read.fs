@@ -22,3 +22,7 @@
         ///Default processor
         let Default (read:Types.Read) =
             "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilters read.filters
+
+        //Factory functions
+        let createRead fields objectName joins filters =
+            ({fields=fields;baseObjectName=objectName;joins=joins;filters=filters;processor=Default}:Types.Read)

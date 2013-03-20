@@ -14,3 +14,7 @@
         let Default (create:Types.Create) =
             let data = extractData create.data
             "INSERT INTO ["+create.objectName+"] ("+fst data+") OUTPUT INSERTED.* VALUES ("+snd data+")"
+
+        //Factory functions
+        let createCreate objectName data =
+            ({objectName=objectName;data=data;}:Types.Create)
