@@ -9,7 +9,6 @@ module AccountPermissions =
     exception AccountBanned    // Raised when a banned invoker attempts to perform an action
     exception PermissionDenied // Raised when an invoker attempts to perform an inaccessible action
     
-    open Permissions
     open AccountTypes
     open Account
     open Ops
@@ -21,7 +20,8 @@ module AccountPermissions =
         let own = Permissions.Target.Own
         let any = Permissions.Target.Any
 
-        type Target = Permissions.Target | string
+        type Target =   Permissions.Target 
+                      | string
 
         let invokerToId = function
         | Invoker.Auth acc -> Permissions.Auth acc.user
