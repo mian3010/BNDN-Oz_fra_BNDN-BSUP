@@ -73,6 +73,11 @@
       <Project>{1a2ef8ab-e695-43ca-a3db-e9c0d71ee5be}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Persistence\Persistence.fsproj">
+      <Name>Persistence</Name>
+      <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
