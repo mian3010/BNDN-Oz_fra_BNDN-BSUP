@@ -2,45 +2,61 @@
 
 open System
 open System.Data
+open System.Security
 
     module Db =
-
-        module internal Internal =
-
-            let server = "(localdb)\Projects"
-            let database = "test"
-
-            let connDB = new SqlClient.SqlConnection("server=" + server + ";Integrated Security=True;Database=" + database)
-
-            let performSql sql =
-             let cmd = new SqlClient.SqlCommand(sql, connDB)
-             connDB.Open()
-             cmd.ExecuteReader()
-
-            ////// Persistence
-            type Cache() = class
-                let mutable cachedUsers = Map.empty : Map<string, AccountTypes.Account>
-
-                member x.CachedUsers = Map.empty : Map<string, AccountTypes.Account>
-
-                member x.addUser(key, value) = cachedUsers <- cachedUsers.Add(key, value)
-            end
-
-            ////// Helper functions
-            let splitDbPass (dbPass:string) :AccountTypes.PasswordTypes.Password =
-                let parts = dbPass.Split [|':'|]
-                { salt = parts.[0]; hash = parts.[1] }
-
-        ///////////////////////////////////////////////////////////////////////////////////
 
         // Exceptions
         exception NoUserWithSuchName
         exception UsernameAlreadyInUse
         exception NewerVersionExist
         exception IllegalAccountVersion
+        exception NoSuchAccountType
 
-        // Cache elements
-        let internal cache = new Internal.Cache()
+        module internal Internal =
+
+            // Cache elements
+            let mutable cache = Map.empty : Map<string, AccountTypes.Account>
+
+            // Database connection
+            let server = "localhost"
+            let database = "RENTIT27"
+            let userName = "RentIt27db"
+            let pass = "ZAQ12wsx"
+
+            let secPass = new SecureString()
+            for i in pass do
+                secPass.AppendChar(i)
+
+            secPass.MakeReadOnly()
+
+            let connectionString = "server=" + server + ";Database=" + database
+            
+            let cred = SqlClient.SqlCredential(userName, secPass)
+            
+            let connDB = new SqlClient.SqlConnection(connectionString, cred)
+
+            let performSql sql =
+                connDB.Close()
+                let cmd = new SqlClient.SqlCommand(sql, connDB)
+                connDB.Open()
+                cmd.ExecuteReader()
+
+            ////// Helper functions
+            let splitDbPass (dbPass:string) :AccountTypes.Password =
+                let parts = dbPass.Split [|':'|]
+                { salt = parts.[0]; hash = parts.[1] }
+
+            let getNextLoggableID() :int =
+                let fieldQ = Persistence.ReadField.createReadFieldProc [] "loggable" "Id" Persistence.ReadField.Max
+                let reader = Persistence.Api.read fieldQ "loggable" [] []
+
+                if reader.IsEmpty then
+                    0
+                else
+                    int(reader.Item(0).Item("loggable_Id_Max"))
+
+        ///////////////////////////////////////////////////////////////////////////////////
 
         ////// API functions
 
@@ -48,52 +64,101 @@ open System.Data
         /// Raises NoUserWithSuchName
         let getUserByName userName :AccountTypes.Account =
             let internalFun =
-                if (Map.containsKey<string, AccountTypes.Account> userName cache.CachedUsers) then 
-                    Map.find<string, AccountTypes.Account> userName cache.CachedUsers
+                // If the user already exist in the cache, get him/her from there!
+                if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache) then
+                    Map.find<string, AccountTypes.Account> userName Internal.cache
                 else
-                    let sql = "SELECT * FROM [table] where [username] =" + userName
-                    use reader = Internal.performSql sql
-
-                    if reader.HasRows = false then raise NoUserWithSuchName
+                    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "user" "Username" Persistence.ReadField.All
+                    let filterQ = Persistence.Filter.createFilter [] "user" "Username" "=" userName
+                    let read    = Persistence.Api.read fieldsQ "user" [] filterQ
                     
-                    let result :AccountTypes.Account =  {
-                                    user = "dude";
-                                    email = "where.is@my.car";
-                                    password = Internal.splitDbPass "123:abc";
-                                    created = System.DateTime.Now;
-                                    banned = false;
-                                    info = AccountTypes.TypeInfo.Admin ();
-                                    version = uint32(0) }
-                    cache.addUser(result.user, result)
-                    result
-            lock cache (fun() -> internalFun)
+                    // Oooops, no user with that username. Hmm, u stupid or some?
+                    if read.IsEmpty then
+                        raise NoUserWithSuchName
+
+                    // Get the first, and (hopefully) only result
+                    let result = read.Item(0)
+
+                    // Create the account, using the information from "result"
+                    let acc :AccountTypes.Account = {
+                        user = result.Item "Username"
+                        email = result.Item"Email"
+                        password = Internal.splitDbPass (result.Item "Password")
+                        created = DateTime.Parse (result.Item "Created_date")
+                        banned = if result.Item "Banned" = "0" then false else true
+                        info = {
+                                name = None;
+                                address = {
+                                            address = result.TryFind "Address"
+                                            postal = 
+                                                let zipString = result.TryFind "Zipcode"
+                                                if zipString = None then 
+                                                    None else Some (int (string zipString))
+                                            country = Some (result.Item "Country_Name") }
+                                birth =
+                                    let bodString = result.TryFind "Date_of_birth"
+                                    if bodString = None then 
+                                        None else Some (DateTime.Parse (string bodString))
+                                        
+                                about = result.TryFind "About_me"
+                                credits =
+                                    let cString = result.TryFind "Balance"
+                                    if cString = None then
+                                        None else Some (int (string cString)) }
+                        accType = result.Item "Type_name"
+                        version = uint32 0 }
+                    // Add the new account to the cache
+                    Internal.cache <- Internal.cache.Add (acc.user, acc)
+                    acc // Return him (or her)!
+                        
+            lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves all accounts of a specific type
-        let getAllUsersByType (accType:AccountTypes.AccountType) :AccountTypes.Account list =
+        let getAllUsersByType accType list =
             let internalFun =
-                let sql = "SELECT * FROM [TABLE] where [?] = " + accType.ToString() // Query is not right!
-                use reader = Internal.performSql sql
-                let result =    [ while reader.Read() do
-                                    let tmp :AccountTypes.Account = {
-                                        user = "dude";
-                                        email = "where.is@my.car";
-                                        password = Internal.splitDbPass "123:abc";
-                                        created = System.DateTime.Now;
-                                        banned = false;
-                                        info = AccountTypes.TypeInfo.Admin ();
-                                        version = uint32(0) }
-                                    yield tmp
-                                    if not (Map.containsKey<string, AccountTypes.Account> tmp.user cache.CachedUsers) then
-                                        cache.addUser(tmp.user, tmp)
-                                ]
+                let fieldsQ = Persistence.ReadField.createReadFieldProc [] "user" "Username" Persistence.ReadField.All
+                let filterQ = Persistence.Filter.createFilter [] "user" "Type_name" "=" accType
+                let reader  = Persistence.Api.read fieldsQ "user" [] filterQ
+                let result = [
+                    for map in reader do
+                    let tmp :AccountTypes.Account = {
+                        user = map.Item "Username"
+                        email = map.Item"Email"
+                        password = Internal.splitDbPass (map.Item "Password")
+                        created = DateTime.Parse (map.Item "Created_date")
+                        banned = if map.Item "Banned" = "0" then false else true
+                        info = {
+                                name = None;
+                                address = {
+                                            address = map.TryFind "Address"
+                                            postal = 
+                                                let zipString = map.TryFind "Zipcode"
+                                                if zipString = None then 
+                                                    None else Some (int (string zipString))
+                                            country = Some (map.Item "Country_Name") }
+                                birth =
+                                    let bodString = map.TryFind "Date_of_birth"
+                                    if bodString = None then 
+                                        None else Some (DateTime.Parse (string bodString))
+                                        
+                                about = map.TryFind "About_me"
+                                credits =
+                                    let cString = map.TryFind "Balance"
+                                    if cString = None then
+                                        None else Some (int (string cString)) }
+                        accType = map.Item "Type_name"
+                        version = uint32 0 }
+                    yield tmp
+                    if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache.CachedUsers) then
+                        Internal.cache <- Internal.cache.Add (tmp.user, tmp) ]
                 result
-            lock cache (fun() -> internalFun)
+            lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves the date and time which the user {user} last authenticated
         /// 'None' means that the user never has authenticated
         /// Raises NoUserWithSuchName
         let getUsersLastAuthTime (user:string) :System.DateTime option =
-            raise (new System.NotImplementedException())
+            None
 
         /// Updates the persisted account record to the passed {acc} account record
         /// The account which is updated is the one with the identical username
@@ -109,7 +174,22 @@ open System.Data
                 elif (cu.version < acc.version) then
                     raise IllegalAccountVersion
                 
-                let sql = "UPDATE"
+                (*let tableName = "user"
+                let dataQ = Persistence.DataIn.createDataIn [] *)
+
+
+                let sql = "UPDATE [user] SET
+                            Email = '" + acc.email + "',
+                            Password = '" + acc.password.salt + ":" + acc.password.hash + "',
+                            Banned = " + if acc.banned then "1" else "0"
+                            + "Address = '" + "Dummy" + "'" +
+                           "Date_of_birth = " + "11-11-2008 13:23:44" + ",
+                            About_me = '" + "Dummy" + "',
+                            Balance = " + "0" + ",
+                            Zipcode = " + "2400" + ",
+                            Country_Name = '" + "Dummy" + "'"
+                                
+                let sql = sql + "WHERE (Username = '" + acc.user + "')"
                 let a' = Internal.performSql sql
                 let newAcc :AccountTypes.Account = {
                                         user = acc.user;
@@ -117,18 +197,48 @@ open System.Data
                                         password = acc.password;
                                         created = acc.created;
                                         banned = acc.banned;
-                                        info = acc.info;
-                                        version = acc.version + uint32(1) }
-                cache.addUser(acc.user, acc)
+                                        info = {
+                                                name = None ;
+                                                address = {
+                                                            address = None;
+                                                            postal = None;
+                                                            country = None };
+                                                birth = None;
+                                                about = None;
+                                                credits = None }
+                                        accType = "Admin"
+                                        version = uint32 0 }
+                Internal.cache <- Internal.cache.Add(acc.user, acc)
                 newAcc
                     
-            lock cache (fun() -> internalFun)
+            lock Internal.cache (fun() -> internalFun)
 
         /// Raises UsernameAlreadyInUse
         let createUser (acc:AccountTypes.Account) =
             let internalFun =
-                let sql = "insert into"
-                let a' = Internal.performSql sql
-                cache.addUser(acc.user, acc)
-            lock cache (fun() -> internalFun)
-            
+                let nextId = Internal.getNextLoggableID() + 1
+
+                let talbeName = "loggable"
+                let fieldProcessor = Persistence.Field.Default
+                let dataQ = Persistence.DataIn.createDataIn []    talbeName "Id" (string nextId)
+                let createR = Persistence.Api.create talbeName dataQ
+
+                let tableName = "user"
+                let fieldProcessor = Persistence.Field.Default
+                let dataQ = Persistence.DataIn.createDataIn []    talbeName "Id" (string nextId)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Username" acc.user
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Email" acc.email
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Address" (string acc.info.address.address)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Date_of_birth" (string acc.info.birth)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Password" (string acc.password.hash + ":" + acc.password.salt)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Created_date" (string acc.created)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Banned" (if acc.banned then "1" else "0")
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "About_me" (string acc.info.about)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Type_name" acc.accType
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Balance" (string acc.info.credits)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Zipcode" (string acc.info.address.postal)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Country_Name" (string acc.info.address.country)
+                let createR = Persistence.Api.create talbeName dataQ
+                
+                Internal.cache <- Internal.cache.Add(acc.user, acc)
+            lock Internal.cache (fun() -> internalFun)

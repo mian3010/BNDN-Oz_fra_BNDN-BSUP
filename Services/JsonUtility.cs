@@ -69,38 +69,6 @@ namespace RentIt
 
         #endregion
 
-        #region AccountType handling
-
-        /// <summary>
-        /// Converts an account type identifier into the string format used by the REST API
-        /// </summary>
-        /// <param name="accType">The account type to convert to string</param>
-        /// <returns>The string representation of the account type according to the REST API</returns>
-        public static string accountTypeToString(AccountType accType){
-        
-            if(accType.Equals(AccountType.Admin))           return "Admin";
-            if(accType.Equals(AccountType.ContentProvider)) return "Customer";
-            if(accType.Equals(AccountType.Customer))        return "Content Provider";
-
-            throw new NotImplementedException("No implementation is given for the type: " + accType);
-        }
-
-        /// <summary>
-        /// Converts the string form of an account type identifier (from the REST API) into an actual type
-        /// </summary>
-        /// <param name="str">The string representation of an account type identifier</param>
-        /// <returns>The actual account type identifier represented by the string</returns>
-        public static AccountType stringToAccountType(string str){
-        
-            if("Admin".Equals(str))             return AccountType.Admin;
-            if("Content Provider".Equals(str))  return AccountType.ContentProvider;
-            if("Customer".Equals(str))          return AccountType.Customer;
-
-            throw new NotImplementedException("No implementation is given for the type: " + str);
-        }
-
-        #endregion
-
         #region Other
 
         /// <summary>
@@ -108,7 +76,7 @@ namespace RentIt
         /// </summary>
         /// <param name="email">The email address to validate</param>
         /// <returns>True if the email address probably is valid, false if it by guarantee is not valid</returns>
-        public static bool validateEmail(string email){
+        public static bool ValidateEmail(string email){
         
             throw new NotImplementedException("Yet to find a good implementation....");
         }
