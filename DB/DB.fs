@@ -149,7 +149,7 @@ open System.Security
                         accType = map.Item "Type_name"
                         version = uint32 0 }
                     yield tmp
-                    if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache.CachedUsers) then
+                    if not (Map.containsKey<string, AccountTypes.Account> tmp.user Internal.cache) then
                         Internal.cache <- Internal.cache.Add (tmp.user, tmp) ]
                 result
             lock Internal.cache (fun() -> internalFun)
