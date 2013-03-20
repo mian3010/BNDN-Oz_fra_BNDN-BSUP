@@ -1,5 +1,5 @@
 ﻿namespace RentIt
-
+(*
 module main =
 [<EntryPoint>]
     let main argv = 
@@ -59,4 +59,4 @@ module main =
       let result = "Delete User Type " + userType + " " + (string (result))
       printfn "%A" result;
 
-      0
+      0*)
