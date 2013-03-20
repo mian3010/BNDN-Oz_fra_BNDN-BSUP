@@ -6,6 +6,8 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Net;
+using System.Reflection;
+using RentIt;
 
 namespace RentIt
 {
@@ -29,7 +31,7 @@ namespace RentIt
                token += t.Item1 +"\", expires: \"" +JsonUtility.dateTimeToString(t.Item2) + "\"}";
                return token;
             }
-            catch (AccountPermissions.AccountBanned)
+            catch ()
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
@@ -68,7 +70,7 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.NotFound;
                 return null;
             }
-            catch (AccountPermissions.PermissionDenied)
+            catch (RentIt.Permissions.PermissionDenied)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
@@ -88,13 +90,10 @@ namespace RentIt
             try
             {
                 WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                if (headers.Keys.Count == 2)
-                {
                     string tokenString = headers.Keys.Get(1);
                     OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                     response.StatusCode = HttpStatusCode.NotImplemented;
                     return null;
-                }
                     
             }
             catch (RentIt.Account.NoSuchUser)
@@ -160,14 +159,9 @@ namespace RentIt
 
         public string CreateAccount(string user, AccountData data)
         {
-
             try
-            { 
-               //var typeInfo = AccountTypes.TypeInfo.NewCustomer(;
-               //var Uaccount =  Account.make(, user, data.email, data.password);
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotImplemented;
-                return null;
+            {
+                var accInfo = createNewAccountType(data);
             }
              catch (AccountPermissions.PermissionDenied)
             {
@@ -184,6 +178,10 @@ namespace RentIt
 
         }
 
+        /// <summary>
+        /// This method is used to extract the token from the HTTP request header.
+        /// </summary>
+        /// <returns> The token from the header as a string</returns>
         private string getToken()
         {
             WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
@@ -193,6 +191,27 @@ namespace RentIt
             }
             else
                 throw new Account.BrokenInvariant();
+        }
+
+        private AccountTypes.Account createNewAccountType(AccountData data)
+        {
+            Dictionary<string, string> AccountInfo = new Dictionary<string, string>();
+
+            PropertyInfo[] propertyInfo = data.GetType().GetProperties();
+            
+            foreach (PropertyInfo property in propertyInfo)
+            {
+                object value = property.GetValue(this, null);
+                if (value != null)
+                {
+                    AccountInfo[property.Name] = value.ToString();
+                }
+
+                foreach (KeyValuePair<string, string> entry in AccountInfo)
+                {
+
+                }
+            }
         }
 
     }
