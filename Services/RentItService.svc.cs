@@ -25,9 +25,9 @@ namespace RentIt
         {
             try
             {
-                string token = "token: '";
+                string token = "{token: \"";
                Tuple<string,DateTime> t = ControlledAuth.authenticate(user, password);
-               token += t.Item1 +"', expires: '" +JsonUtility.dateTimeToString(t.Item2) + "'";
+               token += t.Item1 + "\"" + ", expires: \"" + JsonUtility.dateTimeToString(t.Item2) + "\""; 
                return token;
             }
             catch (RentIt.Permissions.AccountBanned)
@@ -88,15 +88,17 @@ namespace RentIt
             try
             {
                 WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                string tokenString = headers.Keys.Get(1);
-                string[] tokenSplit = tokenString.Split(',');
-                string token = tokenSplit[0].Substring(8, tokenSplit[0].Length - 1);
-                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
+                if (headers.Keys.Count == 2)
+                {
+                    string tokenString = headers.Keys.Get(1);
+                    ControlledAuth.accessAccount(tokenString);
+                    ControlledAccount.getByUsername(, USERNAME);
+                }
+                else
+                {
+                    throw new RentIt.Permissions.PermissionDenied();
+                }
 
-                DateTime dateTime = JsonUtility.stringToDateTime(date);
-                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
-
-                ControlledAuth.accessAccount(token);
             }
             catch (RentIt.Account.NoSuchUser)
             {
