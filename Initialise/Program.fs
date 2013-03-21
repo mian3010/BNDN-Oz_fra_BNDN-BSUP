@@ -99,10 +99,10 @@ module Main =
     // Create ActionGroup
     // "Name" "Description"
     let mutable insert:((Persistence.Types.DataIn List) List) = []
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "Admin"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "Unauthenticated user"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "Customer"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "Content provider"
+    insert <- insert@createDataInForActionGroup "Admin" "Admin"
+    insert <- insert@createDataInForActionGroup "Unauth" "Unauthenticated user"
+    insert <- insert@createDataInForActionGroup "Customer" "Customer"
+    insert <- insert@createDataInForActionGroup "ContentProvider" "Content provider"
 
     printfn "%A" ("---------- Create " + "ActionGroup" + " ----------")
     for i in insert do
