@@ -53,6 +53,7 @@ namespace RentIt
             catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
@@ -88,6 +89,7 @@ namespace RentIt
             catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
@@ -129,6 +131,7 @@ namespace RentIt
             catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
@@ -199,9 +202,10 @@ namespace RentIt
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
             }
         }
@@ -252,6 +256,7 @@ namespace RentIt
             catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
             }
 
