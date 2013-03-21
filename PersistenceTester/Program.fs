@@ -56,8 +56,8 @@ module Main =
         printfn "%A" "---------- Delete query ----------"
         let objectName = "User"
         let filtersQ   = Persistence.Filter.createFilter [] "User" "Id" "=" "2"
-        let deleteR = Persistence.Api.delete objectName filtersQ
-        printfn "%A" deleteR
+//        let deleteR = Persistence.Api.delete objectName filtersQ
+//        printfn "%A" deleteR
 
         //Testing transaction
         printfn "%A" "---------- Transaction containing 2 Create and 2 delete ----------"
@@ -73,7 +73,8 @@ module Main =
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Email" "tumpe4@example.com"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Address" "Address"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Date_of_birth" "2013-10-10"
-        let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Password" "pass"
+        let password = Account.Password.create "pass"
+        let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Password" (password.hash+":"+password.salt)
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Created_date" "2013-12-12"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Banned" "0"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "About_me" "about me"

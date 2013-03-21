@@ -67,7 +67,7 @@ module AccountPermissions =
             if not (targetAcc.email = email) then
                 let check = check invoker "CHANGE_EMAIL"
                 match invoker with
-                | Invoker.Auth a when a.user = targetAcc.user   -> check own
+                | Invoker.Auth a when a.user == targetAcc.user  -> check own
                 | _                                             -> check (CheckTarget.Type targetAcc.accType)
             else not (targetAcc.email = null)
 
@@ -76,7 +76,7 @@ module AccountPermissions =
             if not (targetAcc.password = password) then
                 let check = check invoker "CHANGE_PASSWORD"
                 match invoker with
-                | Invoker.Auth a when a.user = targetAcc.user   -> check own
+                | Invoker.Auth a when a.user == targetAcc.user  -> check own
                 | _                                             -> check (CheckTarget.Type targetAcc.accType)
             else true
 
@@ -93,12 +93,12 @@ module AccountPermissions =
                                     | Some updated  ->  if updated > current then
                                                             let check = check invoker "GIVE_CREDITS"
                                                             match invoker with
-                                                            | Invoker.Auth a when a.user = targetAcc.user   -> check own
+                                                            | Invoker.Auth a when a.user == targetAcc.user  -> check own
                                                             | _                                             -> check any
                                                         else
                                                             let check = check invoker "TAKE_CREDITS"
                                                             match invoker with
-                                                            | Invoker.Auth a when a.user = targetAcc.user   -> check own
+                                                            | Invoker.Auth a when a.user == targetAcc.user  -> check own
                                                             | _                                             -> check any
     
 
@@ -119,10 +119,17 @@ module AccountPermissions =
         elif   not (A.created = B.created)  then false
         elif   not (A.accType = B.accType)  then false
         else // Test the fields, which may change, against permissions
-            (bannedOk   invoker A B.banned) &&
-            (emailOk    invoker A B.email) &&
-            (passwordOk invoker A B.password) &&
-            (creditsOk  invoker A B.info.credits)
+            let ok =    (bannedOk   invoker A B.banned) &&
+                        (emailOk    invoker A B.email) &&
+                        (passwordOk invoker A B.password) &&
+                        (creditsOk  invoker A B.info.credits)
+            let check = check invoker "EDIT"
+            let edited = not (A.info = B.info) && A.info.credits = B.info.credits // credits same, then the info was not edited
+            let restOk = edited &&
+                         match invoker with
+                         | Invoker.Auth a when a.user == A.user -> check own
+                         | _                                    -> check (CheckTarget.Type A.accType)
+            ok && restOk
 
     /// Whether some invoker may create the account {newAcc} incl. all stated info
     let mayCreateAccount invoker (newAcc:Account) =
@@ -147,7 +154,7 @@ module AccountPermissions =
         try
             let accType = (Account.getByUsername accUser).accType
             match invoker with
-            | Invoker.Auth a when a.user = accUser  -> check own
+            | Invoker.Auth a when a.user == accUser -> check own
             | _                                     -> check (CheckTarget.Type accType)
         with
         | NoSuchUser -> false
@@ -160,7 +167,7 @@ module AccountPermissions =
     let mayReadAuthTime invoker accUser =
         let check = check invoker "READ_AUTH_INFO"
         match invoker with
-        | Invoker.Auth a when a.user = accUser  -> check own
+        | Invoker.Auth a when a.user == accUser -> check own
         | _                                     -> check any                   
 
     /// Whether some invoker may reset the password of some account with username {accUser}
@@ -169,7 +176,7 @@ module AccountPermissions =
         try
             let accType = (Account.getByUsername accUser).accType
             match invoker with
-            | Invoker.Auth a when a.user = accUser  -> check own
+            | Invoker.Auth a when a.user == accUser -> check own
             | _                                     -> check (CheckTarget.Type accType)
         with
         | NoSuchUser -> false

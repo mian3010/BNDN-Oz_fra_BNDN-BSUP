@@ -18,6 +18,12 @@ module Main =
   let internal createDataInForUserTypeHasActionGroup usertype group =
       [Persistence.DataIn.createDataIn (Persistence.DataIn.createDataIn [] "UserType_has_ActionGroup" "UserType_name" usertype) "UserType_has_ActionGroup" "ActionGroup_name" group]
 
+  let internal createDataInForCountry name =
+      [Persistence.DataIn.createDataIn [] "Country" "Name" name]
+
+  let internal createDataInForLoggable id =
+      [Persistence.DataIn.createDataIn [] "Loggable" "Id" id]
+
 
   [<EntryPoint>]
   let main argv = 
@@ -28,6 +34,8 @@ module Main =
     Persistence.Api.delete "UserType_has_ActionGroup" [] |> ignore
     Persistence.Api.delete "ActionGroup" [] |> ignore
     Persistence.Api.delete "UserType" [] |> ignore
+    Persistence.Api.delete "Country" [] |> ignore
+    Persistence.Api.delete "Loggable" [] |> ignore
 
     // Create AllowedAction
     // "Name" "Description"
@@ -210,5 +218,26 @@ module Main =
     printfn "%A" ("---------- Create " + "UserType_has_ActionGroup" + " ----------")
     for i in insert do
       Persistence.Api.create "UserType_has_ActionGroup" i |> ignore
+
+    // Create Country
+    // "Name"
+    let mutable insert:((Persistence.Types.DataIn List) List) = []
+    insert <- insert@createDataInForCountry "Denmark"
+    insert <- insert@createDataInForCountry "Singapore"
+    insert <- insert@createDataInForCountry "USA"
+    
+    printfn "%A" ("---------- Create " + "Country" + " ----------")
+    for i in insert do
+      Persistence.Api.create "Country" i |> ignore
+
+    // Create Loggable
+    // "Id"
+    let mutable insert:((Persistence.Types.DataIn List) List) = []
+    insert <- insert@createDataInForLoggable "1"
+    insert <- insert@createDataInForLoggable "2"
+
+    printfn "%A" ("---------- Create " + "Loggable" + " ----------")
+    for i in insert do
+      Persistence.Api.create "Loggable" i |> ignore
 
     0
