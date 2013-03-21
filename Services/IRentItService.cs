@@ -5,11 +5,12 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using System.Web.Services;
 
 namespace RentIt
 {
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "IService1" in both code and config file together.
-    [ServiceContract]
+    [ServiceContract(Namespace = "http://rentit.itu.dk/RentIt27/WebServices/")]
     public interface IRentItService
     {
         #region Authentication
@@ -41,14 +42,14 @@ namespace RentIt
             UriTemplate = "/acounts/{user}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
-        string UpdateAccount(string user, AccountData data);
+        void UpdateAccount(string user, AccountData data);
 
         [OperationContract]
         [WebInvoke(Method = "POST",
             UriTemplate = "/accounts/{user}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
-        string CreateAccount(string user, AccountData data);
+        void CreateAccount(string user, AccountData data);
 
         #endregion
 
@@ -82,7 +83,7 @@ namespace RentIt
         [DataMember]
         public int zipcode { get; set; }
         [DataMember]
-        public string countryName { get; set; }
+        public string country { get; set; }
     }
 
 }

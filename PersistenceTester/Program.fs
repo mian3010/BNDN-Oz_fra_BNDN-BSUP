@@ -56,8 +56,8 @@ module Main =
         printfn "%A" "---------- Delete query ----------"
         let objectName = "User"
         let filtersQ   = Persistence.Filter.createFilter [] "User" "Id" "=" "2"
-        let deleteR = Persistence.Api.delete objectName filtersQ
-        printfn "%A" deleteR
+//        let deleteR = Persistence.Api.delete objectName filtersQ
+//        printfn "%A" deleteR
 
         //Testing transaction
         printfn "%A" "---------- Transaction containing 2 Create and 2 delete ----------"

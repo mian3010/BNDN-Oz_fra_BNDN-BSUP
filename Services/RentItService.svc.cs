@@ -6,14 +6,20 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Net;
+using System.Reflection;
+using RentIt;
+using Microsoft.FSharp.Core;
+using System.Web.Services;
 
 namespace RentIt
 {
+    
+
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Service1" in code, svc and config file together.
     // NOTE: In order to launch WCF Test Client for testing this service, please select Service1.svc or Service1.svc.cs at the Solution Explorer and start debugging.
+    [ServiceBehavior(Namespace = "http://rentit.itu.dk/RentIt27/WebServices/")]
     public class RentItService : IRentItService
     { 
-
         /// <summary>
         /// This method authenticates a given user when logging in on a client.
         /// </summary>
@@ -25,9 +31,56 @@ namespace RentIt
             try
             {
                 string token = "{token: \"";
-               Tuple<string,DateTime> t = ControlledAuth.authenticate(user, password);
-               token += t.Item1 +"\", expires: \"" +JsonUtility.dateTimeToString(t.Item2) + "\"}";
-               return token;
+                Tuple<string, DateTime> t = ControlledAuth.authenticate(user, password);
+                token += t.Item1 + "\", expires: \"" + JsonUtility.dateTimeToString(t.Item2) + "\"}";
+                return token;
+            }
+            catch (AccountPermissions.PermissionDenied)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (AccountPermissions.AccountBanned)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
+            }
+            catch (Account.NoSuchUser)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                return null;
+            }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return null;
+            }
+        }
+
+
+        public string GetAccounts(string types, string info, bool include_banned)
+        {
+            try
+            {   
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotImplemented;
+                return null;
+            }
+            catch (Account.NoSuchUser)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotFound;
+                return null;
+            }
+            catch (AccountPermissions.PermissionDenied)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
             }
             catch (AccountPermissions.AccountBanned)
             {
@@ -38,46 +91,7 @@ namespace RentIt
             catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
-                return null;
-            }
-        }
-
-
-        public string GetAccounts(string types, string info, bool include_banned)
-        {
-            try
-            {
-                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                string tokenString = headers.Keys.Get(1);
-                string[] tokenSplit = tokenString.Split(',');
-                string token = tokenSplit[0].Substring(8,tokenSplit[0].Length-1);
-                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
-
-                DateTime dateTime = JsonUtility.stringToDateTime(date);
-                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
-
-                
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotImplemented;
-                return null;
-            }
-            catch (RentIt.Account.NoSuchUser)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotFound;
-                return null;
-            }
-            catch (AccountPermissions.PermissionDenied)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (AccountPermissions.AccountBanned)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
+                response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
         }
@@ -87,12 +101,9 @@ namespace RentIt
         {
             try
             {
-                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                    string tokenString = headers.Keys.Get(1);
-                    OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                    response.StatusCode = HttpStatusCode.NotImplemented;
-                    return null;
-                    
+                string token = getToken();
+                var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
+                return accountToString(account);
             }
             catch (RentIt.Account.NoSuchUser)
             {
@@ -109,88 +120,284 @@ namespace RentIt
             catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (Account.BrokenInvariant)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
+            }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
         }
 
 
-        public string UpdateAccount(string user, AccountData data)
+        public void UpdateAccount(string user, AccountData data)
         {
             try
             {
-                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                if (headers.Count == 2)
-                {
-                    string tokenString = headers.Keys.Get(1);
+                Dictionary<string,string> accInfo = createNewAccount(data);
 
-                    ControlledAuth.accessAccount(tokenString);
-                    var acc = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
+                var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
 
-                    OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                    response.StatusCode = HttpStatusCode.NotImplemented;
-                    return null;
-                }
+                AccountTypes.Account updatedAccount;
+
+                string email = account.email;
+                AccountTypes.Password password = account.password;
+                FSharpOption<string> address = account.info.address.address;
+                FSharpOption<int> zipcode = account.info.address.postal;
+                FSharpOption<string> country = account.info.address.country;
+                FSharpOption<string> name = account.info.name;
+                FSharpOption<string> aboutMe = account.info.about;
+                FSharpOption<DateTime> dateOfBirth = account.info.birth;
+                FSharpOption<int> credits = account.info.credits;
+
+                if(accInfo.ContainsKey("email"))
+                    email = accInfo["eamil"];
+                if (accInfo.ContainsKey("password"))
+                    password = Account.Password.create("password");
+                if (accInfo.ContainsKey("address"))
+                    address = FSharpOption<string>.Some(accInfo["address"]);
+                if(accInfo.ContainsKey("zipcode"))
+                    zipcode = FSharpOption<int>.Some(Convert.ToInt32(accInfo["zipcode"]));
+                if (accInfo.ContainsKey("country"))
+                    country = FSharpOption<string>.Some(accInfo["country"]);
+                if (accInfo.ContainsKey("name"))
+                    name = FSharpOption<string>.Some(accInfo["name"]);
+                if (accInfo.ContainsKey("aboutMe"))
+                    aboutMe = FSharpOption<string>.Some(accInfo["aboutMe"]);
+                if (accInfo.ContainsKey("dateOfBirth"))
+                    dateOfBirth = FSharpOption<DateTime>.Some(JsonUtility.stringToDateTime(accInfo["dateOfBirth"]));
+
+                var accountAddress = new AccountTypes.Address(address, zipcode, country);
+                var extraInfo = new AccountTypes.ExtraAccInfo(name, accountAddress, dateOfBirth, aboutMe, credits);
+                updatedAccount = new AccountTypes.Account(user, email, password, account.created, account.banned, extraInfo, account.accType, account.version);
+
+                updateToNewAccount(updatedAccount);
+
+            }
+            catch (RentIt.Account.NoSuchUser)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotFound;
+            }
+            catch (AccountPermissions.PermissionDenied)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+            }
+            catch (AccountPermissions.AccountBanned)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+            }
+            catch (Account.BrokenInvariant)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.BadRequest;
+            }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.InternalServerError;
+            }
+        }
+
+
+        public void CreateAccount(string user, AccountData data)
+        {
+            try
+            {
+                var accInfo = createNewAccount(data);
+                var extraInfo = createExtraInfo(accInfo);
+
+                string accountType;
+                if(accInfo.ContainsKey("accountType"))
+                    accountType = accInfo["accountType"];
                 else
-                    throw new AccountPermissions.AccountBanned(); //returns bad request error
+                    throw new Account.BrokenInvariant();
+
+                string email;
+                if (accInfo.ContainsKey("email"))
+                    email = accInfo["email"];
+                else
+                    throw new Account.BrokenInvariant();
+
+                string password;
+                if (accInfo.ContainsKey("password"))
+                    password = accInfo["password"];
+                else
+                    throw new Account.BrokenInvariant();
+
+                var newAccount = Account.make(accountType, user, email, password, extraInfo);
+                ControlledAccount.persist(AccountPermissions.Invoker.Unauth, newAccount);
+
+                
             }
-            catch (RentIt.Account.NoSuchUser)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotFound;
-                return null;
-            }
-            catch (AccountPermissions.PermissionDenied)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (AccountPermissions.AccountBanned)
+            catch(Account.BrokenInvariant)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
-                return null;
             }
-        }
-
-
-        public string CreateAccount(string user, AccountData data)
-        {
-
-            try
-            { 
-               //var typeInfo = AccountTypes.TypeInfo.NewCustomer(;
-               //var Uaccount =  Account.make(, user, data.email, data.password);
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotImplemented;
-                return null;
-            }
-             catch (AccountPermissions.PermissionDenied)
+            catch(Account.UserAlreadyExists)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
+                response.StatusCode = HttpStatusCode.Conflict;
             }
-            catch (AccountPermissions.AccountBanned)
+            catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
-                return null;
+                response.StatusCode = HttpStatusCode.InternalServerError;
             }
 
         }
 
+        /// <summary>
+        /// This method is used to extract the token from the HTTP request header.
+        /// </summary>
+        /// <returns> The token from the header as a string</returns>
         private string getToken()
         {
             WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-            if (headers[1].Contains("token"))
+            foreach (string header in headers)
             {
-                return headers[1];
+                if(header.Contains("token"))
+                {
+                    return header;
+                }
+                else
+                    throw new Account.BrokenInvariant();
             }
-            else
-                throw new Account.BrokenInvariant();
+            return null;
         }
 
+        private Dictionary<string, string> createNewAccount(AccountData data)
+        {
+            Dictionary<string, string> AccountInfo = new Dictionary<string, string>();
+
+            PropertyInfo[] propertyInfo = data.GetType().GetProperties();
+            
+            foreach (PropertyInfo property in propertyInfo)
+            {
+                object value = property.GetValue(this, null);
+                if (value != null)
+                {
+                    AccountInfo[property.Name] = value.ToString();
+                }
+            }
+
+            return AccountInfo;
+        }
+
+        private AccountTypes.ExtraAccInfo createExtraInfo(Dictionary<string, string> info)
+        {
+            AccountTypes.Address accountAddress;
+            
+            FSharpOption<string> address;
+            if (info.ContainsKey("address"))
+                address = FSharpOption<string>.Some(info["address"]);
+            else
+                address = FSharpOption<string>.None;
+
+            FSharpOption<int> zipcode;
+            if (info.ContainsKey("zipcode"))
+                zipcode = FSharpOption<int>.Some(Convert.ToInt32(info["zipcode"]));
+            else
+                zipcode = FSharpOption<int>.None;
+
+            FSharpOption<string> country;
+            if (info.ContainsKey("country"))
+                country = FSharpOption<string>.Some(info["country"]);
+            else
+                country = FSharpOption<string>.None;
+                
+            accountAddress = new AccountTypes.Address(address, zipcode, country);
+
+            AccountTypes.ExtraAccInfo extraInfo;
+
+
+            FSharpOption<string> name;
+            if (info.ContainsKey("name"))
+                name = FSharpOption<string>.Some(info["name"]);
+            else
+                name = FSharpOption<string>.None;
+
+            FSharpOption<DateTime> dateOfBirth;
+            if (info.ContainsKey("dateOfBirth"))
+                dateOfBirth = FSharpOption<DateTime>.Some(JsonUtility.stringToDateTime(info["dateOfBirth"]));
+            else
+                dateOfBirth = FSharpOption<DateTime>.None;
+
+            FSharpOption<string> about;
+            if (info.ContainsKey("aboutMe"))
+                about = FSharpOption<string>.Some(info["aboutMe"]);
+            else
+                about = FSharpOption<string>.None;
+
+            FSharpOption<int> credits;
+            if (info.ContainsKey("credits"))
+                credits = FSharpOption<int>.Some(Convert.ToInt32(info["credits"]));
+            else
+                credits = FSharpOption<int>.None;
+
+            extraInfo = new AccountTypes.ExtraAccInfo(name, accountAddress, dateOfBirth, about, credits);
+            return extraInfo;
+        }
+
+        private string accountToString(AccountTypes.Account account)
+        {
+            string stringAccount = "{";
+
+            
+            stringAccount += "\"accountType: " + account.accType.ToString()+ "\", ";
+            stringAccount += "\"banned: " + account.banned.ToString() + "\", ";
+            stringAccount += "\"created: " + JsonUtility.dateTimeToString(account.created) + "\", ";
+            stringAccount += "\"email: " + account.email + "\", ";
+            stringAccount += "\"password: " + account.password + "\",";
+            stringAccount += infoToString(account.info);
+            stringAccount += "}";
+
+            return stringAccount;
+        }
+
+        private string infoToString(AccountTypes.ExtraAccInfo info)
+        {
+            string stringInfo = "";
+
+            if (info.name != null)
+                stringInfo += "\"name: " + info.name + "\",";
+            if (info.about != null)
+                stringInfo += "\"aboutMe: " + info.about + "\",";
+            if (info.birth != null)
+                stringInfo += "\"dateOfBirth: " + info.birth + "\",";
+            if (info.credits != null)
+                stringInfo += "\"credits: " + info.credits + "\",";
+            if (info.address.address != null)
+                stringInfo += "\"address: " + info.address.address + "\",";
+            if(info.address.country != null)
+                stringInfo += "\"country: " + info.address.country + "\",";
+            if(info.address.postal != null)
+                stringInfo += "\"zipcode: " + info.address.postal + "\",";
+
+            return stringInfo;
+        }
+
+        private void updateToNewAccount(AccountTypes.Account updatedAccount)
+        {
+            try
+            {
+                ControlledAccount.update(AccountPermissions.Invoker.Unauth, updatedAccount);
+            }
+            catch (Account.OutdatedData)
+            {
+                updateToNewAccount(updatedAccount);
+            }
+        }
     }
 }

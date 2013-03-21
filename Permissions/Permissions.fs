@@ -20,11 +20,19 @@ open RentIt
       let perm = match tp with
                  | Type x -> permission + "_TYPE_" + x
                  | Own -> permission + "_OWN"
-                 | _ -> permission
+                 | _ -> permission + "_ANY"
 
-      match id with
-      | Unauth -> PermissionsHelper.checkUserTypePermission "Unauth" perm
-      | Auth x -> PermissionsHelper.checkUserPermission x perm
+      let result =
+        match id with
+        | Unauth -> PermissionsHelper.checkUserTypePermission "Unauth" (permission + "_ANY")
+        | Auth x -> PermissionsHelper.checkUserPermission x (permission + "_ANY")
+      
+      if not result then
+        match id with
+        | Unauth -> PermissionsHelper.checkUserTypePermission "Unauth" perm
+        | Auth x -> PermissionsHelper.checkUserPermission x perm
+      else result
+
 
     // Assign a Permission to an ActionGroup
     // Takes ActionGroup Name and Permission. Both as strings

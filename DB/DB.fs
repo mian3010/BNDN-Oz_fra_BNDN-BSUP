@@ -174,40 +174,39 @@ open System.Security
                 elif (cu.version < acc.version) then
                     raise IllegalAccountVersion
                 
-                (*let tableName = "user"
-                let dataQ = Persistence.DataIn.createDataIn [] *)
+                let talbeName = "user"
+                let dataQ = Persistence.DataIn.createDataIn [] talbeName "Email" acc.email
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Address" (string acc.info.address.address)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Date_of_birth" (string acc.info.birth)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Password" (string acc.password.hash + ":" + acc.password.salt)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Created_date" (string acc.created)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Banned" (if acc.banned then "1" else "0")
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "About_me" (string acc.info.about)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Type_name" acc.accType
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Balance" (string acc.info.credits)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Zipcode" (string acc.info.address.postal)
+                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Country_Name" (string acc.info.address.country)
+                let filtersQ   = Persistence.Filter.createFilter [] talbeName "Username" "=" acc.user
+                let updateR = Persistence.Api.update talbeName filtersQ dataQ
 
 
-                let sql = "UPDATE [user] SET
-                            Email = '" + acc.email + "',
-                            Password = '" + acc.password.salt + ":" + acc.password.hash + "',
-                            Banned = " + if acc.banned then "1" else "0"
-                            + "Address = '" + "Dummy" + "'" +
-                           "Date_of_birth = " + "11-11-2008 13:23:44" + ",
-                            About_me = '" + "Dummy" + "',
-                            Balance = " + "0" + ",
-                            Zipcode = " + "2400" + ",
-                            Country_Name = '" + "Dummy" + "'"
-                                
-                let sql = sql + "WHERE (Username = '" + acc.user + "')"
-                let a' = Internal.performSql sql
                 let newAcc :AccountTypes.Account = {
-                                        user = acc.user;
-                                        email = acc.email;
-                                        password = acc.password;
-                                        created = acc.created;
-                                        banned = acc.banned;
+                                        user = acc.user
+                                        email = acc.email
+                                        password = acc.password
+                                        created = acc.created
+                                        banned = acc.banned
                                         info = {
-                                                name = None ;
+                                                name = None
                                                 address = {
-                                                            address = None;
-                                                            postal = None;
-                                                            country = None };
-                                                birth = None;
-                                                about = None;
+                                                            address = None
+                                                            postal = None
+                                                            country = None }
+                                                birth = None
+                                                about = None
                                                 credits = None }
-                                        accType = "Admin"
-                                        version = uint32 0 }
+                                        accType = acc.accType
+                                        version = acc.version + uint32 1 }
                 Internal.cache <- Internal.cache.Add(acc.user, acc)
                 newAcc
                     
@@ -217,11 +216,14 @@ open System.Security
         let createUser (acc:AccountTypes.Account) =
             let internalFun =
                 let nextId = Internal.getNextLoggableID() + 1
+                let transactionQ = Persistence.Transaction.createTransaction
+
 
                 let talbeName = "loggable"
                 let fieldProcessor = Persistence.Field.Default
                 let dataQ = Persistence.DataIn.createDataIn []    talbeName "Id" (string nextId)
-                let createR = Persistence.Api.create talbeName dataQ
+                let createIdQ = Persistence.Create.createCreate talbeName dataQ
+                let transactionQ = Persistence.Transaction.addCreate transactionQ createIdQ
 
                 let tableName = "user"
                 let fieldProcessor = Persistence.Field.Default
@@ -238,7 +240,10 @@ open System.Security
                 let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Balance" (string acc.info.credits)
                 let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Zipcode" (string acc.info.address.postal)
                 let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Country_Name" (string acc.info.address.country)
-                let createR = Persistence.Api.create talbeName dataQ
+                let createUserQ = Persistence.Create.createCreate talbeName dataQ
+                let transactionQ = Persistence.Transaction.addCreate transactionQ createUserQ
+
+                let transactionR = Persistence.Api.transactionQ transactionQ
                 
                 Internal.cache <- Internal.cache.Add(acc.user, acc)
             lock Internal.cache (fun() -> internalFun)
