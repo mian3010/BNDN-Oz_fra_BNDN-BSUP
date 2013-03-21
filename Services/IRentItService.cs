@@ -41,14 +41,14 @@ namespace RentIt
             UriTemplate = "/acounts/{user}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
-        string UpdateAccount(string user, AccountData data);
+        void UpdateAccount(string user, AccountData data);
 
         [OperationContract]
         [WebInvoke(Method = "POST",
             UriTemplate = "/accounts/{user}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
-        string CreateAccount(string user, AccountData data);
+        void CreateAccount(string user, AccountData data);
 
         #endregion
 

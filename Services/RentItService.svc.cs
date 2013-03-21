@@ -8,6 +8,7 @@ using System.Text;
 using System.Net;
 using System.Reflection;
 using RentIt;
+using Microsoft.FSharp.Core;
 
 namespace RentIt
 {
@@ -116,7 +117,7 @@ namespace RentIt
             catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
+                response.StatusCode = HttpStatusCode.Forbidden;
                 return null;
             }
             catch (Account.BrokenInvariant)
@@ -134,42 +135,64 @@ namespace RentIt
         }
 
 
-        public string UpdateAccount(string user, AccountData data)
+        public void UpdateAccount(string user, AccountData data)
         {
             try
             {
-                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                if (headers.Count == 2)
-                {
-                    string tokenString = headers.Keys.Get(1);
+                Dictionary<string,string> accInfo = createNewAccount(data);
 
-                    ControlledAuth.accessAccount(tokenString);
-                    var acc = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
+                var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
 
-                    OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                    response.StatusCode = HttpStatusCode.NotImplemented;
-                    return null;
-                }
-                else
-                    throw new AccountPermissions.AccountBanned(); //returns bad request error
+                AccountTypes.Account updatedAccount;
+
+                string email = account.email;
+                AccountTypes.Password password = account.password;
+                FSharpOption<string> address = account.info.address.address;
+                FSharpOption<int> zipcode = account.info.address.postal;
+                FSharpOption<string> country = account.info.address.country;
+                FSharpOption<string> name = account.info.name;
+                FSharpOption<string> aboutMe = account.info.about;
+                FSharpOption<DateTime> dateOfBirth = account.info.birth;
+                FSharpOption<int> credits = account.info.credits;
+
+                if(accInfo.ContainsKey("email"))
+                    email = accInfo["eamil"];
+                if (accInfo.ContainsKey("password"))
+                    password = Account.Password.create("password");
+                if (accInfo.ContainsKey("address"))
+                    address = FSharpOption<string>.Some(accInfo["address"]);
+                if(accInfo.ContainsKey("zipcode"))
+                    zipcode = FSharpOption<int>.Some(Convert.ToInt32(accInfo["zipcode"]));
+                if (accInfo.ContainsKey("country"))
+                    country = FSharpOption<string>.Some(accInfo["country"]);
+                if (accInfo.ContainsKey("name"))
+                    name = FSharpOption<string>.Some(accInfo["name"]);
+                if (accInfo.ContainsKey("aboutMe"))
+                    aboutMe = FSharpOption<string>.Some(accInfo["aboutMe"]);
+                if (accInfo.ContainsKey("dateOfBirth"))
+                    dateOfBirth = FSharpOption<DateTime>.Some(JsonUtility.stringToDateTime(accInfo["dateOfBirth"]));
+
+                var accountAddress = new AccountTypes.Address(address, zipcode, country);
+                var extraInfo = new AccountTypes.ExtraAccInfo(name, accountAddress, dateOfBirth, aboutMe, credits);
+                updatedAccount = new AccountTypes.Account(user, email, password, account.created, account.banned, extraInfo, account.accType, account.version);
+
+                updateToNewAccount(updatedAccount);
+
             }
             catch (RentIt.Account.NoSuchUser)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.NotFound;
-                return null;
             }
             catch (AccountPermissions.PermissionDenied)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
             }
             catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
             }
             catch (Account.BrokenInvariant)
             {
@@ -180,35 +203,54 @@ namespace RentIt
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.InternalServerError;
-                return null;
             }
         }
 
 
-        public string CreateAccount(string user, AccountData data)
+        public void CreateAccount(string user, AccountData data)
         {
             try
             {
                 var accInfo = createNewAccount(data);
                 var extraInfo = createExtraInfo(accInfo);
+
+                string accountType;
+                if(accInfo.ContainsKey("accountType"))
+                    accountType = accInfo["accountType"];
+                else
+                    throw new Account.BrokenInvariant();
+
+                string email;
+                if (accInfo.ContainsKey("email"))
+                    email = accInfo["email"];
+                else
+                    throw new Account.BrokenInvariant();
+
+                string password;
+                if (accInfo.ContainsKey("password"))
+                    password = accInfo["password"];
+                else
+                    throw new Account.BrokenInvariant();
+
+                var newAccount = Account.make(accountType, user, email, password, extraInfo);
+                ControlledAccount.persist(AccountPermissions.Invoker.Unauth, newAccount);
+
+                
             }
-             catch (AccountPermissions.PermissionDenied)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (AccountPermissions.AccountBanned)
+            catch(Account.BrokenInvariant)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
-                return null;
+            }
+            catch(Account.UserAlreadyExists)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Conflict;
             }
             catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.InternalServerError;
-                return null;
             }
 
         }
@@ -252,14 +294,57 @@ namespace RentIt
 
         private AccountTypes.ExtraAccInfo createExtraInfo(Dictionary<string, string> info)
         {
-            string address = info["address"];
-            int zipcode = Convert.ToInt32(info["zipcode"]);
-            string country = info["country"];
+            AccountTypes.Address accountAddress;
+            
+            FSharpOption<string> address;
+            if (info.ContainsKey("address"))
+                address = FSharpOption<string>.Some(info["address"]);
+            else
+                address = FSharpOption<string>.None;
 
-            if (info.ContainsKey("address") && info.ContainsKey("zipcode") && info.ContainsKey("country"))
-            {
-                AccountTypes.Address accountAddress = new AccountTypes.Address(address, Option(zipcode), country);
-            }
+            FSharpOption<int> zipcode;
+            if (info.ContainsKey("zipcode"))
+                zipcode = FSharpOption<int>.Some(Convert.ToInt32(info["zipcode"]));
+            else
+                zipcode = FSharpOption<int>.None;
+
+            FSharpOption<string> country;
+            if (info.ContainsKey("country"))
+                country = FSharpOption<string>.Some(info["country"]);
+            else
+                country = FSharpOption<string>.None;
+                
+            accountAddress = new AccountTypes.Address(address, zipcode, country);
+
+            AccountTypes.ExtraAccInfo extraInfo;
+
+
+            FSharpOption<string> name;
+            if (info.ContainsKey("name"))
+                name = FSharpOption<string>.Some(info["name"]);
+            else
+                name = FSharpOption<string>.None;
+
+            FSharpOption<DateTime> dateOfBirth;
+            if (info.ContainsKey("dateOfBirth"))
+                dateOfBirth = FSharpOption<DateTime>.Some(JsonUtility.stringToDateTime(info["dateOfBirth"]));
+            else
+                dateOfBirth = FSharpOption<DateTime>.None;
+
+            FSharpOption<string> about;
+            if (info.ContainsKey("aboutMe"))
+                about = FSharpOption<string>.Some(info["aboutMe"]);
+            else
+                about = FSharpOption<string>.None;
+
+            FSharpOption<int> credits;
+            if (info.ContainsKey("credits"))
+                credits = FSharpOption<int>.Some(Convert.ToInt32(info["credits"]));
+            else
+                credits = FSharpOption<int>.None;
+
+            extraInfo = new AccountTypes.ExtraAccInfo(name, accountAddress, dateOfBirth, about, credits);
+            return extraInfo;
         }
 
         private string accountToString(AccountTypes.Account account)
@@ -298,6 +383,18 @@ namespace RentIt
                 stringInfo += "\"zipcode: " + info.address.postal + "\",";
 
             return stringInfo;
+        }
+
+        private void updateToNewAccount(AccountTypes.Account updatedAccount)
+        {
+            try
+            {
+                ControlledAccount.update(AccountPermissions.Invoker.Unauth, updatedAccount);
+            }
+            catch (Account.OutdatedData)
+            {
+                updateToNewAccount(updatedAccount);
+            }
         }
     }
 }
