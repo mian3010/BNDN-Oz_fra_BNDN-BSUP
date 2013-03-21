@@ -27,50 +27,11 @@ namespace RentIt
             try
             {
                 string token = "{token: \"";
-               Tuple<string,DateTime> t = ControlledAuth.authenticate(user, password);
-               token += t.Item1 +"\", expires: \"" +JsonUtility.dateTimeToString(t.Item2) + "\"}";
-               return token;
+                Tuple<string, DateTime> t = ControlledAuth.authenticate(user, password);
+                token += t.Item1 + "\", expires: \"" + JsonUtility.dateTimeToString(t.Item2) + "\"}";
+                return token;
             }
-            catch ()
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (Exception)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
-                return null;
-            }
-        }
-
-
-        public string GetAccounts(string types, string info, bool include_banned)
-        {
-            try
-            {
-                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                string tokenString = headers.Keys.Get(1);
-                string[] tokenSplit = tokenString.Split(',');
-                string token = tokenSplit[0].Substring(8,tokenSplit[0].Length-1);
-                string date = tokenSplit[1].Substring(11, tokenSplit[1].Length - 1);
-
-                DateTime dateTime = JsonUtility.stringToDateTime(date);
-                Tuple<string, DateTime> t = new Tuple<string, DateTime>(token, dateTime);
-
-                
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotImplemented;
-                return null;
-            }
-            catch (RentIt.Account.NoSuchUser)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotFound;
-                return null;
-            }
-            catch (RentIt.Permissions.PermissionDenied)
+            catch (AccountPermissions.PermissionDenied)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
@@ -82,6 +43,53 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.BadRequest;
                 return null;
             }
+            catch (Account.NoSuchUser)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                return null;
+            }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return null;
+            }
+        }
+
+
+        public string GetAccounts(string types, string info, bool include_banned)
+        {
+            try
+            {   
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotImplemented;
+                return null;
+            }
+            catch (Account.NoSuchUser)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.NotFound;
+                return null;
+            }
+            catch (AccountPermissions.PermissionDenied)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (AccountPermissions.AccountBanned)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return null;
+            }
         }
 
 
@@ -89,12 +97,9 @@ namespace RentIt
         {
             try
             {
-                WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-                    string tokenString = headers.Keys.Get(1);
-                    OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                    response.StatusCode = HttpStatusCode.NotImplemented;
-                    return null;
-                    
+                string token = getToken();
+                var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
+                return accountToString(account);
             }
             catch (RentIt.Account.NoSuchUser)
             {
@@ -112,6 +117,18 @@ namespace RentIt
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
+            }
+            catch (Account.BrokenInvariant)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return null;
+            }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
         }
@@ -151,7 +168,18 @@ namespace RentIt
             catch (AccountPermissions.AccountBanned)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.Forbidden;
+                return null;
+            }
+            catch (Account.BrokenInvariant)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
+            }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
         }
@@ -161,7 +189,8 @@ namespace RentIt
         {
             try
             {
-                var accInfo = createNewAccountType(data);
+                var accInfo = createNewAccount(data);
+                var extraInfo = createExtraInfo(accInfo);
             }
              catch (AccountPermissions.PermissionDenied)
             {
@@ -175,6 +204,12 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.BadRequest;
                 return null;
             }
+            catch (Exception)
+            {
+                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return null;
+            }
 
         }
 
@@ -185,15 +220,19 @@ namespace RentIt
         private string getToken()
         {
             WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-            if (headers[1].Contains("token"))
+            foreach (string header in headers)
             {
-                return headers[1];
+                if(header.Contains("token"))
+                {
+                    return header;
+                }
+                else
+                    throw new Account.BrokenInvariant();
             }
-            else
-                throw new Account.BrokenInvariant();
+            return null;
         }
 
-        private AccountTypes.Account createNewAccountType(AccountData data)
+        private Dictionary<string, string> createNewAccount(AccountData data)
         {
             Dictionary<string, string> AccountInfo = new Dictionary<string, string>();
 
@@ -206,13 +245,59 @@ namespace RentIt
                 {
                     AccountInfo[property.Name] = value.ToString();
                 }
+            }
 
-                foreach (KeyValuePair<string, string> entry in AccountInfo)
-                {
+            return AccountInfo;
+        }
 
-                }
+        private AccountTypes.ExtraAccInfo createExtraInfo(Dictionary<string, string> info)
+        {
+            string address = info["address"];
+            int zipcode = Convert.ToInt32(info["zipcode"]);
+            string country = info["country"];
+
+            if (info.ContainsKey("address") && info.ContainsKey("zipcode") && info.ContainsKey("country"))
+            {
+                AccountTypes.Address accountAddress = new AccountTypes.Address(address, Option(zipcode), country);
             }
         }
 
+        private string accountToString(AccountTypes.Account account)
+        {
+            string stringAccount = "{";
+
+            
+            stringAccount += "\"accountType: " + account.accType.ToString()+ "\", ";
+            stringAccount += "\"banned: " + account.banned.ToString() + "\", ";
+            stringAccount += "\"created: " + JsonUtility.dateTimeToString(account.created) + "\", ";
+            stringAccount += "\"email: " + account.email + "\", ";
+            stringAccount += "\"password: " + account.password + "\",";
+            stringAccount += infoToString(account.info);
+            stringAccount += "}";
+
+            return stringAccount;
+        }
+
+        private string infoToString(AccountTypes.ExtraAccInfo info)
+        {
+            string stringInfo = "";
+
+            if (info.name != null)
+                stringInfo += "\"name: " + info.name + "\",";
+            if (info.about != null)
+                stringInfo += "\"aboutMe: " + info.about + "\",";
+            if (info.birth != null)
+                stringInfo += "\"dateOfBirth: " + info.birth + "\",";
+            if (info.credits != null)
+                stringInfo += "\"credits: " + info.credits + "\",";
+            if (info.address.address != null)
+                stringInfo += "\"address: " + info.address.address + "\",";
+            if(info.address.country != null)
+                stringInfo += "\"country: " + info.address.country + "\",";
+            if(info.address.postal != null)
+                stringInfo += "\"zipcode: " + info.address.postal + "\",";
+
+            return stringInfo;
+        }
     }
 }

@@ -82,7 +82,7 @@ namespace RentIt
         [DataMember]
         public int zipcode { get; set; }
         [DataMember]
-        public string countryName { get; set; }
+        public string country { get; set; }
     }
 
 }
