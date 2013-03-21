@@ -60,6 +60,7 @@ module Main =
         printfn "%A" deleteR
 
         //Testing transaction
+        printfn "%A" "---------- Transaction containing 2 Create and 2 delete ----------"
         let transactionQ = Persistence.Transaction.createTransaction
         let objectName = "Loggable"
         let dataQ = Persistence.DataIn.createDataIn [] objectName "Id" "3"
