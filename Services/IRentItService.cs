@@ -5,11 +5,12 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using System.Web.Services;
 
 namespace RentIt
 {
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "IService1" in both code and config file together.
-    [ServiceContract]
+    [ServiceContract(Namespace = "http://rentit.itu.dk/RentIt27/WebServices/")]
     public interface IRentItService
     {
         #region Authentication
