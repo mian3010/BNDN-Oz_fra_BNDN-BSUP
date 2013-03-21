@@ -4,12 +4,10 @@ open System.Data
 open System.Security
 
     module Settings = 
-
-        //let internal server = "(localdb)\Projects"
-        //let internal database = "RENTIT27"
-        //let internal connDb = new SqlClient.SqlConnection("server=" + server + ";Integrated Security=True;Database=" + database)
-        
         // Database connection
+
+        // Server settings
+        (*
         let server = "localhost"
         let database = "RENTIT27"
         let userName = "RentIt27db"
@@ -26,5 +24,12 @@ open System.Security
         let cred = SqlClient.SqlCredential(userName, secPass)
             
         let connDb = new SqlClient.SqlConnection(connectionString, cred)
+        *)
 
+        // Local settings
+        let internal server = "(localdb)\Projects"
+        let internal database = "RENTIT27"
+        let internal connDb = new SqlClient.SqlConnection("server=" + server + ";Integrated Security=True;Database=" + database)
+
+        //General
         connDb.Open();
