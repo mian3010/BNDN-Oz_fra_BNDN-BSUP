@@ -50,7 +50,7 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.Unauthorized;
                 return null;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusDescription = e.InnerException.ToString();
@@ -86,7 +86,7 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.Forbidden;
                 return null;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusDescription = e.InnerException.ToString();
@@ -128,7 +128,7 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.BadRequest;
                 return null;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusDescription = e.InnerException.ToString();
@@ -253,7 +253,7 @@ namespace RentIt
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Conflict;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusDescription = e.InnerException.ToString();
