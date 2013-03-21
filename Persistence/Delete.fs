@@ -4,3 +4,7 @@
         ///Default processor
         let Default (delete:Types.Delete) =
             "DELETE FROM ["+delete.objectName+"] OUTPUT DELETED.* WHERE "+Read.joinFilters delete.filters
+
+        //Factory functions
+        let createDelete objectName filters =
+            ({objectName=objectName;filters=filters;}:Types.Delete)

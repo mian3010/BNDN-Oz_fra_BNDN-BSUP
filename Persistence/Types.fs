@@ -62,3 +62,7 @@
             objectName : string;
             filters : Filter List;
         }
+        ///Defining a transaction, with a sequence of queries
+        type Transaction = {
+            queries : string List;
+        }
