@@ -124,7 +124,9 @@ module AccountPermissions =
                         (passwordOk invoker A B.password) &&
                         (creditsOk  invoker A B.info.credits)
             let check = check invoker "EDIT"
-            let restOk = match invoker with
+            let edited = not (A.info = B.info) && A.info.credits = B.info.credits // credits same, then the info was not edited
+            let restOk = edited &&
+                         match invoker with
                          | Invoker.Auth a when a.user == A.user -> check own
                          | _                                    -> check (CheckTarget.Type A.accType)
             ok && restOk
