@@ -29,6 +29,7 @@ module Main =
   let main argv = 
     
     //Truncate data
+    Persistence.Api.delete "User" [] |> ignore
     Persistence.Api.delete "ActionGroup_has_AllowedAction" [] |> ignore
     Persistence.Api.delete "AllowedAction" [] |> ignore
     Persistence.Api.delete "UserType_has_ActionGroup" [] |> ignore
@@ -36,7 +37,6 @@ module Main =
     Persistence.Api.delete "UserType" [] |> ignore
     Persistence.Api.delete "Country" [] |> ignore
     Persistence.Api.delete "Loggable" [] |> ignore
-    Persistence.Api.delete "User" [] |> ignore
 
     // Create AllowedAction
     // "Name" "Description"
