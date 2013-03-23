@@ -35,7 +35,7 @@ module Product =
   /// <typeparam> RentPrice </typeparam>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let make : string -> string -> string -> string -> string -> string =
+  let make : string -> string -> string -> string -> string -> string : Product =
     raise (new System.NotImplementedException())
     
   /// <summary>
