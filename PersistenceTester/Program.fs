@@ -19,7 +19,7 @@ module Main =
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Created_date" "2013-12-12"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Banned" "0"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "About_me" "about me"
-        let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Type_name" "User"
+        let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Type_name" "Customer"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Balance" "0"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Zipcode" "4425"
         let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Country_Name" "Denmark"
@@ -98,6 +98,11 @@ module Main =
 
         let transactionR = Persistence.Api.transactionQ transactionQ
         printfn "%A" transactionR
+
+        // Test pass compare
+        let pass = "somepass"
+        let p = Account.Password.create pass
+        printfn "%A" (Account.Password.verify p pass)
 
         let s = System.Console.ReadLine()
 
