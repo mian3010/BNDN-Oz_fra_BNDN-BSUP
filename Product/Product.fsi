@@ -4,14 +4,6 @@ module Product =
 
   type Product = ProductTypes.Product
 
-  // Exceptions
-  exception NoSuchProduct
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ArgumentException of string
-  exception ProductAlreadyExists
-  exception UnknownProductType
-
   /// <summay>
   /// Creater
   ///</summary>
