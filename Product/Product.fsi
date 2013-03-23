@@ -23,8 +23,7 @@ module Product =
   /// <typeparam> RentPrice </typeparam>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let make (userId:string) (name:string) (description:string) (productType:string) (buyPrice:string) (rentPrice:string) : Product =
-    raise (new System.NotImplementedException())
+  val make : string -> string -> string -> string -> string -> string -> Product 
     
   /// <summary>
   /// Get prodcut by product id
@@ -33,8 +32,7 @@ module Product =
   /// <returns> Product </returns>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let getProductById (id:string) : Product =
-    raise (new System.NotImplementedException())
+  val getProductById : string -> Product 
 
   /// <summary>
   /// Persist a new product, making the product available for publish
@@ -44,8 +42,7 @@ module Product =
   /// <exception> RentIt.Product.UnknownProductType </exception>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let persist (p:Product) = 
-    raise (new System.NotImplementedException())
+  val persist : Product -> 'a
 
   /// <summary>
   /// Get products by product name
@@ -54,8 +51,7 @@ module Product =
   /// <returns> List of products </returns>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let getProductByName (pName:string) : Product list =
-    raise (new System.NotImplementedException())
+  val getProductByName : string -> Product list 
 
   /// <summary>
   /// Get all products by product type
@@ -64,8 +60,7 @@ module Product =
   /// <returns> List of products </returns>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let getAllByType (typeName:string) : Product list =
-    raise (new System.NotImplementedException())
+  val getAllByType : string -> Product list 
 
   /// <summary>
   /// Update existing product
@@ -73,8 +68,7 @@ module Product =
   // <typeparam> Product name </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let update (p:Product) =
-    raise (new System.NotImplementedException())
+  val update : Product -> 'a
 
   /// <summary>
   /// Buy a product
@@ -82,8 +76,7 @@ module Product =
   // <typeparam> Product id </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let buyProduct (pId:string) =
-    raise (new System.NotImplementedException())
+  val buyProduct : string -> 'a
 
   /// <summary>
   /// Rent a product
@@ -92,5 +85,4 @@ module Product =
   // <typeparam> Number of days </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let rentProduct (pId:string) (days:int) =
-    raise (new System.NotImplementedException())
+  val rentProduct : string -> int -> 'a
