@@ -50,10 +50,9 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.Unauthorized;
                 return null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
@@ -86,10 +85,9 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.Forbidden;
                 return null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
@@ -128,10 +126,9 @@ namespace RentIt
                 response.StatusCode = HttpStatusCode.BadRequest;
                 return null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
                 return null;
             }
@@ -202,10 +199,9 @@ namespace RentIt
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.BadRequest;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
             }
         }
@@ -237,7 +233,7 @@ namespace RentIt
                     throw new Account.BrokenInvariant();
 
                 var newAccount = Account.make(accountType, user, email, password, extraInfo);
-                ControlledAccount.persist(AccountPermissions.Invoker.Unauth, newAccount);
+                ControlledAccount.persist(AccountPermissions.Invoker.NewAuth(newAccount), newAccount);
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Created;
 
@@ -253,10 +249,9 @@ namespace RentIt
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Conflict;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusDescription = e.InnerException.ToString();
                 response.StatusCode = HttpStatusCode.InternalServerError;
             }
 

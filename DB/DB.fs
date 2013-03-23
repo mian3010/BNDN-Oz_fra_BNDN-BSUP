@@ -63,15 +63,23 @@ open System.Security
         /// Retrieves an account from persistence based on its associated username
         /// Raises NoUserWithSuchName
         let getUserByName userName :AccountTypes.Account =
-            let internalFun =
+            //let internalFun =
+            (*
                 // If the user already exist in the cache, get him/her from there!
                 if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache) then
                     Map.find<string, AccountTypes.Account> userName Internal.cache
                 else
-                    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "user" "Username" Persistence.ReadField.All
-                    let filterQ = Persistence.Filter.createFilter [] "user" "Username" "=" userName
-                    let read    = Persistence.Api.read fieldsQ "user" [] filterQ
+                *)
+                    let fieldsQ         = Persistence.ReadField.createReadFieldProc [] "User" "Username" Persistence.ReadField.All
                     
+                    let baseObjectNameQ = "User"
+                    let joinsQ          = []
+                    let filtersQ        = Persistence.Filter.createFilter [] "User" "Username" "=" userName
+                    let read = Persistence.Api.read fieldsQ baseObjectNameQ joinsQ filtersQ
+                    (*let fieldsQ = Persistence.ReadField.createReadField [] "User" "Username" //Persistence.ReadField.All    
+                    let filterQ = Persistence.Filter.createFilter [] "User" "Username" "=" userName
+                    let read    = Persistence.Api.read fieldsQ "User" [] filterQ*)
+    
                     // Oooops, no user with that username. Hmm, u stupid or some?
                     if read.IsEmpty then
                         raise NoUserWithSuchName
@@ -90,28 +98,30 @@ open System.Security
                                 name = None;
                                 address = {
                                             address = result.TryFind "Address"
-                                            postal = 
-                                                let zipString = result.TryFind "Zipcode"
+                                            postal = Some 2400
+                                               (* let zipString = result.TryFind "Zipcode"
                                                 if zipString = None then 
-                                                    None else Some (int (string zipString))
+                                                    None else Some (int (string zipString))*) // CANT CONVERT!!! FIX IT! NOW! WITH CAPS! no
                                             country = Some (result.Item "Country_Name") }
-                                birth =
-                                    let bodString = result.TryFind "Date_of_birth"
+                                birth = Some (DateTime.Parse "10/10/2013 12:00:00 AM")
+                                    (*let bodString = result.TryFind "Date_of_birth"
                                     if bodString = None then 
-                                        None else Some (DateTime.Parse (string bodString))
+                                        None else Some (DateTime.Parse (string bodString))*) // CANT CONVERT!!!
                                         
                                 about = result.TryFind "About_me"
-                                credits =
-                                    let cString = result.TryFind "Balance"
+                                credits = Some 666
+                                    (*let cString = result.TryFind "Balance"
                                     if cString = None then
-                                        None else Some (int (string cString)) }
+                                        None else Some (int (string cString)) *)
+                                }
                         accType = result.Item "Type_name"
                         version = uint32 0 }
                     // Add the new account to the cache
-                    Internal.cache <- Internal.cache.Add (acc.user, acc)
+                    // Internal.cache <- Internal.cache.Add (acc.user, acc)
                     acc // Return him (or her)!
+              
                         
-            lock Internal.cache (fun() -> internalFun)
+            //lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves all accounts of a specific type
         let getAllUsersByType accType :AccountTypes.Account list =
