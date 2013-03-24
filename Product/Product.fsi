@@ -9,13 +9,13 @@ module Product =
   ///</summary>
   /// <typeparam> UserId </typeparam>
   /// <typeparam> Name </typeparam>
-  /// <typeparam> Description </typeparam>
   /// <typeparam> ProductType </typeparam>
-  /// <typeparam> BuyPrice </typeparam>
-  /// <typeparam> RentPrice </typeparam>
+  /// <typeparam> Description (optional) </typeparam>
+  /// <typeparam> BuyPrice (optional) </typeparam>
+  /// <typeparam> RentPrice (optional) </typeparam>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val make : string -> string -> string -> string -> string -> string -> Product 
+  val make : string -> string -> string -> string option -> int option -> int option -> Product 
     
   /// <summary>
   /// Get prodcut by product id
@@ -31,7 +31,7 @@ module Product =
   /// </summary>
   // <typeparam> Product </typeparam>
   /// <exception> RentIt.Product.ProductAlreadyExists </exception>
-  /// <exception> RentIt.Product.UnknownProductType </exception>
+  /// <exception> RentIt.Product.NoSuchProductType </exception>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
   val persist : Product -> 'a

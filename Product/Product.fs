@@ -10,21 +10,32 @@ module Product =
   exception ProductNotPublished
   exception ArgumentException of string
   exception ProductAlreadyExists
-  exception UnknownProductType
+  exception NoSuchProductType
 
   /// <summay>
   /// Creater
   ///</summary>
   /// <typeparam> UserId </typeparam>
   /// <typeparam> Name </typeparam>
-  /// <typeparam> Description </typeparam>
   /// <typeparam> ProductType </typeparam>
+  /// <typeparam> Description </typeparam>
   /// <typeparam> BuyPrice </typeparam>
   /// <typeparam> RentPrice </typeparam>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let make (userId:string) (name:string) (description:string) (productType:string) (buyPrice:string) (rentPrice:string) : Product =
-    raise (new System.NotImplementedException())
+  let make (userId:string) (name:string) (productType:string) (description:string option) (buyPrice:int option) (rentPrice:int option) : Product =
+    if (userId = null || userId.Trim().Length = 0) then raise (ArgumentException "UserId empty")
+    if (name = null || name.Trim().Length = 0) then raise (ArgumentException "Name empty")
+    if (productType = null || productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
+    {
+      name = name;
+      createDate = System.DateTime.Now;
+      productType = productType;
+      owner = userId;
+      description = description;
+      rentPrice = rentPrice;
+      buyPrice = buyPrice;
+    }
     
   /// <summary>
   /// Get prodcut by product id
@@ -41,7 +52,7 @@ module Product =
   /// </summary>
   // <typeparam> Product </typeparam>
   /// <exception> RentIt.Product.ProductAlreadyExists </exception>
-  /// <exception> RentIt.Product.UnknownProductType </exception>
+  /// <exception> RentIt.Product.NoSuchProductType </exception>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
   let persist (p:Product) = 
