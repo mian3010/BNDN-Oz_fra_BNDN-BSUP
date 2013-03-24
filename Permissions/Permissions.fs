@@ -10,7 +10,7 @@ open RentIt
                     | Own            // Own
                     | Any            // Not specific type
     
-    let CheckUserTypePermission (usertype:string) (permission:string) :bool =
+    let checkUserTypePermission (usertype:string) (permission:string) :bool =
       PermissionsHelper.checkUserTypePermission usertype permission
     
     // Check if a User has Permission to Action
@@ -36,7 +36,7 @@ open RentIt
 
     // Assign a Permission to an ActionGroup
     // Takes ActionGroup Name and Permission. Both as strings
-    let AssignPermissionToActionGroup (name:string) (permission:string) =
+    let assignPermissionToActionGroup (name:string) (permission:string) =
       let objectName = "ActionGroup_has_AllowedAction"
       let fieldProcessor = Persistence.Field.Default
       let dataQ = Persistence.DataIn.createDataIn []    objectName "ActionGroup_name" name
@@ -46,7 +46,7 @@ open RentIt
       
     // Unassign a Permission to an ActionGroup
     // Takes ActionGroup Name and Permission. Both as strings
-    let UnassignPermissionFromActionGroup (name:string) (permission:string) = 
+    let unassignPermissionFromActionGroup (name:string) (permission:string) = 
       let objectName = "ActionGroup_has_AllowedAction"
       let filtersQ = Persistence.Filter.createFilter [] "ActionGroup_has_AllowedAction" "ActionGroup_name" "=" name
       let filtersQ = Persistence.Filter.createFilter filtersQ "ActionGroup_has_AllowedAction" "AllowedAction_name" "=" permission
@@ -55,7 +55,7 @@ open RentIt
 
     // Add Allowed Action
     // Takes Action Name and Description. Both strings.
-    let AddAllowedAction (name:string) (desc:string) =
+    let addAllowedAction (name:string) (desc:string) =
       let objectName = "AllowedAction"
       let dataQ = Persistence.DataIn.createDataIn []    objectName "Name" name
       let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Description" desc
@@ -64,7 +64,7 @@ open RentIt
 
     // Delete Allowed Action
     // Takes Allowed Action Name
-    let DeleteAllowedAction (name:string) =
+    let deleteAllowedAction (name:string) =
       let objectName = "AllowedAction"
       let filtersQ = Persistence.Filter.createFilter [] objectName "Name" "=" name
 
@@ -72,7 +72,7 @@ open RentIt
 
     // Add Action Group
     // Takes Name and Description
-    let AddActionGroup (name:string) (desc:string) =
+    let addActionGroup (name:string) (desc:string) =
       let objectName = "ActionGroup"
       let dataQ = Persistence.DataIn.createDataIn []    objectName "Name" name
       let dataQ = Persistence.DataIn.createDataIn dataQ objectName "Description" desc
@@ -81,7 +81,7 @@ open RentIt
 
     // Delete Action Group
     // Takes Action Group Name
-    let DeleteActionGroup (name:string) =
+    let deleteActionGroup (name:string) =
       let objectName = "ActionGroup"
       let filtersQ = Persistence.Filter.createFilter [] objectName "Name" "=" name
 
@@ -89,7 +89,7 @@ open RentIt
 
     // Assign Action Group to User Type
     // Takes User Type Name and Action Group Name
-    let AssignActionGroupToUserType (userType:string) (actionGroup:string) = 
+    let assignActionGroupToUserType (userType:string) (actionGroup:string) = 
       let objectName = "UserType_has_ActionGroup"
       let dataQ = Persistence.DataIn.createDataIn []    objectName "UserType_name" userType
       let dataQ = Persistence.DataIn.createDataIn dataQ objectName "ActionGroup_name" actionGroup
@@ -98,7 +98,7 @@ open RentIt
 
     // Unassign Action Group to User Type
     // Takes User Type Name and Action Group Name
-    let UnassignActionGroupToUserType (userType:string) (actionGroup:string) = 
+    let unassignActionGroupToUserType (userType:string) (actionGroup:string) = 
       let objectName = "UserType_has_ActionGroup"
       let filtersQ = Persistence.Filter.createFilter []       objectName "UserType_name" "=" userType
       let filtersQ = Persistence.Filter.createFilter filtersQ objectName "ActionGroup_name" "=" actionGroup
@@ -107,7 +107,7 @@ open RentIt
 
     // Add User Type
     // Takes User Type Name
-    let AddUserType (name:string) = 
+    let addUserType (name:string) = 
       let objectName = "UserType"
       let dataQ = Persistence.DataIn.createDataIn [] objectName "Name" name
 
@@ -116,7 +116,7 @@ open RentIt
     // Delete User Type
     // Takes User Type Name
     // Returns false if a User has User Type
-    let DeleteUserType (name:string) :bool =
+    let deleteUserType (name:string) :bool =
       let objectName = "User"
       let fieldsQ = Persistence.ReadField.createReadField [] objectName "Type_name" 
       let joinsQ = []

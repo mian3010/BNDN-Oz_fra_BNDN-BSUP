@@ -1,5 +1,6 @@
-﻿namespace RentIt
-(*
+﻿(*
+namespace RentIt
+
 module main =
 [<EntryPoint>]
     let main argv = 
