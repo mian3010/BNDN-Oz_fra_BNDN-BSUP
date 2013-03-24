@@ -4,6 +4,13 @@ module Product =
 
   type Product = ProductTypes.Product
 
+  exception NoSuchProduct
+  exception NoSuchUser
+  exception ProductNotPublished
+  exception ArgumentException of string
+  exception ProductAlreadyExists
+  exception NoSuchProductType
+
   /// <summay>
   /// Creater
   ///</summary>

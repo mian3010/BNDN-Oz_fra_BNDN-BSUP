@@ -5,7 +5,8 @@ module ProductTest =
   open FsUnit.Xunit
 
   type Product = ProductTypes.Product
-  //exception ArgumentException = RentIt.Product.ArgumentException
+  exception ArgumentException = RentIt.Product.ArgumentException
+  exception NoSuchProductType = RentIt.Product.NoSuchProductType
 
   let userId = "2"
   let name = "test product"
@@ -45,22 +46,18 @@ module ProductTest =
     p.productType |> should equal productType
 
   [<Fact>]
-  let ``owner should throw``() =
-  //  Product.make null name productType description buyPrice rentPrice |> should throw typeof<ArgumentException>
-    Product.make null name productType description buyPrice rentPrice |> should throw typeof<System.Exception>
+  let ``owner should throw arg``() =
+    (Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
-  let ``name should throw``() =
-  //  Product.make null name productType description buyPrice rentPrice |> should throw typeof<ArgumentException>
-    Product.make userId null productType description buyPrice rentPrice |> should throw typeof<System.Exception>
+  let ``name should throw arg``() =
+    (Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
-  let ``productType should throw``() =
-  //  Product.make null name productType description buyPrice rentPrice |> should throw typeof<ArgumentException>
-    Product.make userId name null description buyPrice rentPrice |> should throw typeof<System.Exception>
+  let ``productType should throw arg``() =
+    (Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``productType should throw no such``() =
-  //  Product.make null name productType description buyPrice rentPrice |> should throw typeof<NoSuchProductType>
-    Product.make userId name "muhaha" description buyPrice rentPrice |> should throw typeof<System.Exception>
-      
+    (Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<NoSuchProductType>
+  
