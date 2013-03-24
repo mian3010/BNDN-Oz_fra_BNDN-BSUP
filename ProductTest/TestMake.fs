@@ -14,6 +14,6 @@ module ProductTest =
   let rentPrice = 5
 
   [<Fact>]
-  let ``make that works``() =
+  let ``buyPrice should work``() =
     let p = Product.make userId name productType (Some description) (Some buyPrice) (Some rentPrice)
     p.buyPrice.Value |> should equal buyPrice
