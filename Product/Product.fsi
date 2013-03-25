@@ -43,7 +43,7 @@ module Product =
   /// <exception> RentIt.Product.NoSuchProductType </exception>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val persist : Product -> 'a
+  val persist : Product -> Product
 
   /// <summary>
   /// Get products by product name
