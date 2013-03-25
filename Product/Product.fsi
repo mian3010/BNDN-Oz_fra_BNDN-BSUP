@@ -10,6 +10,7 @@ module Product =
   exception ArgumentException of string
   exception ProductAlreadyExists
   exception NoSuchProductType
+  exception UpdateNotAllowed of string
 
   /// <summay>
   /// Creater
@@ -67,7 +68,7 @@ module Product =
   // <typeparam> Product name </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val update : Product -> 'a
+  val update : Product -> Product
 
   /// <summary>
   /// Buy a product

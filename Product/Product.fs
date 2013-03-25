@@ -11,6 +11,7 @@ module Product =
   exception ArgumentException of string
   exception ProductAlreadyExists
   exception NoSuchProductType
+  exception UpdateNotAllowed of string
 
   /// <summay>
   /// Creater
@@ -73,7 +74,7 @@ module Product =
   /// </summary>
   // <typeparam> Product type name </typeparam>
   /// <returns> List of products </returns>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
+  /// <exception> RentIt.Product.NoSuchProductType </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
   let getAllByType (typeName:string) : Product list =
     raise (new System.NotImplementedException())
@@ -83,8 +84,9 @@ module Product =
   /// </summary>
   // <typeparam> Product name </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
+  /// <exception> RentIt.Product.UpdateNotAllowed </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let update (p:Product) =
+  let update (p:Product) : Product =
     raise (new System.NotImplementedException())
 
   /// <summary>
