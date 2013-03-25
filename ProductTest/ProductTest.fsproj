@@ -44,6 +44,8 @@
     <Compile Include="TestGetProductByName.fs" />
     <Compile Include="TestGetAllByType.fs" />
     <Compile Include="TestUpdate.fs" />
+    <Compile Include="TestBuyProduct.fs" />
+    <Compile Include="TestRentProduct.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.CustomMatchers">
