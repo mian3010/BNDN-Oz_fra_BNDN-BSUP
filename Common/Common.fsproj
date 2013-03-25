@@ -40,6 +40,7 @@
     <Compile Include="Ops.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="ProductTypes.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.CustomMatchers">

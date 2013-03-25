@@ -21,6 +21,7 @@ module Product =
   /// <typeparam> Description (optional) </typeparam>
   /// <typeparam> BuyPrice (optional) </typeparam>
   /// <typeparam> RentPrice (optional) </typeparam>
+  /// <returns> Product </returns>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
   val make : string -> string -> string -> string option -> int option -> int option -> Product 
