@@ -8,6 +8,7 @@ module ProductPersistence =
   exception NoSuchProductType
   exception NoSuchUser
   exception ProductNotPublished
+  exception ProductAlreadyExists
   
   /// <summay>
   /// Creater in persistence layer
