@@ -36,12 +36,14 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
-    <Compile Include="TestMake.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="TestMake.fs" />
     <Compile Include="TestGetProductById.fs" />
     <Compile Include="TestPersist.fs" />
     <Compile Include="TestGetProductByName.fs" />
+    <Compile Include="TestGetAllByType.fs" />
+    <Compile Include="TestUpdate.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.CustomMatchers">
