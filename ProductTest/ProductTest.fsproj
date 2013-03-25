@@ -39,6 +39,9 @@
     <Compile Include="TestMake.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="TestGetProductById.fs" />
+    <Compile Include="TestPersist.fs" />
+    <Compile Include="TestGetProductByName.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.CustomMatchers">
