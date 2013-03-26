@@ -24,7 +24,6 @@ module Main =
   let internal createDataInForLoggable id =
       [Persistence.DataIn.createDataIn [] "Loggable" "Id" id]
 
-
   [<EntryPoint>]
   let main argv = 
     
@@ -241,5 +240,20 @@ module Main =
     printfn "%A" ("---------- Create " + "Loggable" + " ----------")
     for i in insert do
       Persistence.Api.create "Loggable" i |> ignore
+
+    // User
+    let info = {
+                  name = Some "Lynette";
+                  address = ({
+                               address = Some "Somewhere";
+                               postal = Some 7738;
+                               country = Some "Over the rainbow";
+                            }:AccountTypes.Address);
+                  birth = Some System.DateTime.Now;
+                  about = None;
+                  credits = Some 42;
+               }:AccountTypes.ExtraAccInfo
+    let user = Account.make "Admin" "Lynette" "lynette@smu" "Awesome" info
+    Account.persist user
 
     0

@@ -223,6 +223,10 @@ open System.Security
             lock Internal.cache (fun() -> internalFun)
 
         /// Raises UsernameAlreadyInUse
+        //TODO Neews refactoring. getNextLoggableID risks giving the wrong id if
+        //called multiple times before write. getNextLoggableId (SMALL D) should
+        //return a query and that query should be added to transaction. If anything
+        //needs done in persistence for this, let me know
         let createUser (acc:AccountTypes.Account) =
             let internalFun =
                 let nextId = Internal.getNextLoggableID() + 1
