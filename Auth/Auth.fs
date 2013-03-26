@@ -16,6 +16,12 @@ module Auth =
     ///////////////////////////////////////////////////////////////////////
 
     module Token =
+
+        /// Authentication token type. user is in lower case!
+        type AuthToken = { expires: System.DateTime; user: string }
+
+        exception TokenExpired  // Raised if a token is expired and was not supposed to be so
+        exception IllegalToken  // Raised if a token is malformed
         
         ///////////////////////////////////////////////////////////////////
 
@@ -39,7 +45,12 @@ module Auth =
             let cipherTo   = "x9/weqrsPcflHIyz012hQMbiNODYtuVZaj3gk45mnvT+UopdARS=EWF6G7K8JLBXC"
 
             // translate message m of alphabet a using the cipher c
-            let translate (a:string) (c:string) (m:string) = String.map (fun char -> c.[a.IndexOf(char)]) m
+            let translate (a:string) (c:string) (m:string) =
+                let translater (char:char) =
+                    let i = a.IndexOf(char)
+                    if i < 0 then raise IllegalToken
+                    c.[i]
+                String.map translater m
                 
             /// Enciphers a base64 encoded string
             let encipher (str:string) = translate cipherFrom cipherTo str
@@ -69,14 +80,6 @@ module Auth =
 
 
         ///////////////////////////////////////////////////////////////////
-
-        /// Authentication token type. user is in lower case!
-        type AuthToken = { expires: System.DateTime; user: string }
-
-        exception TokenExpired  // Raised if a token is expired and was not supposed to be so
-        exception IllegalToken  // Raised if a token is malformed
-
-
 
         /// Creates a new token for {user} which expires in {hours} hours
         let create hours (user:string) =
