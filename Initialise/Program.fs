@@ -226,7 +226,8 @@ module Main =
     insert <- insert@createDataInForCountry "Denmark"
     insert <- insert@createDataInForCountry "Singapore"
     insert <- insert@createDataInForCountry "USA"
-    
+    insert <- insert@createDataInForCountry "Over the rainbow"
+
     printfn "%A" ("---------- Create " + "Country" + " ----------")
     for i in insert do
       Persistence.Api.create "Country" i |> ignore
@@ -240,8 +241,10 @@ module Main =
     printfn "%A" ("---------- Create " + "Loggable" + " ----------")
     for i in insert do
       Persistence.Api.create "Loggable" i |> ignore
+      
 
     // User
+    printfn "%A" ("---------- Create " + "User" + " ----------")
     let info = {
                   name = Some "Lynette";
                   address = ({

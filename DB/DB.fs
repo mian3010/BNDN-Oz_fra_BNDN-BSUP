@@ -184,20 +184,20 @@ open System.Security
                 elif (cu.version < acc.version) then
                     raise IllegalAccountVersion
                 
-                let talbeName = "user"
-                let dataQ = Persistence.DataIn.createDataIn [] talbeName "Email" acc.email
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Address" (string acc.info.address.address)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Date_of_birth" (string acc.info.birth)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Password" (string acc.password.hash + ":" + acc.password.salt)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Created_date" (string acc.created)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Banned" (if acc.banned then "1" else "0")
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "About_me" (string acc.info.about)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Type_name" acc.accType
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Balance" (string acc.info.credits)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Zipcode" (string acc.info.address.postal)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Country_Name" (string acc.info.address.country)
-                let filtersQ   = Persistence.Filter.createFilter [] talbeName "Username" "=" acc.user
-                let updateR = Persistence.Api.update talbeName filtersQ dataQ
+                let tableName = "user"
+                let dataQ = Persistence.DataIn.createDataIn [] tableName "Email" acc.email
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Address" (string acc.info.address.address)
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Date_of_birth" (string acc.info.birth)
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Password" (string acc.password.hash + ":" + acc.password.salt)
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Created_date" (string acc.created)
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Banned" (if acc.banned then "1" else "0")
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "About_me" (string acc.info.about)
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Type_name" acc.accType
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Balance" (string acc.info.credits)
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Zipcode" (string acc.info.address.postal)
+                let dataQ = Persistence.DataIn.createDataIn dataQ tableName "Country_Name" (string acc.info.address.country)
+                let filtersQ   = Persistence.Filter.createFilter [] tableName "Username" "=" acc.user
+                let updateR = Persistence.Api.update tableName filtersQ dataQ
 
 
                 let newAcc :AccountTypes.Account = {
@@ -233,28 +233,29 @@ open System.Security
                 let transactionQ = Persistence.Transaction.createTransaction
 
 
-                let talbeName = "loggable"
+                let tableName = "Loggable"
                 let fieldProcessor = Persistence.Field.Default
-                let dataQ = Persistence.DataIn.createDataIn []    talbeName "Id" (string nextId)
-                let createIdQ = Persistence.Create.createCreate talbeName dataQ
+                let dataQ = Persistence.DataIn.createDataIn []    tableName "Id" (string nextId)
+                let createIdQ = Persistence.Create.createCreate tableName dataQ
                 let transactionQ = Persistence.Transaction.addCreate transactionQ createIdQ
 
-                let tableName = "user"
+                let tableName = "User"
                 let fieldProcessor = Persistence.Field.Default
-                let dataQ = Persistence.DataIn.createDataIn []    talbeName "Id" (string nextId)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Username" acc.user
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Email" acc.email
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Address" (string acc.info.address.address)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Date_of_birth" (string acc.info.birth)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Password" (string acc.password.hash + ":" + acc.password.salt)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Created_date" (string acc.created)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Banned" (if acc.banned then "1" else "0")
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "About_me" (string acc.info.about)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Type_name" acc.accType
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Balance" (string acc.info.credits)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Zipcode" (string acc.info.address.postal)
-                let dataQ = Persistence.DataIn.createDataIn dataQ talbeName "Country_Name" (string acc.info.address.country)
-                let createUserQ = Persistence.Create.createCreate talbeName dataQ
+
+                let dataQ = ref (Persistence.DataIn.createDataIn []    tableName "Id" (string nextId))
+                dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Username" acc.user
+                dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Email" acc.email
+                if (acc.info.address.address.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Address" (string acc.info.address.address.Value)
+                if (acc.info.birth.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Date_of_birth" (string acc.info.birth.Value)
+                dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Password" (string acc.password.hash + ":" + acc.password.salt)
+                dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Created_date" (string acc.created)
+                dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Banned" (if acc.banned then "1" else "0")
+                if (acc.info.about.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "About_me" (string acc.info.about.Value)
+                dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Type_name" acc.accType
+                if (acc.info.credits.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Balance" (string acc.info.credits.Value)
+                if (acc.info.address.postal.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Zipcode" (string acc.info.address.postal.Value)
+                if (acc.info.address.country.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Country_Name" (string acc.info.address.country.Value)
+                let createUserQ = Persistence.Create.createCreate tableName !dataQ
                 let transactionQ = Persistence.Transaction.addCreate transactionQ createUserQ
 
                 let transactionR = Persistence.Api.transactionQ transactionQ
