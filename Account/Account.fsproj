@@ -83,6 +83,11 @@
       <Project>{04a74c01-2866-459b-9a7f-84a3608a485a}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Persistence\Persistence.fsproj">
+      <Name>Persistence</Name>
+      <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
