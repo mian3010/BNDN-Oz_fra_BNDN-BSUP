@@ -45,7 +45,7 @@ open System.Security
             ////// Helper functions
             let splitDbPass (dbPass:string) :AccountTypes.Password =
                 let parts = dbPass.Split [|':'|]
-                { salt = parts.[0]; hash = parts.[1] }
+                { salt = parts.[1]; hash = parts.[0] }
 
             let getNextLoggableID() :int =
                 let fieldQ = Persistence.ReadField.createReadFieldProc [] "loggable" "Id" Persistence.ReadField.Max

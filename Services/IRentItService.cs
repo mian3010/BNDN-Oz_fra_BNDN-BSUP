@@ -39,7 +39,7 @@ namespace RentIt
 
         [OperationContract]
         [WebInvoke(Method = "PUT",
-            UriTemplate = "/acounts/{user}",
+            UriTemplate = "/accounts/{user}",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json)]
         void UpdateAccount(string user, AccountData data);

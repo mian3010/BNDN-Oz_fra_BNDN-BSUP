@@ -92,7 +92,7 @@ module Auth =
             let user = token.user                           // variable width
             let combined = date + Internal.dataSep + user   // yyyy-MM-dd HH:mm:ss zzz | user
             let checksum = Internal.checksum combined
-            Internal.obscure checksum + Internal.dataSep + combined
+            Internal.obscure (checksum + Internal.dataSep + combined)
 
         /// Decodes a {token} string into a token record
         /// Raises an IllegalToken exception if its checksum does not match the content or the token is illegally structured

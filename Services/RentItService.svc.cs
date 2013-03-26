@@ -139,6 +139,10 @@ namespace RentIt
         {
             try
             {
+                string token = getToken();
+                var tokenAccount = ControlledAuth.accessAccount(token);
+
+
                 Dictionary<string,string> accInfo = createNewAccount(data);
 
                 var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
@@ -176,7 +180,7 @@ namespace RentIt
                 var extraInfo = new AccountTypes.ExtraAccInfo(name, accountAddress, dateOfBirth, aboutMe, credits);
                 updatedAccount = new AccountTypes.Account(user, email, password, account.created, account.banned, extraInfo, account.accType, account.version);
 
-                updateToNewAccount(updatedAccount);
+                updateToNewAccount(updatedAccount, tokenAccount);
 
             }
             catch (RentIt.Account.NoSuchUser)
@@ -233,7 +237,14 @@ namespace RentIt
                     throw new Account.BrokenInvariant();
 
                 var newAccount = Account.make(accountType, user, email, password, extraInfo);
-                ControlledAccount.persist(AccountPermissions.Invoker.NewAuth(newAccount), newAccount);
+                string token = getToken();
+                if (token==null)
+                    ControlledAccount.persist(AccountPermissions.Invoker.Unauth, newAccount);
+                else
+                {
+                    var tokenAccount = ControlledAuth.accessAccount(token);
+                    ControlledAccount.persist(AccountPermissions.Invoker.NewAuth(tokenAccount), newAccount);
+                }
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Created;
 
@@ -263,17 +274,11 @@ namespace RentIt
         /// <returns> The token from the header as a string</returns>
         private string getToken()
         {
-            WebHeaderCollection headers = WebOperationContext.Current.IncomingRequest.Headers;
-            foreach (string header in headers)
-            {
-                if(header.Contains("token"))
-                {
-                    return header;
-                }
-                else
-                    throw new Account.BrokenInvariant();
-            }
-            return null;
+            string token = WebOperationContext.Current.IncomingRequest.Headers["token"];
+            if (token != null)
+                return token;
+            else
+                throw new Account.BrokenInvariant();
         }
 
         private Dictionary<string, string> createNewAccount(AccountData data)
@@ -305,7 +310,7 @@ namespace RentIt
                 address = FSharpOption<string>.None;
 
             FSharpOption<int> zipcode;
-            if (info.ContainsKey("zipcode"))
+            if (info.ContainsKey("zipcode")&& Convert.ToInt32(info["zipcode"])!=0)
                 zipcode = FSharpOption<int>.Some(Convert.ToInt32(info["zipcode"]));
             else
                 zipcode = FSharpOption<int>.None;
@@ -387,15 +392,15 @@ namespace RentIt
             return stringInfo;
         }
 
-        private void updateToNewAccount(AccountTypes.Account updatedAccount)
+        private void updateToNewAccount(AccountTypes.Account updatedAccount, AccountTypes.Account tokenAccount)
         {
             try
             {
-                ControlledAccount.update(AccountPermissions.Invoker.Unauth, updatedAccount);
+                ControlledAccount.update(AccountPermissions.Invoker.NewAuth(tokenAccount), updatedAccount);
             }
             catch (Account.OutdatedData)
             {
-                updateToNewAccount(updatedAccount);
+                updateToNewAccount(updatedAccount, tokenAccount);
             }
         }
     }
