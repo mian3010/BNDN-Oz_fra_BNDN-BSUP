@@ -9,10 +9,12 @@ module ControlledAccount =
     module internal Internal =
 
         // Raises the correct access denied exception
-        let accessDenied (invoker:Invoker) =
+        let check (invoker:Invoker) (access:Access) =
             match invoker with
                 | Invoker.Auth auth when auth.banned -> raise AccountBanned
-                | _ ->                                  raise PermissionDenied
+                | _                                  -> match access with
+                                                        | Access.Denied reason  -> raise (PermissionDenied reason)
+                                                        | Access.Accepted       -> ignore; // Return normally in this case
 
     ///////////////////////////////////////////////////////////////////////
 
@@ -21,8 +23,8 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let persist invoker acc =
-        let accessOk = AccountPermissions.mayCreateAccount invoker acc
-        if not accessOk then Internal.accessDenied invoker
+        let allowed = AccountPermissions.mayCreateAccount invoker acc
+        Internal.check invoker allowed |> ignore
         Account.persist acc
         
     /// Wrapper for Account.getByUsername, with the addition of {invoker}
@@ -30,8 +32,8 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let getByUsername invoker user =
-        let accessOk = AccountPermissions.mayRetrieveAccount invoker user
-        if not accessOk then Internal.accessDenied invoker
+        let allowed = AccountPermissions.mayRetrieveAccount invoker user
+        Internal.check invoker allowed |> ignore
         Account.getByUsername user
     
     /// Wrapper for Account.getAllByType, with the addition of {invoker}
@@ -39,8 +41,8 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let getAllByType invoker accType =
-        let accessOk = AccountPermissions.mayRetrieveAccounts invoker accType
-        if not accessOk then Internal.accessDenied invoker
+        let allowed = AccountPermissions.mayRetrieveAccounts invoker accType
+        Internal.check invoker allowed |> ignore
         Account.getAllByType accType
 
     /// Wrapper for Account.getLastAuthTime, with the addition of {invoker}
@@ -48,8 +50,8 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let getLastAuthTime invoker user =
-        let accessOk = AccountPermissions.mayReadAuthTime invoker user
-        if not accessOk then Internal.accessDenied invoker
+        let allowed = AccountPermissions.mayReadAuthTime invoker user
+        Internal.check invoker allowed |> ignore
         Account.getLastAuthTime user
 
     /// Wrapper for Account.delete, with the addition of {invoker}
@@ -57,8 +59,8 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let delete invoker acc =
-        let accessOk = AccountPermissions.mayDeleteAccount invoker acc
-        if not accessOk then Internal.accessDenied invoker
+        let allowed = AccountPermissions.mayDeleteAccount invoker acc
+        Internal.check invoker allowed |> ignore
         Account.delete acc
 
     /// Wrapper for Account.update, with the addition of {invoker}
@@ -73,8 +75,8 @@ module ControlledAccount =
         if targetAcc.version > updatedAcc.version then raise Account.OutdatedData
         elif targetAcc.version < updatedAcc.version then raise Account.BrokenInvariant
 
-        let accessOk = AccountPermissions.mayPerformAccountUpdate invoker targetAcc updatedAcc
-        if not accessOk then Internal.accessDenied invoker
+        let allowed = AccountPermissions.mayPerformAccountUpdate invoker targetAcc updatedAcc
+        Internal.check invoker allowed |> ignore
         Account.update updatedAcc
 
     /// Wrapper for Account.resetPassword, with the addition of {invoker}
@@ -82,6 +84,6 @@ module ControlledAccount =
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
     let resetPassword invoker user =
-        let accessOk = AccountPermissions.mayResetPassword invoker user
-        if not accessOk then Internal.accessDenied invoker
+        let allowed = AccountPermissions.mayResetPassword invoker user
+        Internal.check invoker allowed |> ignore
         Account.resetPassword user

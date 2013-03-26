@@ -24,7 +24,6 @@ module Main =
   let internal createDataInForLoggable id =
       [Persistence.DataIn.createDataIn [] "Loggable" "Id" id]
 
-
   [<EntryPoint>]
   let main argv = 
     
@@ -34,6 +33,7 @@ module Main =
     Persistence.Api.delete "AllowedAction" [] |> ignore
     Persistence.Api.delete "UserType_has_ActionGroup" [] |> ignore
     Persistence.Api.delete "ActionGroup" [] |> ignore
+    Persistence.Api.delete "User" [] |> ignore
     Persistence.Api.delete "UserType" [] |> ignore
     Persistence.Api.delete "Country" [] |> ignore
     Persistence.Api.delete "Loggable" [] |> ignore
@@ -226,7 +226,8 @@ module Main =
     insert <- insert@createDataInForCountry "Denmark"
     insert <- insert@createDataInForCountry "Singapore"
     insert <- insert@createDataInForCountry "USA"
-    
+    insert <- insert@createDataInForCountry "Over the rainbow"
+
     printfn "%A" ("---------- Create " + "Country" + " ----------")
     for i in insert do
       Persistence.Api.create "Country" i |> ignore
@@ -240,5 +241,22 @@ module Main =
     printfn "%A" ("---------- Create " + "Loggable" + " ----------")
     for i in insert do
       Persistence.Api.create "Loggable" i |> ignore
+      
+
+    // User
+    printfn "%A" ("---------- Create " + "User" + " ----------")
+    let info = {
+                  name = Some "Lynette";
+                  address = ({
+                               address = Some "Somewhere";
+                               postal = Some 7738;
+                               country = Some "Over the rainbow";
+                            }:AccountTypes.Address);
+                  birth = Some System.DateTime.Now;
+                  about = None;
+                  credits = Some 42;
+               }:AccountTypes.ExtraAccInfo
+    let user = Account.make "Admin" "Lynette" "lynette@smu" "Awesome" info
+    Account.persist user
 
     0

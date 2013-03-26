@@ -16,6 +16,12 @@ module Auth =
     ///////////////////////////////////////////////////////////////////////
 
     module Token =
+
+        /// Authentication token type. user is in lower case!
+        type AuthToken = { expires: System.DateTime; user: string }
+
+        exception TokenExpired              // Raised if a token is expired and was not supposed to be so
+        exception IllegalToken of string    // Raised if a token is malformed
         
         ///////////////////////////////////////////////////////////////////
 
@@ -39,7 +45,12 @@ module Auth =
             let cipherTo   = "x9/weqrsPcflHIyz012hQMbiNODYtuVZaj3gk45mnvT+UopdARS=EWF6G7K8JLBXC"
 
             // translate message m of alphabet a using the cipher c
-            let translate (a:string) (c:string) (m:string) = String.map (fun char -> c.[a.IndexOf(char)]) m
+            let translate (a:string) (c:string) (m:string) =
+                let translater (char:char) =
+                    let i = a.IndexOf(char)
+                    if i < 0 then raise (IllegalToken "Encoded token contained illegal characters")
+                    c.[i]
+                String.map translater m
                 
             /// Enciphers a base64 encoded string
             let encipher (str:string) = translate cipherFrom cipherTo str
@@ -70,14 +81,6 @@ module Auth =
 
         ///////////////////////////////////////////////////////////////////
 
-        /// Authentication token type. user is in lower case!
-        type AuthToken = { expires: System.DateTime; user: string }
-
-        exception TokenExpired  // Raised if a token is expired and was not supposed to be so
-        exception IllegalToken  // Raised if a token is malformed
-
-
-
         /// Creates a new token for {user} which expires in {hours} hours
         let create hours (user:string) =
             let date = System.DateTime.Now.AddHours(float(hours))
@@ -99,13 +102,13 @@ module Auth =
         let decode token =
             let data = Internal.unobscure token
             
-            if data.Length <= 42 then raise IllegalToken // data is missing
-            if not (data.Substring(10, 3).Equals(Internal.dataSep) && data.Substring(39, 3).Equals(Internal.dataSep)) then raise IllegalToken // separators at wrong location
+            if data.Length <= 42 then raise (IllegalToken "Encoded token was malformed: Its length is too short") // data is missing
+            if not (data.Substring(10, 3).Equals(Internal.dataSep) && data.Substring(39, 3).Equals(Internal.dataSep)) then raise (IllegalToken "Encoded token was malformed") // separators at wrong location
 
             let checksum = data.Substring(0, 10)
             let combined = data.Substring(13)
 
-            if not (Internal.checksumMatches checksum combined) then raise IllegalToken // the token has been tampered with
+            if not (Internal.checksumMatches checksum combined) then raise (IllegalToken "Encoded token had been tampered with") // the token has been tampered with
 
             let date = Date.fromString (combined.Substring(0, 26))
             let user = combined.Substring(29) // 26+3 = 29

@@ -70,6 +70,7 @@ module Account =
     exception NoSuchUser        // If one tries to retrieve/update an account, but no account is found for the passed identifier
     exception OutdatedData      // If a call to 'update' cannot succeed, because the changes conflict with more recent changes
     exception BrokenInvariant   // If a function is invoked on an account whose invariants have been broken
+    exception TooLargeData      // If an account could not be persisted, because its fields were too large
 
 
     ////// CONSTRUCTOR FUNCTIONS
@@ -97,13 +98,15 @@ module Account =
     /// Persists a new Account, making the account visible to the outside world
     /// Raises UserAlreadyExists if the username already is occupied
     /// Raises UnknownAccType if the specified account type does not exist
+    /// Raises TooLargeData if one or more of the account fields were too large to be persisted
     let persist (acc:Account) =
         try
             Db.createUser acc
         with
-            | Db.UsernameAlreadyInUse   -> raise UserAlreadyExists
-            | Db.IllegalAccountVersion  -> raise BrokenInvariant
-            | Db.NoSuchAccountType      -> raise UnknownAccType
+            | Db.UsernameAlreadyInUse                   -> raise UserAlreadyExists
+            | Db.IllegalAccountVersion                  -> raise BrokenInvariant
+            | Db.NoSuchAccountType                      -> raise UnknownAccType
+            | Persistence.Types.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - we do not know for sure =/
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -139,13 +142,15 @@ module Account =
     /// The return value should be used as base for future updates to avoid OutdatedData exceptions
     /// Raises NoSuchUser if no account is associated with the given username
     /// Raises OutdatedData the account has been updated/changed since it was read (which could mean that the update is based on old data)
+    /// Raises TooLargeData if one or more of the new account fields were too large to be persisted
     let update (acc:Account) :Account =
         try
             Db.update acc
         with
-            | Db.NoUserWithSuchName -> raise NoSuchUser
-            | Db.NewerVersionExist -> raise OutdatedData
-            | Db.IllegalAccountVersion -> raise BrokenInvariant
+            | Db.NoUserWithSuchName                     -> raise NoSuchUser
+            | Db.NewerVersionExist                      -> raise OutdatedData
+            | Db.IllegalAccountVersion                  -> raise BrokenInvariant
+            | Persistence.Types.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - we do not know for sure =/
 
     ////// HELPER FUNCTIONS
 

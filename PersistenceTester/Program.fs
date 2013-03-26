@@ -99,6 +99,11 @@ module Main =
         let transactionR = Persistence.Api.transactionQ transactionQ
         printfn "%A" transactionR
 
+        // Test pass compare
+        let pass = "somepass"
+        let p = Account.Password.create pass
+        printfn "%A" (Account.Password.verify p pass)
+
         let s = System.Console.ReadLine()
 
         0 // return an integer exit code

@@ -1,8 +1,9 @@
 ﻿namespace RentIt
-(*
+
 module main =
 [<EntryPoint>]
     let main argv = 
+      (*
       let actionGroup = "action group"
       let userId = "1"
       let userType = "admin"
@@ -58,5 +59,5 @@ module main =
       let result = Permissions.DeleteUserType userType
       let result = "Delete User Type " + userType + " " + (string (result))
       printfn "%A" result;
-
-      0*)
+      *)
+      0
