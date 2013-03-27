@@ -23,18 +23,14 @@ open System.Security
                 let parts = dbPass.Split [|':'|]
                 { salt = parts.[1]; hash = parts.[0] }
 
-            let getNextLoggableID() :int =
-                let reader = Persistence.Api.create "Loggable" []
-                
-                (int ((reader.Item 0).Item "Id")) + 1
-                (*let fieldQ = Persistence.ReadField.createReadFieldProc [] "loggable" "Id" Persistence.ReadField.Max
-                let reader = Persistence.Api.read fieldQ "loggable" [] []
+            let getNextLoggableId() :int =
+                let tableName = "Loggable"
+                let fieldProcessor = Persistence.Field.Default
+                let createIdQ = Persistence.Create.createCreate tableName []
+                let read = Persistence.Api.createQ createIdQ
 
-                if reader.IsEmpty then
-                    0
-                else
-                    int(reader.Item(0).Item("loggable_Id_Max"))*)
-
+                let result = read.Item 0
+                (int (result.Item "Id")) + 1
 
         ///////////////////////////////////////////////////////////////////////////////////
 
@@ -209,9 +205,8 @@ open System.Security
         //needs done in persistence for this, let me know
         let createUser (acc:AccountTypes.Account) =
             let internalFun =
-                let nextId = Internal.getNextLoggableID()
+                let nextId = Internal.getNextLoggableId()
                 let transactionQ = Persistence.Transaction.createTransaction
-
 
                 let tableName = "Loggable"
                 let fieldProcessor = Persistence.Field.Default
