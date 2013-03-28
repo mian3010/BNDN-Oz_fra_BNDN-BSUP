@@ -237,7 +237,7 @@ namespace RentIt
                     throw new Account.BrokenInvariant();
 
                 var newAccount = Account.make(accountType, user, email, password, extraInfo);
-                string token = getToken();
+                string token = WebOperationContext.Current.IncomingRequest.Headers["token"];
                 if (token==null)
                     ControlledAccount.persist(AccountPermissions.Invoker.Unauth, newAccount);
                 else

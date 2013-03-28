@@ -33,10 +33,18 @@ module Main =
     Persistence.Api.delete "AllowedAction" [] |> ignore
     Persistence.Api.delete "UserType_has_ActionGroup" [] |> ignore
     Persistence.Api.delete "ActionGroup" [] |> ignore
+    Persistence.Api.delete "Log" [] |> ignore
+    Persistence.Api.delete "LogEntryType" [] |> ignore
     Persistence.Api.delete "User" [] |> ignore
     Persistence.Api.delete "UserType" [] |> ignore
     Persistence.Api.delete "Country" [] |> ignore
+    Persistence.Api.delete "MetaData" [] |> ignore
+    Persistence.Api.delete "MetaDataType" [] |> ignore
+    Persistence.Api.delete "Product_has_ActionGroup" [] |> ignore
+    Persistence.Api.delete "Product" [] |> ignore
+    Persistence.Api.delete "ProductType" [] |> ignore
     Persistence.Api.delete "Loggable" [] |> ignore
+    (Persistence.Helper.performSql "DBCC CHECKIDENT('Loggable', RESEED, 0)").Close() |> ignore
 
     // Create AllowedAction
     // "Name" "Description"
@@ -231,17 +239,6 @@ module Main =
     printfn "%A" ("---------- Create " + "Country" + " ----------")
     for i in insert do
       Persistence.Api.create "Country" i |> ignore
-
-    // Create Loggable
-    // "Id"
-    let mutable insert:((Persistence.Types.DataIn List) List) = []
-    insert <- insert@createDataInForLoggable "1"
-    insert <- insert@createDataInForLoggable "2"
-
-    printfn "%A" ("---------- Create " + "Loggable" + " ----------")
-    for i in insert do
-      Persistence.Api.create "Loggable" i |> ignore
-      
 
     // User
     printfn "%A" ("---------- Create " + "User" + " ----------")
