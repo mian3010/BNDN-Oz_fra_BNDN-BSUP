@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>d7776eb1-703c-4005-befa-392eabedb0c9</ProjectGuid>
+    <ProjectGuid>96cf0986-0480-4352-a573-28199a9f0762</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Initialise</RootNamespace>
-    <AssemblyName>Initialise</AssemblyName>
+    <RootNamespace>DbTest</RootNamespace>
+    <AssemblyName>DbTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>Initialise</Name>
+    <Name>DbTest</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Initialise.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\DbTest.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -32,7 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Initialise.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\DbTest.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -42,7 +42,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
@@ -50,19 +49,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Account\Account.fsproj">
-      <Name>Account</Name>
-      <Project>{7ee274b7-c8a3-4299-b766-e00862b8ad5e}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\Common\Common.fsproj">
       <Name>Common</Name>
       <Project>{1a2ef8ab-e695-43ca-a3db-e9c0d71ee5be}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Persistence\Persistence.fsproj">
-      <Name>Persistence</Name>
-      <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
+    <ProjectReference Include="..\DB\DB.fsproj">
+      <Name>DB</Name>
+      <Project>{5226b644-3db6-43b1-bb57-959fe2b70e88}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

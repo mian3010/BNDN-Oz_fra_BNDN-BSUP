@@ -12,8 +12,11 @@
                 | x::xs -> joinTuple (extractData xs) (x.field.processor x.field) x.value
         ///Default proessor
         let Default (create:Types.Create) =
+          if not create.data.IsEmpty then
             let data = extractData create.data
             "INSERT INTO ["+create.objectName+"] ("+fst data+") OUTPUT INSERTED.* VALUES ("+snd data+")"
+          else 
+            "INSERT ["+create.objectName+"] OUTPUT INSERTED.* DEFAULT VALUES"
 
         //Factory functions
         let createCreate objectName data =

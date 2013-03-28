@@ -18,43 +18,23 @@ open System.Security
             // Cache elements
             let mutable cache = Map.empty : Map<string, AccountTypes.Account>
 
-            // Database connection
-            let server = "localhost"
-            let database = "RENTIT27"
-            let userName = "RentIt27db"
-            let pass = "ZAQ12wsx"
-
-            let secPass = new SecureString()
-            for i in pass do
-                secPass.AppendChar(i)
-
-            secPass.MakeReadOnly()
-
-            let connectionString = "server=" + server + ";Database=" + database
-            
-            let cred = SqlClient.SqlCredential(userName, secPass)
-            
-            let connDB = new SqlClient.SqlConnection(connectionString, cred)
-
-            let performSql sql =
-                connDB.Close()
-                let cmd = new SqlClient.SqlCommand(sql, connDB)
-                connDB.Open()
-                cmd.ExecuteReader()
-
             ////// Helper functions
             let splitDbPass (dbPass:string) :AccountTypes.Password =
                 let parts = dbPass.Split [|':'|]
                 { salt = parts.[1]; hash = parts.[0] }
 
             let getNextLoggableID() :int =
-                let fieldQ = Persistence.ReadField.createReadFieldProc [] "loggable" "Id" Persistence.ReadField.Max
+                let reader = Persistence.Api.create "Loggable" []
+                
+                (int ((reader.Item 0).Item "Id"))
+                (*let fieldQ = Persistence.ReadField.createReadFieldProc [] "loggable" "Id" Persistence.ReadField.Max
                 let reader = Persistence.Api.read fieldQ "loggable" [] []
 
                 if reader.IsEmpty then
                     0
                 else
-                    int(reader.Item(0).Item("loggable_Id_Max"))
+                    int(reader.Item(0).Item("loggable_Id_Max"))*)
+
 
         ///////////////////////////////////////////////////////////////////////////////////
 
@@ -229,15 +209,15 @@ open System.Security
         //needs done in persistence for this, let me know
         let createUser (acc:AccountTypes.Account) =
             let internalFun =
-                let nextId = Internal.getNextLoggableID() + 1
+                let nextId = Internal.getNextLoggableID()
                 let transactionQ = Persistence.Transaction.createTransaction
 
 
-                let tableName = "Loggable"
+                (*let tableName = "Loggable"
                 let fieldProcessor = Persistence.Field.Default
                 let dataQ = Persistence.DataIn.createDataIn []    tableName "Id" (string nextId)
                 let createIdQ = Persistence.Create.createCreate tableName dataQ
-                let transactionQ = Persistence.Transaction.addCreate transactionQ createIdQ
+                let transactionQ = Persistence.Transaction.addCreate transactionQ createIdQ*)
 
                 let tableName = "User"
                 let fieldProcessor = Persistence.Field.Default
