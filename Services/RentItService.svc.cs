@@ -380,19 +380,19 @@ namespace RentIt
             string stringInfo = "";
 
             if (info.name != null)
-                stringInfo += "\"name: " + info.name + "\",";
+                stringInfo += "\"name: " + info.name.Value + "\",";
             if (info.about != null)
-                stringInfo += "\"aboutMe: " + info.about + "\",";
+                stringInfo += "\"aboutMe: " + info.about.Value + "\",";
             if (info.birth != null)
-                stringInfo += "\"dateOfBirth: " + info.birth + "\",";
+                stringInfo += "\"dateOfBirth: " + info.birth.Value + "\",";
             if (info.credits != null)
-                stringInfo += "\"credits: " + info.credits + "\",";
+                stringInfo += "\"credits: " + info.credits.Value + "\",";
             if (info.address.address != null)
-                stringInfo += "\"address: " + info.address.address + "\",";
+                stringInfo += "\"address: " + info.address.address.Value + "\",";
             if(info.address.country != null)
-                stringInfo += "\"country: " + info.address.country + "\",";
+                stringInfo += "\"country: " + info.address.country.Value + "\",";
             if(info.address.postal != null)
-                stringInfo += "\"zipcode: " + info.address.postal + "\",";
+                stringInfo += "\"zipcode: " + info.address.postal.Value + "\",";
 
             return stringInfo;
         }
