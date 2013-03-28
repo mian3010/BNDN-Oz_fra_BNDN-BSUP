@@ -44,7 +44,7 @@ module Main =
     Persistence.Api.delete "Product" [] |> ignore
     Persistence.Api.delete "ProductType" [] |> ignore
     Persistence.Api.delete "Loggable" [] |> ignore
-    (Persistence.Helper.performSql "DBCC CHECKIDENT('Loggable', RESEED, 0)").Close() |> ignore
+    (Persistence.Helper.performSql "DBCC CHECKIDENT('Loggable', RESEED, 1)").Close() |> ignore
 
     // Create AllowedAction
     // "Name" "Description"
