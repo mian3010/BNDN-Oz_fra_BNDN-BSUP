@@ -31,7 +31,7 @@ open RentIt
         for actionGroup in actionGroups do
           let ac = actionGroup.Item("ActionGroup_name")
           let objectName = "UserType_has_ActionGroup"
-          let fieldsQ = Persistence.ReadField.createReadField [] "UserType_name" usertype
+          let fieldsQ = Persistence.ReadField.createReadFieldProc [] "UserType_name" "" Persistence.ReadField.All
           let joinsQ = []
           let filtersQ = Persistence.Filter.createFilter []       objectName "UserType_name" "=" usertype
           let filtersQ = Persistence.Filter.createFilter filtersQ objectName "ActionGroup_name" "=" ac

@@ -168,7 +168,7 @@ module Main =
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_TYPE_Customer"
     
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "CREATE_TYPE_Customer"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_ANY"
     

@@ -40,6 +40,7 @@ module AccountPermissions =
                                                     if hasPermission then Access.Accepted
                                                     else Access.Denied ("The system has not granted invoker's account the permission "+permission+", or invoker is not allowed to perform its action on the given target")
 
+        // TODO: Someone oughta fix this:
         let hasPermission (accType:string) (permission:string) = true
 
         /// Returns a copy of A with all fields having default values set to their default values

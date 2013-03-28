@@ -18,7 +18,7 @@
             match fields with 
                 | [] -> "1=1"
                 | x::[] -> x.processor x
-                | x::xs -> x.processor x+","+joinFilters xs
+                | x::xs -> x.processor x+" AND "+joinFilters xs
         ///Default processor
         let Default (read:Types.Read) =
             "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilters read.filters
