@@ -46,7 +46,7 @@ module Auth =
 
             // translate message m of alphabet a using the cipher c
             let translate (a:string) (c:string) (m:string) =
-                let translater (char:char) =
+                let rec translater (char:char) =
                     let i = a.IndexOf(char)
                     if i < 0 then raise (IllegalToken "Encoded token contained illegal characters")
                     c.[i]

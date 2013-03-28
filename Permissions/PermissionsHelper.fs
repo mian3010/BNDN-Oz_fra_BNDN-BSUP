@@ -8,7 +8,7 @@ open RentIt
       let objectName = "User"
       let fieldsQ = Persistence.ReadField.createReadField [] objectName "Type_name"
       let joinsQ = []
-      let filtersQ = Persistence.Filter.createFilter [] objectName "Type_name" "=" id
+      let filtersQ = Persistence.Filter.createFilter [] objectName "Username" "=" id
       let user = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
 
       if user.Length = 0 then ""

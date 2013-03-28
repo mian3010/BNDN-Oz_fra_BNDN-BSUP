@@ -160,7 +160,7 @@ namespace RentIt
                 FSharpOption<int> credits = account.info.credits;
 
                 if(accInfo.ContainsKey("email"))
-                    email = accInfo["eamil"];
+                    email = accInfo["email"];
                 if (accInfo.ContainsKey("password"))
                     password = Account.Password.create("password");
                 if (accInfo.ContainsKey("address"))
