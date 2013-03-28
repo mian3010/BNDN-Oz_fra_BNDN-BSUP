@@ -90,7 +90,7 @@ module Account =
             banned = false;
             info = info;
             accType = accType;
-            version = uint32(0);    
+            version = uint32(0);  
         }
 
     ////// CREDO FUNCTIONS

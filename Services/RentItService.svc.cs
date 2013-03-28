@@ -165,7 +165,7 @@ namespace RentIt
                     password = Account.Password.create("password");
                 if (accInfo.ContainsKey("address"))
                     address = FSharpOption<string>.Some(accInfo["address"]);
-                if(accInfo.ContainsKey("zipcode"))
+                if(accInfo.ContainsKey("zipcode") && Convert.ToInt32(accInfo["zipcode"])!=0)
                     zipcode = FSharpOption<int>.Some(Convert.ToInt32(accInfo["zipcode"]));
                 if (accInfo.ContainsKey("country"))
                     country = FSharpOption<string>.Some(accInfo["country"]);
@@ -216,10 +216,9 @@ namespace RentIt
             try
             {
                 var accInfo = createNewAccount(data);
-                var extraInfo = createExtraInfo(accInfo);
-
+                
                 string accountType;
-                if(accInfo.ContainsKey("accountType"))
+                if (accInfo.ContainsKey("accountType"))
                     accountType = accInfo["accountType"];
                 else
                     throw new Account.BrokenInvariant();
@@ -236,8 +235,12 @@ namespace RentIt
                 else
                     throw new Account.BrokenInvariant();
 
+                var extraInfo = createExtraInfo(accInfo);
+
+
+
                 var newAccount = Account.make(accountType, user, email, password, extraInfo);
-                string token = getToken();
+                string token = WebOperationContext.Current.IncomingRequest.Headers["token"];
                 if (token==null)
                     ControlledAccount.persist(AccountPermissions.Invoker.Unauth, newAccount);
                 else
@@ -347,6 +350,8 @@ namespace RentIt
             FSharpOption<int> credits;
             if (info.ContainsKey("credits"))
                 credits = FSharpOption<int>.Some(Convert.ToInt32(info["credits"]));
+            else if (info["accountType"] == "Customer")
+                credits = FSharpOption<int>.Some(0);
             else
                 credits = FSharpOption<int>.None;
 
