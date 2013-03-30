@@ -98,9 +98,17 @@ namespace RentIt
         {
             try
             {
-                string token = getToken();
-                var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
-                return accountToString(account);
+                try {
+                  string token = getToken();
+                  var tokenAccount = ControlledAuth.accessAccount(token);
+                  var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.NewAuth(tokenAccount), user);
+                  return accountToString(account);
+                }
+                catch (Account.BrokenInvariant) {
+                  var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
+                  return accountToString(account);
+                }
+                
             }
             catch (RentIt.Account.NoSuchUser)
             {
@@ -118,12 +126,6 @@ namespace RentIt
             {
                 OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
                 response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (Account.BrokenInvariant)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
                 return null;
             }
             catch (Exception)
@@ -145,7 +147,7 @@ namespace RentIt
 
                 Dictionary<string,string> accInfo = createNewAccount(data);
 
-                var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
+                var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.NewAuth(tokenAccount), user);
 
                 AccountTypes.Account updatedAccount;
 

@@ -12,7 +12,7 @@
             match fields with 
                 | [] -> ""
                 | x::[] -> ObjectJoin.Default x
-                | x::xs -> ObjectJoin.Default x+","+joinJoins xs
+                | x::xs -> ObjectJoin.Default x+" "+joinJoins xs
         ///Join Filter list in an SQL format
         let rec internal joinFilters (fields:Types.Filter List) =
             match fields with 
