@@ -5,6 +5,7 @@ module TestUpdate =
   open FsUnit.Xunit
 
   type Product = ProductTypes.Product
+  type Rating = ProductTypes.Rating
   exception ArgumentException = RentIt.Product.ArgumentException
   exception NoSuchProductType = RentIt.Product.NoSuchProductType
   exception UpdateNotAllowed  = RentIt.Product.UpdateNotAllowed
@@ -15,6 +16,11 @@ module TestUpdate =
   let description = Some "desc"
   let buyPrice = Some 12
   let rentPrice = Some 5
+  // TODO: Add test cases for following:
+  let rating:Rating = {  rating=0; votes=0;  };
+  let published = true;
+  let id = 5;
+  let metadata:Map<string, string> = Map.empty;
 
   let p = Product.make userId name productType description buyPrice rentPrice
 
@@ -29,6 +35,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = p.rentPrice;
               buyPrice = Some 15;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     let tpu = Product.update tp
     tp.buyPrice.Value |> should equal tpu.buyPrice.Value
@@ -44,6 +54,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = Some 8;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     let tpu = Product.update tp
     tp.rentPrice.Value |> should equal tpu.rentPrice.Value
@@ -59,6 +73,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = p.rentPrice;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     (tp = Product.update tp |> ignore) |> should throw typeof<UpdateNotAllowed>
 
@@ -73,6 +91,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = p.rentPrice;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     let tpu = Product.update tp
     tp.name |> should equal tpu.name
@@ -88,6 +110,10 @@ module TestUpdate =
               description = Some "other desc";
               rentPrice = p.rentPrice;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     let tpu = Product.update tp
     tp.description |> should equal tpu.description
@@ -103,6 +129,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = p.rentPrice;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     let tpu = Product.update tp
     tp.productType |> should equal tpu.productType
@@ -118,6 +148,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = p.rentPrice;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     (tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
   
@@ -132,6 +166,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = p.rentPrice;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     (tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
   
@@ -146,6 +184,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = p.rentPrice;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     (tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
   
@@ -160,6 +202,10 @@ module TestUpdate =
               description = p.description;
               rentPrice = p.rentPrice;
               buyPrice = p.buyPrice;
+              rating = rating;
+              published = published;
+              id = id;
+              metadata = metadata;
             }
     (tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
   

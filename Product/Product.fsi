@@ -87,3 +87,11 @@ module Product =
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
   val rentProduct : string -> int -> 'a
+
+  /// <summay>
+  /// Rate Product
+  ///</summary>
+  /// <typeparam> Product id </typeparam>
+  /// <typeparam> Rating </typeparam>
+  /// <exception> NoSuchProduct </exception>
+  val rateProduct : string -> int -> 'a
