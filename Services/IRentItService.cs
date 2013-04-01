@@ -111,10 +111,6 @@ namespace RentIt
         [WebGet(UriTemplate = "/accounts/{customer}/purchases/{id}/media")]
         System.IO.Stream GetPurchasedMedia(string customer, uint id);
 
-        [OperationContract]
-        [WebGet(UriTemplate = "/accounts/{customer}/purchases/{id}/media/thumbnail")]
-        System.IO.Stream GetPurchasedMedia(string customer, uint id);
-
         #endregion
     }
 
