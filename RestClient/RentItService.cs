@@ -23,7 +23,7 @@ namespace RestClient {
 
       // Create the web request
       var request = WebRequest.Create(address) as HttpWebRequest;
-      if (request == null) throw new HttpException();
+      if (request == null) throw new HttpException("Could not create request");
 
       if (token != "") request.Headers.Add("token", token);
 
@@ -43,9 +43,9 @@ namespace RestClient {
       // Get response
       using (var response = request.GetResponse() as HttpWebResponse) {
         // Get the response stream
-        if (response == null) throw new HttpException();
+        if (response == null) throw new HttpException("Could not get response from request");
         var responseStream = response.GetResponseStream();
-        if (responseStream == null) throw new HttpException();
+        if (responseStream == null) throw new HttpException("Could not convert response to stream");
         var reader = new StreamReader(responseStream);
 
         // Return response
