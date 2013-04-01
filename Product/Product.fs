@@ -166,3 +166,16 @@ module Product =
       ProductPersistence.rateProduct pId rating
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
+
+  /// <summay>
+  /// Change Published-flag on Product
+  ///</summary>
+  /// <typeparam> Product id </typeparam>
+  /// <typeparam> Boolean </typeparam>
+  /// <exception> NoSuchProduct </exception>
+    if (pId = null || pId.Trim().Length = 0) then raise (ArgumentException "ProductId empty")
+
+    try
+      ProductPersistence.publishProduct pId status
+    with
+      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct

@@ -95,3 +95,11 @@ module Product =
   /// <typeparam> Rating </typeparam>
   /// <exception> NoSuchProduct </exception>
   val rateProduct : string -> int -> 'a
+
+ /// <summay>
+  /// Change Published-flag on Product
+  ///</summary>
+  /// <typeparam> Product id </typeparam>
+  /// <typeparam> Boolean </typeparam>
+  /// <exception> NoSuchProduct </exception>
+  val publishProduct : string -> bool -> 'a
