@@ -50,7 +50,7 @@ namespace RestClient {
 
         // Return response
         var responseString = reader.ReadToEnd();
-        if (responseString.Length == 0) return ""+response.StatusCode;
+        if (responseString.Length == 0) return "" + response.StatusCode;
         return responseString;
       }
     }
