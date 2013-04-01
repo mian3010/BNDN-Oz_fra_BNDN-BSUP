@@ -51,6 +51,7 @@
       <HintPath>..\packages\FsUnit.xUnit.1.2.1.2\lib\Net40\NHamcrest.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -63,7 +64,6 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
@@ -129,6 +129,10 @@
     <ProjectReference Include="..\Persistence\Persistence.fsproj">
       <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
       <Name>Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Product\Product.fsproj">
+      <Project>{5946ee56-1b91-4632-82be-5c681d3c6c87}</Project>
+      <Name>Product</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

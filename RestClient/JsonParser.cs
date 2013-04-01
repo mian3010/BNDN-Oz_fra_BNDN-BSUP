@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RentIt {
+namespace RestClient {
   public class JsonParser {
     /// <summary>
     /// Start of a JSON encoded string

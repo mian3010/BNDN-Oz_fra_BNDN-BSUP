@@ -27,14 +27,6 @@ open System.Security
                 let reader = Persistence.Api.create "Loggable" []
                 
                 (int ((reader.Item 0).Item "Id"))
-                (*let fieldQ = Persistence.ReadField.createReadFieldProc [] "loggable" "Id" Persistence.ReadField.Max
-                let reader = Persistence.Api.read fieldQ "loggable" [] []
-
-                if reader.IsEmpty then
-                    0
-                else
-                    int(reader.Item(0).Item("loggable_Id_Max"))*)
-
 
         ///////////////////////////////////////////////////////////////////////////////////
 
@@ -78,10 +70,10 @@ open System.Security
                                 name = None;
                                 address = {
                                             address = result.TryFind "Address"
-                                            postal = Some 2400
-                                               (* let zipString = result.TryFind "Zipcode"
+                                            postal = //Some 2400
+                                                let zipString = result.TryFind "Zipcode"
                                                 if zipString = None then 
-                                                    None else Some (int (string zipString))*) // CANT CONVERT!!! FIX IT! NOW! WITH CAPS! no
+                                                    None else Some (int (string zipString)) // CANT CONVERT!!!
                                             country = Some (result.Item "Country_Name") }
                                 birth = Some (DateTime.Parse "10/10/2013 12:00:00 AM")
                                     (*let bodString = result.TryFind "Date_of_birth"
@@ -90,7 +82,7 @@ open System.Security
                                         
                                 about = result.TryFind "About_me"
                                 credits = Some 666
-                                    (*let cString = result.TryFind "Balance"
+                                    (*let cString = result.TryFind "Balance"           // CANT CONVERT!!!
                                     if cString = None then
                                         None else Some (int (string cString)) *)
                                 }

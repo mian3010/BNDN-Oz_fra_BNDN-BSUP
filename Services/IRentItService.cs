@@ -89,6 +89,15 @@ namespace RentIt
                     RequestFormat = WebMessageFormat.Json)]
         void UpdateProductRating(uint id, RatingData data);
 
+        [OperationContract]
+        [WebGet(    UriTemplate = "/products/{id}/thumbnail")]
+        Stream GetProductThumbnail(uint id);
+
+        [OperationContract]
+        [WebInvoke( Method = "POST",
+                    UriTemplate = "/products/{id}/thumbnail")]
+        void UpdateProductThumbnail(uint id, Stream media);
+
         #endregion
 
         #region Credits
@@ -161,8 +170,16 @@ namespace RentIt
                     RequestFormat = WebMessageFormat.Json)]
         void DeleteProviderProduct(string provider, uint id);
 
-        #endregion
+        [OperationContract]
+        [WebGet(UriTemplate = "/accounts/{provider}/products/{id}/thumbnail")]
+        Stream GetProviderProductThumbnail(string provider, uint id);
 
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+                    UriTemplate = "/accounts/{provider}/products/{id}/thumbnail")]
+        void UpdateProviderProductThumbnail(string provider, uint id, Stream media);
+
+        #endregion
     }
 
     [DataContract]
@@ -271,7 +288,7 @@ namespace RentIt
 
     [DataContract]
     public class PurchaseData
-    {   
+    {
         [DataMember]
         public string purchased { get; set; }
         [DataMember]
