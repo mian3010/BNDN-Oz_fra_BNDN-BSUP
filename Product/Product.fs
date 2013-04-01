@@ -173,6 +173,7 @@ module Product =
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Boolean </typeparam>
   /// <exception> NoSuchProduct </exception>
+  let publishProduct (pId:string) (status:bool) =
     if (pId = null || pId.Trim().Length = 0) then raise (ArgumentException "ProductId empty")
 
     try
