@@ -70,3 +70,21 @@ module ProductPersistence =
   /// <exception> NoSuchProductType </exception>
   let getProductByType (pType:string) : Product list =
     raise (new System.NotImplementedException())
+
+  /// <summay>
+  /// Rate Product
+  ///</summary>
+  /// <typeparam> Product id </typeparam>
+  /// <typeparam> Rating </typeparam>
+  /// <exception> NoSuchProduct </exception>
+  let rateProduct (pId:string) (rating:int) = 
+    raise (new System.NotImplementedException())
+
+  /// <summay>
+  /// Change Published-flag on Product
+  ///</summary>
+  /// <typeparam> Product id </typeparam>
+  /// <typeparam> Boolean </typeparam>
+  /// <exception> NoSuchProduct </exception>
+  let publishProduct (pId:string) (status:bool) =
+    raise (new System.NotImplementedException())

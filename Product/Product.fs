@@ -15,46 +15,7 @@ module Product =
   exception NoSuchProductType
   exception UpdateNotAllowed of string
 
-  /// <summay>
-  /// Creater
-  ///</summary>
-  /// <typeparam> UserId </typeparam>
-  /// <typeparam> Name </typeparam>
-  /// <typeparam> ProductType </typeparam>
-  /// <typeparam> Description </typeparam>
-  /// <typeparam> BuyPrice </typeparam>
-  /// <typeparam> RentPrice </typeparam>
-  /// <exception> RentIt.Product.NoSuchUser </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  let make (userId:string) (name:string) (productType:string) (description:string option) (buyPrice:int option) (rentPrice:int option) : Product =
-    if (userId = null || userId.Trim().Length = 0) then raise (ArgumentException "UserId empty")
-    if (name = null || name.Trim().Length = 0) then raise (ArgumentException "Name empty")
-    if (productType = null || productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
-    {
-      name = name;
-      createDate = System.DateTime.Now;
-      productType = productType;
-      owner = userId;
-      description = description;
-      rentPrice = rentPrice;
-      buyPrice = buyPrice;
-    }
-    
-  /// <summary>
-  /// Get prodcut by product id
-  /// </summary>
-  /// <typeparam> Id </typeparam>
-  /// <returns> Product </returns>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  let getProductById (id:string) : Product =
-    if (id = null || id.Trim().Length = 0) then raise (ArgumentException "Product id empty")
-    try
-      ProductPersistence.getProductById id
-    with
-      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
-
-  /// <summary>
+   /// <summary>
   /// Persist a new product, making the product available for publish
   /// </summary>
   // <typeparam> Product </typeparam>
@@ -75,6 +36,49 @@ module Product =
       | ProductPersistence.ProductAlreadyExists -> raise ProductAlreadyExists
       | ProductPersistence.NoSuchUser           -> raise NoSuchUser
       | ProductPersistence.NoSuchProductType    -> raise NoSuchProductType
+
+  /// <summay>
+  /// Creater
+  ///</summary>
+  /// <typeparam> UserId </typeparam>
+  /// <typeparam> Name </typeparam>
+  /// <typeparam> ProductType </typeparam>
+  /// <typeparam> Description </typeparam>
+  /// <typeparam> BuyPrice </typeparam>
+  /// <typeparam> RentPrice </typeparam>
+  /// <exception> RentIt.Product.NoSuchUser </exception>
+  /// <exception> RentIt.Product.ArgumentException </exception>
+  let make (userId:string) (name:string) (productType:string) (description:string option) (buyPrice:int option) (rentPrice:int option) : Product =
+    if (userId = null || userId.Trim().Length = 0) then raise (ArgumentException "UserId empty")
+    if (name = null || name.Trim().Length = 0) then raise (ArgumentException "Name empty")
+    if (productType = null || productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
+    persist {
+      name = name;
+      createDate = System.DateTime.Now;
+      productType = productType;
+      owner = userId;
+      description = description;
+      rentPrice = rentPrice;
+      buyPrice = buyPrice;
+      id = -1;
+      rating = {  rating=0; votes=0;  };
+      published = false;
+      metadata = Map.empty;
+    }
+  
+  /// <summary>
+  /// Get prodcut by product id
+  /// </summary>
+  /// <typeparam> Id </typeparam>
+  /// <returns> Product </returns>
+  /// <exception> RentIt.Product.NoSuchProduct </exception>
+  /// <exception> RentIt.Product.ArgumentException </exception>
+  let getProductById (id:string) : Product =
+    if (id = null || id.Trim().Length = 0) then raise (ArgumentException "Product id empty")
+    try
+      ProductPersistence.getProductById id
+    with
+      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
     
   /// <summary>
   /// Get products by product name
@@ -146,3 +150,32 @@ module Product =
   /// <exception> RentIt.Product.ArgumentException </exception>
   let rentProduct (pId:string) (days:int) =
     raise (new System.NotImplementedException())
+
+  /// <summay>
+  /// Rate Product
+  ///</summary>
+  /// <typeparam> Product id </typeparam>
+  /// <typeparam> Rating </typeparam>
+  /// <exception> NoSuchProduct </exception>
+  let rateProduct (pId:string) (rating:int) = 
+    // Defens
+    if (pId = null || pId.Trim().Length = 0) then raise (ArgumentException "ProductId empty")
+    if (-5 > rating || rating > 5) then raise (ArgumentException "Rating must be between -5 and 5")
+
+    try
+      ProductPersistence.rateProduct pId rating
+    with
+      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
+
+  /// <summay>
+  /// Change Published-flag on Product
+  ///</summary>
+  /// <typeparam> Product id </typeparam>
+  /// <typeparam> Boolean </typeparam>
+  /// <exception> NoSuchProduct </exception>
+    if (pId = null || pId.Trim().Length = 0) then raise (ArgumentException "ProductId empty")
+
+    try
+      ProductPersistence.publishProduct pId status
+    with
+      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
