@@ -9,406 +9,181 @@ using System.Net;
 using System.Reflection;
 using RentIt;
 using Microsoft.FSharp.Core;
+using Microsoft.FSharp.Collections;
 using System.Web.Services;
+using RentIt.Services;
+using RentIt.Services.Controllers;
 
 namespace RentIt
 {
 
     [ServiceBehavior(Namespace = "http://rentit.itu.dk/RentIt27/WebServices/")]
     public class RentItService : IRentItService
-    { 
-        /// <summary>
-        /// This method authenticates a given user when logging in on a client.
-        /// </summary>
-        /// <param name="user">The username to be autenticated</param>
-        /// <param name="password">The corrosponding password</param>
-        /// <returns>A token if authentication is complete, otherwise a HTTP error</returns>
-        public string Authorise(string user, string password)
-        {
-            try
-            {
-                string token = "{token: \"";
-                Tuple<string, DateTime> t = ControlledAuth.authenticate(user, password);
-                token += t.Item1 + "\", expires: \"" + JsonUtility.dateTimeToString(t.Item2) + "\"}";
-                return token;
-            }
-            catch (AccountPermissions.PermissionDenied)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (AccountPermissions.AccountBanned)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
-                return null;
-            }
-            catch (Account.NoSuchUser)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Unauthorized;
-                return null;
-            }
-            catch (Exception)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.InternalServerError;
-                return null;
-            }
+    {
+        #region Setup
+
+        private Helper h;
+        private JsonSerializer j;
+        private CoreConverter c;
+
+        private AuthenticationController auth;
+        private AccountController account;
+
+        public RentItService() : this(new Helper()) { }
+
+        public RentItService(Helper h) : this(h, new JsonSerializer(h), new CoreConverter(h)) { }
+
+        public RentItService(Helper helper, JsonSerializer json, CoreConverter converter){
+
+            h = helper;
+            j = json;
+            c = converter;
+
+            auth = new AuthenticationController(h, j, c);
+            account = new AccountController(h, j, c);
         }
 
+        #endregion
 
-        public string GetAccounts(string types, string info, bool include_banned)
+        #region Authentication
+
+        public string Authorize(string username, string password)
         {
-            try
-            {   
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotImplemented;
-                return null;
-            }
-            catch (Account.NoSuchUser)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotFound;
-                return null;
-            }
-            catch (AccountPermissions.PermissionDenied)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (AccountPermissions.AccountBanned)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (Exception)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.InternalServerError;
-                return null;
-            }
+            return auth.Authorize(username, password);
         }
 
+        #endregion
+
+        #region Accounts
+
+        public string GetAccounts(string types, string info, string include_banned)
+        {
+            return account.GetAccounts(types, info, include_banned);
+        }
 
         public string GetAccount(string user)
         {
-            try
-            {
-                try {
-                  string token = getToken();
-                  var tokenAccount = ControlledAuth.accessAccount(token);
-                  var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.NewAuth(tokenAccount), user);
-                  return accountToString(account);
-                }
-                catch (Account.BrokenInvariant) {
-                  var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.Unauth, user);
-                  return accountToString(account);
-                }
-                
-            }
-            catch (RentIt.Account.NoSuchUser)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotFound;
-                return null;
-            }
-            catch (AccountPermissions.PermissionDenied)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (AccountPermissions.AccountBanned)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-                return null;
-            }
-            catch (Exception)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.InternalServerError;
-                return null;
-            }
+            return account.GetAccount(user);
         }
-
 
         public void UpdateAccount(string user, AccountData data)
         {
-            try
-            {
-                string token = getToken();
-                var tokenAccount = ControlledAuth.accessAccount(token);
-
-
-                Dictionary<string,string> accInfo = createNewAccount(data);
-
-                var account = ControlledAccount.getByUsername(AccountPermissions.Invoker.NewAuth(tokenAccount), user);
-
-                AccountTypes.Account updatedAccount;
-
-                string email = account.email;
-                AccountTypes.Password password = account.password;
-                FSharpOption<string> address = account.info.address.address;
-                FSharpOption<int> zipcode = account.info.address.postal;
-                FSharpOption<string> country = account.info.address.country;
-                FSharpOption<string> name = account.info.name;
-                FSharpOption<string> aboutMe = account.info.about;
-                FSharpOption<DateTime> dateOfBirth = account.info.birth;
-                FSharpOption<int> credits = account.info.credits;
-
-                if(accInfo.ContainsKey("email"))
-                    email = accInfo["email"];
-                if (accInfo.ContainsKey("password"))
-                    password = Account.Password.create("password");
-                if (accInfo.ContainsKey("address"))
-                    address = FSharpOption<string>.Some(accInfo["address"]);
-                if(accInfo.ContainsKey("zipcode") && Convert.ToInt32(accInfo["zipcode"])!=0)
-                    zipcode = FSharpOption<int>.Some(Convert.ToInt32(accInfo["zipcode"]));
-                if (accInfo.ContainsKey("country"))
-                    country = FSharpOption<string>.Some(accInfo["country"]);
-                if (accInfo.ContainsKey("name"))
-                    name = FSharpOption<string>.Some(accInfo["name"]);
-                if (accInfo.ContainsKey("aboutMe"))
-                    aboutMe = FSharpOption<string>.Some(accInfo["aboutMe"]);
-                if (accInfo.ContainsKey("dateOfBirth"))
-                    dateOfBirth = FSharpOption<DateTime>.Some(JsonUtility.stringToDateTime(accInfo["dateOfBirth"]));
-
-                var accountAddress = new AccountTypes.Address(address, zipcode, country);
-                var extraInfo = new AccountTypes.ExtraAccInfo(name, accountAddress, dateOfBirth, aboutMe, credits);
-                updatedAccount = new AccountTypes.Account(user, email, password, account.created, account.banned, extraInfo, account.accType, account.version);
-
-                updateToNewAccount(updatedAccount, tokenAccount);
-
-            }
-            catch (RentIt.Account.NoSuchUser)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (AccountPermissions.PermissionDenied)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-            }
-            catch (AccountPermissions.AccountBanned)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Forbidden;
-            }
-            catch (Account.BrokenInvariant)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
-            }
-            catch (Exception)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            account.UpdateAccount(user, data);
         }
-
 
         public void CreateAccount(string user, AccountData data)
         {
-            try
-            {
-                var accInfo = createNewAccount(data);
-                
-                string accountType;
-                if (accInfo.ContainsKey("accountType"))
-                    accountType = accInfo["accountType"];
-                else
-                    throw new Account.BrokenInvariant();
-
-                string email;
-                if (accInfo.ContainsKey("email"))
-                    email = accInfo["email"];
-                else
-                    throw new Account.BrokenInvariant();
-
-                string password;
-                if (accInfo.ContainsKey("password"))
-                    password = accInfo["password"];
-                else
-                    throw new Account.BrokenInvariant();
-
-                var extraInfo = createExtraInfo(accInfo);
-
-
-
-                var newAccount = Account.make(accountType, user, email, password, extraInfo);
-                string token = WebOperationContext.Current.IncomingRequest.Headers["token"];
-                if (token==null)
-                    ControlledAccount.persist(AccountPermissions.Invoker.Unauth, newAccount);
-                else
-                {
-                    var tokenAccount = ControlledAuth.accessAccount(token);
-                    ControlledAccount.persist(AccountPermissions.Invoker.NewAuth(tokenAccount), newAccount);
-                }
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Created;
-
-                
-            }
-            catch(Account.BrokenInvariant)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.BadRequest;
-            }
-            catch(Account.UserAlreadyExists)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.Conflict;
-            }
-            catch (Exception)
-            {
-                OutgoingWebResponseContext response = WebOperationContext.Current.OutgoingResponse;
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
-
+            account.CreateAccount(user, data);
         }
 
-        /// <summary>
-        /// This method is used to extract the token from the HTTP request header.
-        /// </summary>
-        /// <returns> The token from the header as a string</returns>
-        private string getToken()
+        #endregion
+
+        #region Products
+
+        public string GetProducts(string search, string type, string info, string unpublished)
         {
-            string token = WebOperationContext.Current.IncomingRequest.Headers["token"];
-            if (token != null)
-                return token;
-            else
-                throw new Account.BrokenInvariant();
+            return h.Failure(501);
         }
 
-        private Dictionary<string, string> createNewAccount(AccountData data)
+        public string GetProduct(uint id)
         {
-            Dictionary<string, string> AccountInfo = new Dictionary<string, string>();
-
-            PropertyInfo[] propertyInfo = data.GetType().GetProperties();
-            
-            foreach (PropertyInfo property in propertyInfo)
-            {
-                object value = property.GetValue(data, null);
-                if (value != null)
-                {
-                    AccountInfo[property.Name] = value.ToString();
-                }
-            }
-
-            return AccountInfo;
+            return h.Failure(501);
         }
 
-        private AccountTypes.ExtraAccInfo createExtraInfo(Dictionary<string, string> info)
+        public void UpdateProduct(uint id, ProductData data)
         {
-            AccountTypes.Address accountAddress;
-            
-            FSharpOption<string> address;
-            if (info.ContainsKey("address"))
-                address = FSharpOption<string>.Some(info["address"]);
-            else
-                address = FSharpOption<string>.None;
-
-            FSharpOption<int> zipcode;
-            if (info.ContainsKey("zipcode")&& Convert.ToInt32(info["zipcode"])!=0)
-                zipcode = FSharpOption<int>.Some(Convert.ToInt32(info["zipcode"]));
-            else
-                zipcode = FSharpOption<int>.None;
-
-            FSharpOption<string> country;
-            if (info.ContainsKey("country"))
-                country = FSharpOption<string>.Some(info["country"]);
-            else
-                country = FSharpOption<string>.None;
-                
-            accountAddress = new AccountTypes.Address(address, zipcode, country);
-
-            AccountTypes.ExtraAccInfo extraInfo;
-
-
-            FSharpOption<string> name;
-            if (info.ContainsKey("name"))
-                name = FSharpOption<string>.Some(info["name"]);
-            else
-                name = FSharpOption<string>.None;
-
-            FSharpOption<DateTime> dateOfBirth;
-            if (info.ContainsKey("dateOfBirth"))
-                dateOfBirth = FSharpOption<DateTime>.Some(JsonUtility.stringToDateTime(info["dateOfBirth"]));
-            else
-                dateOfBirth = FSharpOption<DateTime>.None;
-
-            FSharpOption<string> about;
-            if (info.ContainsKey("aboutMe"))
-                about = FSharpOption<string>.Some(info["aboutMe"]);
-            else
-                about = FSharpOption<string>.None;
-
-            FSharpOption<int> credits;
-            if (info.ContainsKey("credits"))
-                credits = FSharpOption<int>.Some(Convert.ToInt32(info["credits"]));
-            else if (info["accountType"] == "Customer")
-                credits = FSharpOption<int>.Some(0);
-            else
-                credits = FSharpOption<int>.None;
-
-            extraInfo = new AccountTypes.ExtraAccInfo(name, accountAddress, dateOfBirth, about, credits);
-            return extraInfo;
+            h.Failure(501);
         }
 
-        private string accountToString(AccountTypes.Account account)
+        public void UpdateProductMedia(uint id, System.IO.Stream media)
         {
-            string stringAccount = "{";
-
-            
-            stringAccount += "\"accountType: " + account.accType.ToString()+ "\", ";
-            stringAccount += "\"banned: " + account.banned.ToString() + "\", ";
-            stringAccount += "\"created: " + JsonUtility.dateTimeToString(account.created) + "\", ";
-            stringAccount += "\"email: " + account.email + "\", ";
-            stringAccount += "\"password: " + account.password + "\",";
-            stringAccount += infoToString(account.info);
-            stringAccount += "}";
-
-            return stringAccount;
+            h.Failure(501);
         }
 
-        private string infoToString(AccountTypes.ExtraAccInfo info)
+        public void DeleteProduct(uint id)
         {
-            string stringInfo = "";
-
-            if (info.name != null)
-                stringInfo += "\"name: " + info.name.Value + "\",";
-            if (info.about != null)
-                stringInfo += "\"aboutMe: " + info.about.Value + "\",";
-            if (info.birth != null)
-                stringInfo += "\"dateOfBirth: " + info.birth.Value + "\",";
-            if (info.credits != null)
-                stringInfo += "\"credits: " + info.credits.Value + "\",";
-            if (info.address.address != null)
-                stringInfo += "\"address: " + info.address.address.Value + "\",";
-            if(info.address.country != null)
-                stringInfo += "\"country: " + info.address.country.Value + "\",";
-            if(info.address.postal != null)
-                stringInfo += "\"zipcode: " + info.address.postal.Value + "\",";
-
-            return stringInfo;
+            h.Failure(501);
         }
 
-        private void updateToNewAccount(AccountTypes.Account updatedAccount, AccountTypes.Account tokenAccount)
+        public string GetProductRating(uint id)
         {
-            try
-            {
-                ControlledAccount.update(AccountPermissions.Invoker.NewAuth(tokenAccount), updatedAccount);
-            }
-            catch (Account.OutdatedData)
-            {
-                updateToNewAccount(updatedAccount, tokenAccount);
-            }
+            return h.Failure(501);
         }
+
+        public void UpdateProductRating(uint id, RatingData data)
+        {
+            h.Failure(501);
+        }
+
+        #endregion
+
+        #region Credits
+
+        public void BuyCredits(uint id, CreditsData data)
+        {
+            h.Failure(501);
+        }
+
+        #endregion
+
+        #region Purchases
+
+        public string GetPurchases(string customer, string purchases, string info)
+        {
+            return h.Failure(501);
+        }
+
+        public string MakePurchases(string customer, PurchaseData data)
+        {
+            return h.Failure(501);
+        }
+
+        public string GetPurchase(string customer, uint id)
+        {
+            return h.Failure(501);
+        }
+
+        public System.IO.Stream GetPurchasedMedia(string customer, uint id)
+        {
+            h.Failure(501);
+            return null;
+        }
+
+        #endregion
+
+        #region Provider Products
+
+        public string GetProviderProducts(string provider, string search, string type, string info, string unpublished)
+        {
+            return h.Failure(501);
+        }
+
+        public string CreateProviderProduct(string provider, ProductData data)
+        {
+            return h.Failure(501);
+        }
+
+        public string GetProviderProduct(string provider, uint id)
+        {
+            return h.Failure(501);
+        }
+
+        public void UpdateProviderProduct(string provider, uint id, ProductData data)
+        {
+            h.Failure(501);
+        }
+
+        public void UpdateProviderProductMedia(string provider, uint id, System.IO.Stream media)
+        {
+            h.Failure(501);
+        }
+
+        public void DeleteProviderProduct(string provider, uint id)
+        {
+            h.Failure(501);
+        }
+
+        #endregion
+
     }
 }

@@ -79,6 +79,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BadRequestException.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AuthenticationController.cs" />
+    <Compile Include="CoreConverter.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="JsonSerializer.cs" />
     <Compile Include="JsonUtility.cs" />
     <Compile Include="RentItService.svc.cs">
       <DependentUpon>RentItService.svc</DependentUpon>

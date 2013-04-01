@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Web;
 
-namespace RentIt
+namespace RentIt.Services
 {
     /// <summary>
     /// A small utility to handle data transmitted by JSON via the REST API
