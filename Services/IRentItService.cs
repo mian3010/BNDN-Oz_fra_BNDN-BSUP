@@ -55,8 +55,76 @@ namespace RentIt
 
         #region Products
 
+        [OperationContract]
+        [WebGet(UriTemplate = "/products?search={search}&type={type}&info=id&unpublished={unpublished}",
+        ResponseFormat = WebMessageFormat.Json)]
+        uint[] GetProducts(string search, string type, bool unpublished);
+
+        [OperationContract]
+        [WebGet(UriTemplate = "/products?search={search}&type={type}&info={info}&unpublished={unpublished}",
+        ResponseFormat = WebMessageFormat.Json)]
+        ProductData[] GetProducts(string search, string type, string info, bool unpublished);
+
+        [OperationContract]
+        [WebGet(UriTemplate = "/products/{id}",
+        ResponseFormat = WebMessageFormat.Json)]
+        ProductData GetProduct(uint id);
+
+        [OperationContract]
+        [WebInvoke(Method = "PUT",
+        UriTemplate = "/products/{id}",
+        RequestFormat = WebMessageFormat.Json)]
+        void UpdateProduct(uint id, ProductData data);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+        UriTemplate = "/products/{id}")]
+        void UpdateProductMedia(uint id, System.IO.Stream media);
+
+        [OperationContract]
+        [WebInvoke(Method = "DELETE",
+        UriTemplate = "/products/{id}",
+        RequestFormat = WebMessageFormat.Json)]
+        void DeleteProduct(uint id);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+        UriTemplate = "/products/{id}/thumbnail")]
+        void UpdateProductThumbnail(uint id, System.IO.Stream media);
+
+        [OperationContract]
+        [WebGet(UriTemplate = "/products/{id}/rating",
+        ResponseFormat = WebMessageFormat.Json)]
+        RatingData GetProductRating(uint id);
+
+        [OperationContract]
+        [WebInvoke(Method = "PUT",
+        UriTemplate = "/products/{id}/rating",
+        RequestFormat = WebMessageFormat.Json)]
+        void UpdateProductRating(uint id, RatingData data);
+
         #endregion
 
+        #region Purchases
+
+        [OperationContract]
+        [WebGet(UriTemplate = "/accounts/{customer}/purchases/{id}/media")]
+        System.IO.Stream GetPurchasedMedia(string customer, uint id);
+
+        [OperationContract]
+        [WebGet(UriTemplate = "/accounts/{customer}/purchases/{id}/media/thumbnail")]
+        System.IO.Stream GetPurchasedMedia(string customer, uint id);
+
+        #endregion
+    }
+
+    [DataContract]
+    public class TokenData
+    {
+        [DataMember]
+        public string token { get; set; }
+        [DataMember]
+        public string expires { get; set; }
     }
 
     [DataContract]
@@ -65,25 +133,115 @@ namespace RentIt
         [DataMember]
         public string user { get; set; }
         [DataMember]
-        public string password { get; set; }
-        [DataMember]
         public string email { get; set; }
+        [DataMember]
+        public string type { get; set; }
+        [DataMember]
+        public bool? banned { get; set; }
+        [DataMember]
+        public string name { get; set; }
+        [DataMember]
+        public AddressData address { get; set; }
+        [DataMember]
+        public string birth { get; set; }
+        [DataMember]
+        public string about { get; set; }
+        [DataMember]
+        public uint? credits { get; set; }
+        [DataMember]
+        public string created { get; set; }
+        [DataMember]
+        public string authenticated { get; set; }
+    }
+
+    [DataContract]
+    public class AddressData
+    {
         [DataMember]
         public string address { get; set; }
         [DataMember]
-        public string dateOfBirth { get; set; }
-        [DataMember]
-        public bool banned { get; set; }
-        [DataMember]
-        public string aboutMe { get; set; }
-        [DataMember]
-        public int balance { get; set; }
-        [DataMember]
-        public string accountType { get; set; }
-        [DataMember]
-        public int zipcode { get; set; }
+        public uint? postal { get; set; }
         [DataMember]
         public string country { get; set; }
+    }
+
+    [DataContract]
+    public class ProductData
+    {
+        [DataMember]
+        public string title { get; set; }
+        [DataMember]
+        public string description { get; set; }
+        [DataMember]
+        public string type { get; set; }
+        [DataMember]
+        public PriceData price { get; set; }
+        [DataMember]
+        public RatingData rating { get; set; }
+        [DataMember]
+        public string owner { get; set; }
+        [DataMember]
+        public MetaData[] meta { get; set; }
+        [DataMember]
+        public bool? published { get; set; }
+    }
+
+    [DataContract]
+    public class PriceData
+    {
+        [DataMember]
+        public uint buy { get; set; }
+        [DataMember]
+        public uint? rent { get; set; }
+    }
+
+    [DataContract]
+    public class RatingData
+    {
+        [DataMember]
+        public int score { get; set; }
+        [DataMember]
+        public uint count { get; set; }
+    }
+
+    [DataContract]
+    public class MetaData
+    {
+        [DataMember]
+        public string name { get; set; }
+        [DataMember]
+        public string value { get; set; }
+    }
+
+    [DataContract]
+    public class CreditsData
+    {
+        [DataMember]
+        public uint credits { get; set; }
+    }
+
+    [DataContract]
+    public class PurchaseData
+    {
+        [DataMember]
+        public string purchased { get; set; }
+        [DataMember]
+        public uint paid { get; set; }
+        [DataMember]
+        public string type { get; set; }
+        [DataMember]
+        public string expires { get; set; }
+        [DataMember]
+        public string title { get; set; }
+        [DataMember]
+        public uint product { get; set; }
+    }
+
+    [DataContract]
+    public class IdData
+    {
+        [DataMember]
+        public uint id { get; set; }
     }
 
 }

@@ -124,6 +124,10 @@
       <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
       <Name>Persistence</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Product\Product.fsproj">
+      <Project>{5946ee56-1b91-4632-82be-5c681d3c6c87}</Project>
+      <Name>Product</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
