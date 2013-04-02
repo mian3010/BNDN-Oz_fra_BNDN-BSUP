@@ -79,6 +79,8 @@ module Account =
             version = uint32(0);  
         }
 
+        // WHAT IS THIS? (~ Philip)
+
         (*
         if accType = null then raise BrokenInvariant
         if user = null then raise BrokenInvariant

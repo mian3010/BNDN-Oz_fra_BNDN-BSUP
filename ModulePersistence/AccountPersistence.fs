@@ -66,6 +66,9 @@ open System.Security
                         password = Internal.splitDbPass (result.Item "Password")
                         created = DateTime.Parse (result.Item "Created_date")
                         banned = if result.Item "Banned" = "0" then false else true
+
+                        // TODO: WTF?!?! Some fields are hardcoded!
+
                         info = {
                                 name = None;
                                 address = {

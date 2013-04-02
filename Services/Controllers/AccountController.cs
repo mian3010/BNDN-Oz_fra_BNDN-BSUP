@@ -96,9 +96,9 @@ namespace RentIt.Services.Controllers
 
                 string[] keep = {};
 
-                if (accType.Equals("Customer")) keep = new string[] { "email", "type", "name", "address", "credits", "birth", "about" };
-                else if (accType.Equals("Content Provider")) keep = new string[] { "email", "type", "name", "address" };
-                else if (accType.Equals("Admin")) keep = new string[] { "email", "type", "name", "address", "credits", "birth", "about", "banned", "authenticated", "created" };
+                if (accType.Equals("Customer")) keep = new string[] { "email", "type", "name", "address", "postal", "country", "credits", "birth", "about" };
+                else if (accType.Equals("Content Provider")) keep = new string[] { "email", "type", "name", "address", "postal", "country" };
+                else if (accType.Equals("Admin")) keep = new string[] { "email", "type", "name", "address", "postal", "country", "credits", "birth", "about", "banned", "authenticated", "created" };
                 // else client is unauthenticated and nothing is returned
 
                 // RETURN
@@ -158,9 +158,12 @@ namespace RentIt.Services.Controllers
 
                 var invoker = h.Authorize();
 
-                // UPDATE DATA
+                // CREATE ACCOUNT
+
+                data.user = user; // name must be username
 
                 if (data.type == null) data.type = "Customer"; // Default to customer account
+                if (data.type.Equals("Customer") && data.credits == null) data.credits = 0;
 
                 var account = c.Convert(data);
                 ControlledAccount.persist(invoker, account);
