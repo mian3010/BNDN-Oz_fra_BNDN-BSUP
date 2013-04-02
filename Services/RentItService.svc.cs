@@ -86,43 +86,43 @@ namespace RentIt
             return h.Failure(501);
         }
 
-        public string GetProduct(uint id)
+        public string GetProduct(string id)
         {
             return h.Failure(501);
         }
 
-        public void UpdateProduct(uint id, ProductData data)
+        public void UpdateProduct(string id, ProductData data)
         {
             h.Failure(501);
         }
 
-        public void UpdateProductMedia(uint id, Stream media)
+        public void UpdateProductMedia(string id, Stream media)
         {
             h.Failure(501);
         }
 
-        public void DeleteProduct(uint id)
+        public void DeleteProduct(string id)
         {
             h.Failure(501);
         }
 
-        public string GetProductRating(uint id)
+        public string GetProductRating(string id)
         {
             return h.Failure(501);
         }
 
-        public void UpdateProductRating(uint id, RatingData data)
+        public void UpdateProductRating(string id, RatingData data)
         {
             h.Failure(501);
         }
 
-        public Stream GetProductThumbnail(uint id)
+        public Stream GetProductThumbnail(string id)
         {
             h.Failure(501);
             return null;
         }
 
-        public void UpdateProductThumbnail(uint id, Stream media)
+        public void UpdateProductThumbnail(string id, Stream media)
         {
             h.Failure(501);
         }
@@ -131,7 +131,7 @@ namespace RentIt
 
         #region Credits
 
-        public void BuyCredits(uint id, CreditsData data)
+        public void BuyCredits(string id, CreditsData data)
         {
             h.Failure(501);
         }
@@ -150,12 +150,12 @@ namespace RentIt
             return h.Failure(501);
         }
 
-        public string GetPurchase(string customer, uint id)
+        public string GetPurchase(string customer, string id)
         {
             return h.Failure(501);
         }
 
-        public Stream GetPurchasedMedia(string customer, uint id)
+        public Stream GetPurchasedMedia(string customer, string id)
         {
             h.Failure(501);
             return null;
@@ -175,33 +175,33 @@ namespace RentIt
             return h.Failure(501);
         }
 
-        public string GetProviderProduct(string provider, uint id)
+        public string GetProviderProduct(string provider, string id)
         {
             return h.Failure(501);
         }
 
-        public void UpdateProviderProduct(string provider, uint id, ProductData data)
+        public void UpdateProviderProduct(string provider, string id, ProductData data)
         {
             h.Failure(501);
         }
 
-        public void UpdateProviderProductMedia(string provider, uint id, Stream media)
+        public void UpdateProviderProductMedia(string provider, string id, Stream media)
         {
             h.Failure(501);
         }
 
-        public void DeleteProviderProduct(string provider, uint id)
+        public void DeleteProviderProduct(string provider, string id)
         {
             h.Failure(501);
         }
 
-        public Stream GetProviderProductThumbnail(string provider, uint id)
+        public Stream GetProviderProductThumbnail(string provider, string id)
         {
             h.Failure(501);
             return null;
         }
 
-        public void UpdateProviderProductThumbnail(string provider, uint id, Stream media)
+        public void UpdateProviderProductThumbnail(string provider, string id, Stream media)
         {
             h.Failure(501);
         }

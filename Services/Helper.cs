@@ -160,8 +160,12 @@ namespace RentIt.Services
 
         public bool Boolean(string value)
         {
-
             return System.Boolean.Parse(OneOf(value, "true", "false"));
+        }
+
+        public uint Uint(string value)
+        {
+            return System.UInt32.Parse(value);
         }
 
         public HashSet<string> ExpandAccountTypes(string types)
