@@ -1,20 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Text;
-using System.Net;
-using System.Reflection;
-using RentIt;
-using Microsoft.FSharp.Core;
-using Microsoft.FSharp.Collections;
-using System.Web.Services;
+﻿using System.ServiceModel;
 using RentIt.Services;
 using RentIt.Services.Controllers;
 using System.IO;
-using RentIt.Services.Controllers;
 
 namespace RentIt
 {
