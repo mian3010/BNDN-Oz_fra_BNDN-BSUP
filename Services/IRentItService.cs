@@ -18,8 +18,9 @@ namespace RentIt
 
         [OperationContract]
         [WebGet(    UriTemplate = "/auth?user={username}&password={password}",
-                    ResponseFormat = WebMessageFormat.Json)]
-        string Authorize(string username, string password);
+                    ResponseFormat = WebMessageFormat.Json,
+                    BodyStyle = WebMessageBodyStyle.Bare)]
+        Stream Authorize(string username, string password);
 
         #endregion
 
@@ -28,12 +29,12 @@ namespace RentIt
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={include_banned}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetAccounts(string types, string info, string include_banned);
+        Stream GetAccounts(string types, string info, string include_banned);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{user}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetAccount(string user);
+        Stream GetAccount(string user);
 
         [OperationContract]
         [WebInvoke( Method = "PUT",
@@ -54,12 +55,12 @@ namespace RentIt
         [OperationContract]
         [WebGet(    UriTemplate = "/products?search={search}&type={type}&info={info}&unpublished={unpublished}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetProducts(string search, string type, string info, string unpublished);
+        Stream GetProducts(string search, string type, string info, string unpublished);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/products/{id}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetProduct(string id);
+        Stream GetProduct(string id);
 
         [OperationContract]
         [WebInvoke( Method = "PUT",
@@ -81,7 +82,7 @@ namespace RentIt
         [OperationContract]
         [WebGet(    UriTemplate = "/products/{id}/rating",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetProductRating(string id);
+        Stream GetProductRating(string id);
 
         [OperationContract]
         [WebInvoke( Method = "PUT",
@@ -115,19 +116,19 @@ namespace RentIt
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{customer}/purchases?purchases={purchases}&info={info}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetPurchases(string customer, string purchases, string info);
+        Stream GetPurchases(string customer, string purchases, string info);
 
         [OperationContract]
         [WebInvoke( Method = "POST",
                     UriTemplate = "/accounts/{customer}/purchases",
                     RequestFormat = WebMessageFormat.Json,
                     ResponseFormat = WebMessageFormat.Json)]
-        string MakePurchases(string customer, PurchaseData data);
+        Stream MakePurchases(string customer, PurchaseData data);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{customer}/purchases/{id}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetPurchase(string customer, string id);
+        Stream GetPurchase(string customer, string id);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{customer}/purchases/{id}/media")]
@@ -140,18 +141,18 @@ namespace RentIt
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{provider}/products?search={search}&type={type}&info={info}&unpublished={unpublished}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetProviderProducts(string provider, string search, string type, string info, string unpublished);
+        Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished);
 
         [OperationContract]
         [WebInvoke( Method = "POST",
                     UriTemplate = "/accounts/{provider}/products",
                     RequestFormat = WebMessageFormat.Json)]
-        string CreateProviderProduct(string provider, ProductData data);
+        Stream CreateProviderProduct(string provider, ProductData data);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{provider}/products/{id}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetProviderProduct(string provider, string id);
+        Stream GetProviderProduct(string provider, string id);
 
         [OperationContract]
         [WebInvoke( Method = "PUT",

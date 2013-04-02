@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Microsoft.FSharp.Core;
 using Microsoft.FSharp.Collections;
+using System.IO;
 
 namespace RentIt.Services.Controllers
 {
@@ -20,17 +21,17 @@ namespace RentIt.Services.Controllers
             c = converter;
         }
 
-        public string Authorize(string username, string password)
+        public Stream Authorize(string username, string password)
         {
             try
             {
                 Tuple<string, DateTime> t = ControlledAuth.authenticate(username, password);
 
-                h.Status(200);
+                h.Success();
 
                 return j.Json(c.Convert(t));
             }
-            catch (Auth.AuthenticationFailed) { return h.Failure(400); }
+            catch (Auth.AuthenticationFailed) { return h.Failure(401); }
             catch (AccountPermissions.AccountBanned) { return h.Failure(403); }
             catch (Exception) { return h.Failure(500); }
         }

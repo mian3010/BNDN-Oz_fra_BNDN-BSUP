@@ -33,25 +33,32 @@ namespace RentIt.Services
                                                 };
 
         // Converts an object to JSON format, leaving any null value out
-        public string Json<T>(T obj)
+        public Stream Json<T>(T obj)
         {
-            if(!types.Contains(obj.GetType())) throw new Exception("Could not serialize given object - its class is not supported.");
+            return asStream(JsonString(obj));
+        }
+
+        // Converts an object to JSON format, leaving any null value out. Returns the result as string.
+        public string JsonString<T>(T obj)
+        {
+            if (!types.Contains(obj.GetType())) throw new Exception("Could not serialize given object - its class is not supported.");
 
             // Collect all properties to serialize to JSOn
-            var properties = new Dictionary<string, string>(); 
-            foreach (var p in obj.GetType().GetProperties()) {
+            var properties = new Dictionary<string, string>();
+            foreach (var p in obj.GetType().GetProperties())
+            {
 
                 object value = p.GetValue(obj);
 
-                if(value == null) continue; // Ignore null values
-                
+                if (value == null) continue; // Ignore null values
+
                 // Convert each value to JSON representation
-                if (typeof(String).IsInstanceOfType(value)) properties[p.Name] = "\"" + escape((string)value) + "\"";
-                else if(typeof(uint?).IsInstanceOfType(value)) properties[p.Name] = ((uint?) value).ToString();
-                else if(typeof(uint).IsInstanceOfType(value)) properties[p.Name] = ((uint) value).ToString();
-                else if(typeof(bool?).IsInstanceOfType(value)) properties[p.Name] = ((bool?) value).ToString();
-                else if(typeof(bool).IsInstanceOfType(value)) properties[p.Name] = ((bool) value).ToString();
-                else properties[p.Name] = Json(value);
+                if (typeof(String).IsInstanceOfType(value)) properties[p.Name] = escape((string)value);
+                else if (typeof(uint?).IsInstanceOfType(value)) properties[p.Name] = ((uint?)value).ToString();
+                else if (typeof(uint).IsInstanceOfType(value)) properties[p.Name] = ((uint)value).ToString();
+                else if (typeof(bool?).IsInstanceOfType(value)) properties[p.Name] = ((bool?)value).ToString();
+                else if (typeof(bool).IsInstanceOfType(value)) properties[p.Name] = ((bool)value).ToString();
+                else properties[p.Name] = JsonString(value);
             }
 
             // Produce JSON
@@ -59,16 +66,16 @@ namespace RentIt.Services
             string[] result = new string[properties.Count];
 
             int c = 0;
-            foreach(var kv in properties)
+            foreach (var kv in properties)
             {
                 result[c++] = "\"" + kv.Key + "\":" + kv.Value;
             }
 
-            return "{"+h.Join(result, ",")+"}";
+            return "{" + h.Join(result, ",") + "}";
         }
 
         // Converts an object to JSON format, only including those properties which have been specified to be included
-        public string Json<T>(T obj, string[] keep)
+        public Stream Json<T>(T obj, string[] keep)
         {
             var keepSet = new HashSet<string>(keep);
 
@@ -76,21 +83,21 @@ namespace RentIt.Services
         }
 
         // Converts multiple objects to JSON format
-        public string Json<T>(T[] objects)
+        public Stream Json<T>(T[] objects)
         {
             var values = h.Map(objects, o => Json(o));
 
-            return "[" + h.Join(values, ",") + "]";
+            return asStream("[" + h.Join(values, ",") + "]");
         }
 
         // Converts multiple objects to JSON format, only including those properties which have been specified to be included
-        public string Json<T>(T[] objects, string[] keep)
+        public Stream Json<T>(T[] objects, string[] keep)
         {
             var keepSet = new HashSet<string>(keep);
 
             var values = h.Map(objects, o => Json(nullOutBut(o, keepSet)));
 
-            return "[" + h.Join(values, ",") + "]";
+            return asStream("[" + h.Join(values, ",") + "]");
         }
 
         // Causes any property but those specified by keep to be set to null
@@ -115,6 +122,13 @@ namespace RentIt.Services
                     return writer.ToString();
                 }
             }
+        }
+
+        private Stream asStream(string str)
+        {
+            byte[] byteArray = Encoding.UTF8.GetBytes(str);
+
+            return new MemoryStream(byteArray);
         }
     }
 }

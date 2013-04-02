@@ -5,6 +5,7 @@ using System.Net;
 using System.ServiceModel.Web;
 using System.Web;
 using Microsoft.FSharp.Core;
+using System.IO;
 
 namespace RentIt.Services
 {
@@ -111,14 +112,29 @@ namespace RentIt.Services
             }
         }
 
+        public void SetStatus(uint code)
+        {
+            GetResponse().StatusCode = Status(code);
+        }
+
         public string Header(string name)
         {
             return WebOperationContext.Current.IncomingRequest.Headers[name]; // null if it is not set
         }
 
-        public string Failure(uint statusCode)
+        public void SetHeader(string name, string value)
         {
+            WebOperationContext.Current.IncomingRequest.Headers[name] = value;
+        }
 
+        public void Success(uint status=200, string responseType="application/json")
+        {
+            SetStatus(status);
+            GetResponse().ContentType = responseType;
+        }
+
+        public Stream Failure(uint statusCode)
+        {
             GetResponse().StatusCode = Status(statusCode);
 
             return null;

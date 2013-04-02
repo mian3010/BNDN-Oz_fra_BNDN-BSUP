@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Microsoft.FSharp.Core;
 using Microsoft.FSharp.Collections;
+using System.IO;
 
 namespace RentIt.Services.Controllers
 {
@@ -20,7 +21,7 @@ namespace RentIt.Services.Controllers
             c = converter;
         }
 
-        public string GetAccounts(string types, string info, string include_banned)
+        public Stream GetAccounts(string types, string info, string include_banned)
         {
             try
             {
@@ -64,7 +65,7 @@ namespace RentIt.Services.Controllers
 
                 AccountData[] results = h.Map(ListModule.ToArray(accounts), a => c.Convert(a, alsoAuth ? authTimes[a.user] : null));
 
-                h.Status(200);
+                h.Success();
 
                 if (info.Equals("detailed")) return j.Json(results);                                                   // All non-null returned
                 if (info.Equals("more")) return j.Json(results, new string[] { "user", "email", "type", "banned" });   // Only user, email, type, and banned are returned
@@ -77,7 +78,7 @@ namespace RentIt.Services.Controllers
             catch (Exception) { return h.Failure(500); }
         }
 
-        public string GetAccount(string user)
+        public Stream GetAccount(string user)
         {
             try
             {
@@ -101,6 +102,8 @@ namespace RentIt.Services.Controllers
                 // else client is unauthenticated and nothing is returned
 
                 // RETURN
+
+                h.Success();
 
                 return j.Json(account, keep);
             }
@@ -137,7 +140,7 @@ namespace RentIt.Services.Controllers
 
                 // SIGNAL SUCCESS
 
-                h.Status(204);
+                h.Success(204);
             }
             catch (BadRequestException) { h.Failure(400); }
             catch (Account.BrokenInvariant) { h.Failure(400); }
@@ -164,7 +167,7 @@ namespace RentIt.Services.Controllers
 
                 // SIGNAL SUCCESS
 
-                h.Status(204);
+                h.Success(204);
             }
             catch (BadRequestException) { h.Failure(400); }
             catch (Account.BrokenInvariant) { h.Failure(400); }
