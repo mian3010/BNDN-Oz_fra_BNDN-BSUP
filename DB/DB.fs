@@ -70,10 +70,10 @@ open System.Security
                                 name = None;
                                 address = {
                                             address = result.TryFind "Address"
-                                            postal = //Some 2400
-                                                let zipString = result.TryFind "Zipcode"
+                                            postal = Some 2400
+                                                (*let zipString = result.TryFind "Zipcode"
                                                 if zipString = None then 
-                                                    None else Some (int (string zipString)) // CANT CONVERT!!!
+                                                    None else Some (int (string zipString))*) // CANT CONVERT!!!
                                             country = Some (result.Item "Country_Name") }
                                 birth = Some (DateTime.Parse "10/10/2013 12:00:00 AM")
                                     (*let bodString = result.TryFind "Date_of_birth"
@@ -113,21 +113,22 @@ open System.Security
                                 name = None;
                                 address = {
                                             address = map.TryFind "Address"
-                                            postal = 
-                                                let zipString = map.TryFind "Zipcode"
+                                            postal = Some 2400
+                                                (*let zipString = result.TryFind "Zipcode"
                                                 if zipString = None then 
-                                                    None else Some (int (string zipString))
+                                                    None else Some (int (string zipString))*) // CANT CONVERT!!!
                                             country = Some (map.Item "Country_Name") }
-                                birth =
-                                    let bodString = map.TryFind "Date_of_birth"
+                                birth = Some (DateTime.Parse "10/10/2013 12:00:00 AM")
+                                    (*let bodString = result.TryFind "Date_of_birth"
                                     if bodString = None then 
-                                        None else Some (DateTime.Parse (string bodString))
+                                        None else Some (DateTime.Parse (string bodString))*) // CANT CONVERT!!!
                                         
                                 about = map.TryFind "About_me"
-                                credits =
-                                    let cString = map.TryFind "Balance"
+                                credits = Some 666
+                                    (*let cString = result.TryFind "Balance"           // CANT CONVERT!!!
                                     if cString = None then
-                                        None else Some (int (string cString)) }
+                                        None else Some (int (string cString)) *)
+                                }
                         accType = map.Item "Type_name"
                         version = uint32 0 }
                     yield tmp

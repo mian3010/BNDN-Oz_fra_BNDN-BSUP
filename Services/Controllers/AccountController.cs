@@ -157,6 +157,8 @@ namespace RentIt.Services.Controllers
 
                 // UPDATE DATA
 
+                if (data.type == null) data.type = "Customer"; // Default to customer account
+
                 var account = c.Convert(data);
                 ControlledAccount.persist(invoker, account);
 

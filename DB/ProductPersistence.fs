@@ -110,7 +110,7 @@ module ProductPersistence =
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
   /// <exception> NoSuchProduct </exception>
-  let rateProduct (pId:string) (rating:int) = 
+  let rateProduct (pId:string) (user:string) (rating:int) = 
     raise (new System.NotImplementedException())
 
   /// <summay>

@@ -59,44 +59,44 @@ namespace RentIt
         [OperationContract]
         [WebGet(    UriTemplate = "/products/{id}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetProduct(uint id);
+        string GetProduct(string id);
 
         [OperationContract]
         [WebInvoke( Method = "PUT",
                     UriTemplate = "/products/{id}",
                     RequestFormat = WebMessageFormat.Json)]
-        void UpdateProduct(uint id, ProductData data);
+        void UpdateProduct(string id, ProductData data);
 
         [OperationContract]
         [WebInvoke( Method = "POST",
                     UriTemplate = "/products/{id}")]
-        void UpdateProductMedia(uint id, Stream media);
+        void UpdateProductMedia(string id, Stream media);
 
         [OperationContract]
         [WebInvoke( Method = "DELETE",
                     UriTemplate = "/products/{id}",
                     RequestFormat = WebMessageFormat.Json)]
-        void DeleteProduct(uint id);
+        void DeleteProduct(string id);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/products/{id}/rating",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetProductRating(uint id);
+        string GetProductRating(string id);
 
         [OperationContract]
         [WebInvoke( Method = "PUT",
                     UriTemplate = "/products/{id}/rating",
                     RequestFormat = WebMessageFormat.Json)]
-        void UpdateProductRating(uint id, RatingData data);
+        void UpdateProductRating(string id, RatingData data);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/products/{id}/thumbnail")]
-        Stream GetProductThumbnail(uint id);
+        Stream GetProductThumbnail(string id);
 
         [OperationContract]
         [WebInvoke( Method = "POST",
                     UriTemplate = "/products/{id}/thumbnail")]
-        void UpdateProductThumbnail(uint id, Stream media);
+        void UpdateProductThumbnail(string id, Stream media);
 
         #endregion
 
@@ -106,7 +106,7 @@ namespace RentIt
         [WebInvoke( Method = "POST",
                     UriTemplate = "/credits",
                     RequestFormat = WebMessageFormat.Json)]
-        void BuyCredits(uint id, CreditsData data);
+        void BuyCredits(CreditsData data);
 
         #endregion
 
@@ -127,11 +127,11 @@ namespace RentIt
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{customer}/purchases/{id}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetPurchase(string customer, uint id);
+        string GetPurchase(string customer, string id);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{customer}/purchases/{id}/media")]
-        Stream GetPurchasedMedia(string customer, uint id);
+        Stream GetPurchasedMedia(string customer, string id);
 
         #endregion
 
@@ -151,33 +151,33 @@ namespace RentIt
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{provider}/products/{id}",
                     ResponseFormat = WebMessageFormat.Json)]
-        string GetProviderProduct(string provider, uint id);
+        string GetProviderProduct(string provider, string id);
 
         [OperationContract]
         [WebInvoke( Method = "PUT",
                     UriTemplate = "/accounts/{provider}/products/{id}",
                     RequestFormat = WebMessageFormat.Json)]
-        void UpdateProviderProduct(string provider, uint id, ProductData data);
+        void UpdateProviderProduct(string provider, string id, ProductData data);
 
         [OperationContract]
         [WebInvoke( Method = "POST",
                     UriTemplate = "/accounts/{provider}/products/{id}")]
-        void UpdateProviderProductMedia(string provider, uint id, Stream media);
+        void UpdateProviderProductMedia(string provider, string id, Stream media);
 
         [OperationContract]
         [WebInvoke( Method = "DELETE",
                     UriTemplate = "/accounts/{provider}/products/{id}",
                     RequestFormat = WebMessageFormat.Json)]
-        void DeleteProviderProduct(string provider, uint id);
+        void DeleteProviderProduct(string provider, string id);
 
         [OperationContract]
         [WebGet(UriTemplate = "/accounts/{provider}/products/{id}/thumbnail")]
-        Stream GetProviderProductThumbnail(string provider, uint id);
+        Stream GetProviderProductThumbnail(string provider, string id);
 
         [OperationContract]
         [WebInvoke(Method = "POST",
                     UriTemplate = "/accounts/{provider}/products/{id}/thumbnail")]
-        void UpdateProviderProductThumbnail(string provider, uint id, Stream media);
+        void UpdateProviderProductThumbnail(string provider, string id, Stream media);
 
         #endregion
     }
@@ -207,7 +207,11 @@ namespace RentIt
         [DataMember]
         public string name { get; set; }
         [DataMember]
-        public AddressData address { get; set; }
+        public string address { get; set; }
+        [DataMember]
+        public uint? postal { get; set; }
+        [DataMember]
+        public string country { get; set; }
         [DataMember]
         public string birth { get; set; }
         [DataMember]
@@ -218,17 +222,6 @@ namespace RentIt
         public string created { get; set; }
         [DataMember]
         public string authenticated { get; set; }
-    }
-
-    [DataContract]
-    public class AddressData
-    {
-        [DataMember]
-        public string address { get; set; }
-        [DataMember]
-        public uint? postal { get; set; }
-        [DataMember]
-        public string country { get; set; }
     }
 
     [DataContract]
