@@ -5,6 +5,7 @@ module Product =
   // Should this catch Exception and raise UnkownException?
 
   type Product = ProductTypes.Product
+  type Meta = ProductTypes.Meta
 
   // Exceptions
   exception NoSuchProduct
@@ -61,9 +62,10 @@ module Product =
       rentPrice = rentPrice;
       buyPrice = buyPrice;
       id = -1;
-      rating = {  rating=0; votes=0;  };
+      rating = None;
       published = false;
-      metadata = Map.empty;
+      metadata = None;
+      thumbnailPath = None;
     }
   
   /// <summary>
@@ -157,13 +159,13 @@ module Product =
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
   /// <exception> NoSuchProduct </exception>
-  let rateProduct (pId:string) (rating:int) = 
+  let rateProduct (pId:string) (user:string) (rating:int) = 
     // Defens
     if (pId = null || pId.Trim().Length = 0) then raise (ArgumentException "ProductId empty")
     if (-5 > rating || rating > 5) then raise (ArgumentException "Rating must be between -5 and 5")
 
     try
-      ProductPersistence.rateProduct pId rating
+      ProductPersistence.rateProduct pId user rating
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
 

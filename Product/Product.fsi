@@ -94,7 +94,7 @@ module Product =
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
   /// <exception> NoSuchProduct </exception>
-  val rateProduct : string -> int -> 'a
+  val rateProduct : string -> string -> int -> 'a
 
  /// <summay>
   /// Change Published-flag on Product
