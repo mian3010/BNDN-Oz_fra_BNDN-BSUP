@@ -24,6 +24,9 @@ module Main =
   let internal createDataInForLoggable id =
       [Persistence.DataIn.createDataIn [] "Loggable" "Id" id]
 
+  let internal createDataInForProductType name =
+      [Persistence.DataIn.createDataIn [] "ProductType" "Name" name]
+
   [<EntryPoint>]
   let main argv = 
     
@@ -257,5 +260,17 @@ module Main =
                }:AccountTypes.ExtraAccInfo
     let user = Account.make "Admin" "Lynette" "lynette@smu" "Awesome" info
     Account.persist user
+
+    // Product types
+    let mutable insert:((Persistence.Types.DataIn List) List) = []
+    insert <- insert@createDataInForProductType "Movie"
+    insert <- insert@createDataInForProductType "Music"
+    insert <- insert@createDataInForProductType "TV"
+    insert <- insert@createDataInForProductType "Audio"
+    insert <- insert@createDataInForProductType "Ebook"
+
+    printfn "%A" ("---------- Create " + "ProductType" + " ----------")
+    for i in insert do
+      Persistence.Api.create "ProductType" i |> ignore
 
     0
