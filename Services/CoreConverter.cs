@@ -37,7 +37,9 @@ namespace RentIt.Services
                 type = a.accType,
                 banned = a.banned,
                 name = h.OrNull(a.info.name),
-                address = Convert(a.info.address),
+                address = h.OrNull(a.info.address.address),
+                postal = h.OrNulled(a.info.address.postal, i => (uint)i),
+                country = h.OrNull(a.info.address.country),
                 birth = h.OrNull(a.info.birth, JsonUtility.dateToString),
                 about = h.OrNull(a.info.about),
                 credits = h.OrNulled(a.info.credits, i => (uint)i),
@@ -50,7 +52,7 @@ namespace RentIt.Services
         {
             if (a == null) return null;
 
-            var dummy = Account.make("", "", "", "", ConvertExtra(null));
+            var dummy = Account.make("", "", "", "", ConvertToExtra(null));
 
             return Merge(dummy, a);
         }
@@ -73,12 +75,12 @@ namespace RentIt.Services
             );
         }
 
-        public AccountTypes.ExtraAccInfo ConvertExtra(AccountData a)
+        public AccountTypes.ExtraAccInfo ConvertToExtra(AccountData a)
         {
             if (a == null) return new AccountTypes.ExtraAccInfo(
                 
                                 FSharpOption<string>.None,
-                                Convert((AddressData) null),
+                                ConvertToAddress((AccountData) null),
                                 FSharpOption<DateTime>.None,
                                 FSharpOption<string>.None,
                                 FSharpOption<int>.None
@@ -87,7 +89,7 @@ namespace RentIt.Services
             return new AccountTypes.ExtraAccInfo(
 
                 new FSharpOption<string>(a.name),
-                Convert(a.address),
+                ConvertToAddress((AccountData) a),
                 FSharpOption<DateTime>.Some(JsonUtility.stringToDate(a.birth)),
                 new FSharpOption<string>(a.about),
                 a.credits == null ? FSharpOption<int>.None : FSharpOption<int>.Some((int) a.credits)
@@ -97,31 +99,19 @@ namespace RentIt.Services
         public AccountTypes.ExtraAccInfo Merge(AccountTypes.ExtraAccInfo src, AccountData update)
         {
             if (update == null) return src;
-            if (src == null) return ConvertExtra(update);
+            if (src == null) return ConvertToExtra(update);
 
             return new AccountTypes.ExtraAccInfo(
 
                 update.name == null ? src.name : new FSharpOption<string>(update.name),
-                Merge(src.address, update.address),
+                Merge(src.address, update),
                 update.birth == null ? src.birth : new FSharpOption<DateTime>(JsonUtility.stringToDate(update.created)),
                 update.about == null ? src.about : new FSharpOption<string>(update.about),
                 update.credits == null ? src.credits : FSharpOption<int>.Some((int) update.credits)
             );
         }
 
-        public AddressData Convert(AccountTypes.Address a)
-        {
-            if (a == null) return null;
-
-            return new AddressData()
-            {
-                address = h.OrNull(a.address),
-                postal = h.OrNulled(a.postal, i => (uint)i),
-                country = h.OrNull(a.country)
-            };
-        }
-
-        public AccountTypes.Address Convert(AddressData a)
+        public AccountTypes.Address ConvertToAddress(AccountData a)
         {
             if (a == null) return new AccountTypes.Address(
 
@@ -138,10 +128,10 @@ namespace RentIt.Services
             );
         }
 
-        public AccountTypes.Address Merge(AccountTypes.Address src, AddressData update)
+        public AccountTypes.Address Merge(AccountTypes.Address src, AccountData update)
         {
             if (update == null) return null;
-            if (src == null) return Convert(update);
+            if (src == null) return ConvertToAddress(update);
 
             return new AccountTypes.Address(
                 
