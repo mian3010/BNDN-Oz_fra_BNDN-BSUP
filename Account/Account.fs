@@ -125,36 +125,36 @@ module Account =
     /// Raises TooLargeData if one or more of the account fields were too large to be persisted
     let persist (acc:Account) =
         try
-            Db.createUser acc
+            AccountPersistence.createUser acc
         with
-            | Db.UsernameAlreadyInUse                   -> raise UserAlreadyExists
-            | Db.IllegalAccountVersion                  -> raise BrokenInvariant
-            | Db.NoSuchAccountType                      -> raise UnknownAccType
+            | AccountPersistence.UsernameAlreadyInUse                   -> raise UserAlreadyExists
+            | AccountPersistence.IllegalAccountVersion                  -> raise BrokenInvariant
+            | AccountPersistence.NoSuchAccountType                      -> raise UnknownAccType
             | Persistence.Types.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - we do not know for sure =/
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
     let getByUsername (user:string) :Account =
         try
-            Db.getUserByName user
+            AccountPersistence.getUserByName user
         with
-            | Db.NoUserWithSuchName -> raise NoSuchUser
+            | AccountPersistence.NoUserWithSuchName -> raise NoSuchUser
     
     /// Retrieves all accounts of a specific type
     let getAllByType (accType:string) :Account list =
         try
-            Db.getAllUsersByType accType
+            AccountPersistence.getAllUsersByType accType
         with
-            | Db.NoSuchAccountType -> raise UnknownAccType
+            | AccountPersistence.NoSuchAccountType -> raise UnknownAccType
 
     /// Retrieves the date and time which the user {user} last authenticated
     /// 'None' means that the user never has authenticated
     /// Raises NoSuchUser if no account is associated with the given username
     let getLastAuthTime (user:string) :System.DateTime option =
         try
-            Db.getUsersLastAuthTime user
+            AccountPersistence.getUsersLastAuthTime user
         with
-            | Db.NoUserWithSuchName -> raise NoSuchUser
+            | AccountPersistence.NoUserWithSuchName -> raise NoSuchUser
 
     /// Deletes an previously created account. The account will be removed from persistence.
     let delete (acc:Account) =
@@ -169,11 +169,11 @@ module Account =
     /// Raises TooLargeData if one or more of the new account fields were too large to be persisted
     let update (acc:Account) :Account =
         try
-            Db.update acc
+            AccountPersistence.update acc
         with
-            | Db.NoUserWithSuchName                     -> raise NoSuchUser
-            | Db.NewerVersionExist                      -> raise OutdatedData
-            | Db.IllegalAccountVersion                  -> raise BrokenInvariant
+            | AccountPersistence.NoUserWithSuchName                     -> raise NoSuchUser
+            | AccountPersistence.NewerVersionExist                      -> raise OutdatedData
+            | AccountPersistence.IllegalAccountVersion                  -> raise BrokenInvariant
             | Persistence.Types.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - we do not know for sure =/
 
     ////// HELPER FUNCTIONS

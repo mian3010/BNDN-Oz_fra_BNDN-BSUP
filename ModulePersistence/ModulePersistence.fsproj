@@ -10,7 +10,7 @@
     <RootNamespace>ConsoleApplication1</RootNamespace>
     <AssemblyName>Db</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>Db</Name>
+    <Name>ModulePersistence</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -63,8 +63,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Db.fs" />
+    <Compile Include="AccountPersistence.fs" />
     <Compile Include="ProductPersistence.fsi" />
+    <Compile Include="ProductPersistenceHelper.fs" />
     <Compile Include="ProductPersistence.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />

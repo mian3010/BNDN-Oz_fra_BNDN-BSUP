@@ -12,7 +12,7 @@ module ProductPersistence =
   
   /// <summay>
   /// Creater in persistence layer
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product </typeparam>
   /// <returns> Product </returns>
   /// <exception> ProductAlreadyExists </exception>
@@ -21,8 +21,8 @@ module ProductPersistence =
   val createProduct : Product -> Product
 
   /// <summay>
-  /// Update an exsisting product
-  ///</summary>
+  /// Update an existing product
+  /// </summary>
   /// <typeparam> Product </typeparam>
   /// <returns> Product </returns>
   /// <exception> NoSuchProduct </exception>
@@ -32,25 +32,15 @@ module ProductPersistence =
 
   /// <summay>
   /// Get Product by its id
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product id </typeparam>
   /// <returns> Product </returns>
   /// <exception> NoSuchProduct </exception>
-  val getProductById : string -> Product
-
-  /// <summay>
-  /// Get Product by its name and create data
-  /// Usefull when you don't know Product id
-  ///</summary>
-  /// <typeparam> Prodcut name </typeparam>
-  /// <typeparam> Prodcut create date </typeparam>
-  /// <returns> Product </returns>
-  /// <exception> NoSuchProduct </exception>
-  val getProductByNameAndCreateData : string -> string -> Product
+  val getProductById : int -> Product
 
   /// <summay>
   /// Get a list of Products by Product name
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product name </typeparam>
   /// <returns> Product list </returns>
   /// <exception> NoSuchProduct </exception>
@@ -58,7 +48,7 @@ module ProductPersistence =
 
   /// <summay>
   /// Get a list of Products by Product type
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product type </typeparam>
   /// <returns> Product list </returns>
   /// <exception> NoSuchProduct </exception>
@@ -67,16 +57,25 @@ module ProductPersistence =
 
   /// <summay>
   /// Rate Product
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
+  /// <returns> The product rated </returns>
   /// <exception> NoSuchProduct </exception>
-  val rateProduct : string -> string -> int -> 'a
+  val rateProduct : int -> string -> int -> Product
 
   /// <summay>
   /// Change Published-flag on Product
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Boolean </typeparam>
+  /// <returns> The product changed </returns>
   /// <exception> NoSuchProduct </exception>
-  val publishProduct : string -> bool -> 'a
+  val publishProduct : int -> bool -> Product
+
+  /// <summary>
+  /// Create a product type
+  /// </summary>
+  /// <typeparam> Name of the product  type <//typeparam>
+  /// <returns> Bool depending on success </returns>
+  val createProductType : string -> bool

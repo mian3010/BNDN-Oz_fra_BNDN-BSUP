@@ -4,7 +4,7 @@ open System
 open System.Data
 open System.Security
 
-    module Db =
+    module AccountPersistence =
 
         // Exceptions
         exception NoUserWithSuchName
