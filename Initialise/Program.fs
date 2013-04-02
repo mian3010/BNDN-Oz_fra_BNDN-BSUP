@@ -232,9 +232,10 @@ module Main =
     // Create Country
     // "Name"
     let mutable insert:((Persistence.Types.DataIn List) List) = []
-    insert <- insert@createDataInForCountry "Denmark"
-    insert <- insert@createDataInForCountry "Singapore"
-    insert <- insert@createDataInForCountry "USA"
+    use sr = new System.IO.StreamReader("../.././country_list.csv")
+    while not sr.EndOfStream do
+      insert <- insert@createDataInForCountry (sr.ReadLine().Trim())
+
     insert <- insert@createDataInForCountry "Over the rainbow"
 
     printfn "%A" ("---------- Create " + "Country" + " ----------")
