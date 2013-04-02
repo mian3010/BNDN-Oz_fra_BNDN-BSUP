@@ -61,7 +61,7 @@ module Product =
       rentPrice = rentPrice;
       buyPrice = buyPrice;
       id = -1;
-      rating = {  rating=0; votes=0;  };
+      rating = None;
       published = false;
       metadata = Map.empty;
     }

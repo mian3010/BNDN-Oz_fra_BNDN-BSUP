@@ -7,15 +7,21 @@ module ProductTypes =
                   votes : int;
                 }
 
+  type Meta = {
+                key : string;
+                value : string;
+              }
+
   type Product = {
                    name : string;
                    createDate : System.DateTime;
                    productType : string;
                    owner : string;
-                   rating : Rating;
+                   rating : Rating option;
                    published : bool;
                    id : int;
-                   metadata : Map<string, string>;
+                   thumbnailPath : string option;
+                   metadata : Map<string, Meta> option;
                    description : string option;
                    rentPrice : int option;
                    buyPrice : int option;
