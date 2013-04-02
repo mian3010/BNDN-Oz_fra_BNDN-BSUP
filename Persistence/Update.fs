@@ -5,8 +5,8 @@
         let rec internal joinUpdateData (data:Types.DataIn List) =
             match data with
                 | [] -> ""
-                | x::[] -> DataIn.Default x
-                | x::xs -> DataIn.Default x+","+joinUpdateData xs
+                | x::[] -> x.processor x
+                | x::xs -> x.processor x+","+joinUpdateData xs
         ///Default processor
         let Default (update:Types.Update) =
             "UPDATE ["+update.objectName+"] SET "+joinUpdateData update.data+" OUTPUT INSERTED.* WHERE "+Read.joinFilters update.filters

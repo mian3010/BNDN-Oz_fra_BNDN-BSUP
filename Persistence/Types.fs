@@ -32,6 +32,7 @@
         type DataIn = {
             field : Field;
             value : string;
+            processor : DataIn -> string;
         }
         ///Defining a join between two tables in database. .. JOIN ObjectJoin ..
         type ObjectJoin = {
