@@ -13,7 +13,7 @@
             "AVG("+Default readField+") AS "+readField.field.objectName+"_"+readField.field.field+"_Avg"
         ///Read the number of rows
         let Num (readField:Types.ReadField) = 
-            "NUM("+Default readField+") AS "+readField.field.objectName+"_"+readField.field.field+"_Num"
+            "COUNT("+Default readField+") AS "+readField.field.objectName+"_"+readField.field.field+"_Num"
         ///For select only. Select everything in query
         let All (readField:Types.ReadField) =
             "*"

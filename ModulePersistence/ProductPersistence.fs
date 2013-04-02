@@ -23,8 +23,10 @@ module ProductPersistence =
   /// <exception> NoSuchUser </exception>
   /// <exception> NoSuchProductType </exception>
   let createProduct (p:Product) : Product =
-    let dataQ = convertToDataIn objectName p
-    let createR = Persistence.Api.create objectName dataQ
+    let reader = Persistence.Api.create "Loggable" []
+    let dataQ = ref (convertToDataIn objectName p)
+    dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Id" ((reader.Item 0).Item "Id")
+    let createR = Persistence.Api.create objectName !dataQ
     convertFromResult createR.Head
 
   /// <summay>
