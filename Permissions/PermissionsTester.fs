@@ -1,7 +1,7 @@
 ﻿namespace RentIt
 
 module main =
-[<EntryPoint>]
+    [<EntryPoint>]
     let main argv = 
       (*
       let actionGroup = "action group"

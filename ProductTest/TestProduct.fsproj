@@ -10,7 +10,7 @@
     <RootNamespace>ProductTest</RootNamespace>
     <AssemblyName>ProductTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>ProductTest</Name>
+    <Name>TestProduct</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

@@ -1,8 +1,7 @@
 ﻿namespace RentIt
+open ProductTypes
 
 module Product =
-
-  type Product = ProductTypes.Product
 
   exception NoSuchProduct
   exception NoSuchUser
@@ -33,7 +32,7 @@ module Product =
   /// <returns> Product </returns>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val getProductById : string -> Product 
+  val getProductById : int -> Product 
 
   /// <summary>
   /// Persist a new product, making the product available for publish
@@ -77,7 +76,7 @@ module Product =
   // <typeparam> Product id </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val buyProduct : string -> 'a
+  val buyProduct : int -> 'a
 
   /// <summary>
   /// Rent a product
@@ -86,7 +85,7 @@ module Product =
   // <typeparam> Number of days </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val rentProduct : string -> int -> 'a
+  val rentProduct : int -> int -> 'a
 
   /// <summay>
   /// Rate Product
@@ -94,7 +93,7 @@ module Product =
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
   /// <exception> NoSuchProduct </exception>
-  val rateProduct : string -> string -> int -> 'a
+  val rateProduct : int -> string -> int -> Product
 
  /// <summay>
   /// Change Published-flag on Product
@@ -102,4 +101,4 @@ module Product =
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Boolean </typeparam>
   /// <exception> NoSuchProduct </exception>
-  val publishProduct : string -> bool -> 'a
+  val publishProduct : int -> bool -> Product
