@@ -48,7 +48,7 @@ namespace RentIt
 
         #region Authentication
 
-        public string Authorize(string username, string password)
+        public Stream Authorize(string username, string password)
         {
             return auth.Authorize(username, password);
         }
@@ -57,12 +57,12 @@ namespace RentIt
 
         #region Accounts
 
-        public string GetAccounts(string types, string info, string include_banned)
+        public Stream GetAccounts(string types, string info, string include_banned)
         {
             return account.GetAccounts(types, info, include_banned);
         }
 
-        public string GetAccount(string user)
+        public Stream GetAccount(string user)
         {
             return account.GetAccount(user);
         }
@@ -81,12 +81,12 @@ namespace RentIt
 
         #region Products
 
-        public string GetProducts(string search, string type, string info, string unpublished)
+        public Stream GetProducts(string search, string type, string info, string unpublished)
         {
             return h.Failure(501);
         }
 
-        public string GetProduct(string id)
+        public Stream GetProduct(string id)
         {
             return h.Failure(501);
         }
@@ -106,7 +106,7 @@ namespace RentIt
             h.Failure(501);
         }
 
-        public string GetProductRating(string id)
+        public Stream GetProductRating(string id)
         {
             return h.Failure(501);
         }
@@ -140,17 +140,17 @@ namespace RentIt
 
         #region Purchases
 
-        public string GetPurchases(string customer, string purchases, string info)
+        public Stream GetPurchases(string customer, string purchases, string info)
         {
             return h.Failure(501);
         }
 
-        public string MakePurchases(string customer, PurchaseData data)
+        public Stream MakePurchases(string customer, PurchaseData data)
         {
             return h.Failure(501);
         }
 
-        public string GetPurchase(string customer, string id)
+        public Stream GetPurchase(string customer, string id)
         {
             return h.Failure(501);
         }
@@ -165,17 +165,17 @@ namespace RentIt
 
         #region Provider Products
 
-        public string GetProviderProducts(string provider, string search, string type, string info, string unpublished)
+        public Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished)
         {
             return h.Failure(501);
         }
 
-        public string CreateProviderProduct(string provider, ProductData data)
+        public Stream CreateProviderProduct(string provider, ProductData data)
         {
             return h.Failure(501);
         }
 
-        public string GetProviderProduct(string provider, string id)
+        public Stream GetProviderProduct(string provider, string id)
         {
             return h.Failure(501);
         }
