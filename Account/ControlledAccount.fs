@@ -67,13 +67,13 @@ module ControlledAccount =
     /// {invoker} is of type Permissions.Invoker
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
-    let update invoker (updatedAcc:Account.Account) =
+    let update invoker (updatedAcc:AccountTypes.Account) =
         let targetAcc = Account.getByUsername updatedAcc.user
 
         // We do not want to raise PermissionDenied for cases where the invoker did not try to change a restricted field
         // but the account has been updated since its retrieved its copy.
-        if targetAcc.version > updatedAcc.version then raise Account.OutdatedData
-        elif targetAcc.version < updatedAcc.version then raise Account.BrokenInvariant
+        if targetAcc.version > updatedAcc.version then raise AccountExceptions.OutdatedData
+        elif targetAcc.version < updatedAcc.version then raise AccountExceptions.BrokenInvariant
 
         let allowed = AccountPermissions.mayPerformAccountUpdate invoker targetAcc updatedAcc
         Internal.check invoker allowed |> ignore

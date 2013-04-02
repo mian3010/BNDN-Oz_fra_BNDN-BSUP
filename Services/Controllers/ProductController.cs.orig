@@ -110,11 +110,28 @@ namespace Services.Controllers
                         FSharpOption<int>.Some((int)data.price.buy));
                 Product.update(newProduct);
                 response.StatusCode = HttpStatusCode.NoContent;
+<<<<<<< HEAD
             }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (ProductExceptions.UpdateNotAllowed) { response.StatusCode = HttpStatusCode.Forbidden; }
-            catch (ProductExceptions.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Product.UpdateNotAllowed) { response.StatusCode = HttpStatusCode.Forbidden; }
+            catch (Product.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+=======
+            } catch (ProductExceptions.NoSuchProduct)
+            {
+                response.StatusCode = HttpStatusCode.NotFound;
+            } catch (ProductExceptions.UpdateNotAllowed)
+            {
+                response.StatusCode = HttpStatusCode.Forbidden;
+            } catch (ProductExceptions.ArgumentException)
+            {
+                response.StatusCode = HttpStatusCode.BadRequest;
+            }
+            catch (Exception)
+            {
+                response.StatusCode = HttpStatusCode.InternalServerError;
+            }
+>>>>>>> dd71ead617be5cea535c7e17a9bc01a5f2598b05
         }
 
         public void UpdateProductMedia(string id, Stream media)
@@ -143,9 +160,20 @@ namespace Services.Controllers
                 //TODO: No way of telling the persistence that a product has been uploaded
 
                 response.StatusCode = HttpStatusCode.NoContent;
+<<<<<<< HEAD
             }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+=======
+            } catch (ProductExceptions.NoSuchProduct)
+            {
+                response.StatusCode = HttpStatusCode.NotFound;
+            }
+            catch (Exception)
+            {
+                response.StatusCode = HttpStatusCode.InternalServerError;
+            }
+>>>>>>> dd71ead617be5cea535c7e17a9bc01a5f2598b05
         }
 
         public void UpdateProductThumbnail(string id, Stream media)
@@ -182,9 +210,20 @@ namespace Services.Controllers
                 }
                 //TODO: No way of telling the persistence that a product thumbnail has been uploaded
                 response.StatusCode = HttpStatusCode.NoContent;
+<<<<<<< HEAD
             }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+=======
+            } catch (ProductExceptions.NoSuchProduct)
+            {
+                response.StatusCode = HttpStatusCode.NotFound;
+            }
+            catch (Exception)
+            {
+                response.StatusCode = HttpStatusCode.InternalServerError;
+            }
+>>>>>>> dd71ead617be5cea535c7e17a9bc01a5f2598b05
         }
 
         public void DeleteProduct(string id)
@@ -201,9 +240,20 @@ namespace Services.Controllers
                 //TODO: No way of telling the persistence that a product has been removed
 
                 response.StatusCode = HttpStatusCode.NoContent;
+<<<<<<< HEAD
             }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+=======
+            } catch (ProductExceptions.NoSuchProduct)
+            {
+                response.StatusCode = HttpStatusCode.NotFound;
+            }
+            catch (Exception)
+            {
+                response.StatusCode = HttpStatusCode.InternalServerError;
+            }
+>>>>>>> dd71ead617be5cea535c7e17a9bc01a5f2598b05
         }
 
         public Stream GetProductRating(string id)
@@ -233,7 +283,7 @@ namespace Services.Controllers
                 return File.OpenRead(fileInfo.FullName);
             }
             #region exceptions
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
             #endregion
             return null;
@@ -253,7 +303,7 @@ namespace Services.Controllers
                 return File.OpenRead(fileInfo.FullName);
             }
             #region exceptions
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
             #endregion
             return null;
@@ -290,6 +340,7 @@ namespace Services.Controllers
             return new ProductTypes.Rating(data.score, (int)data.count);
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Converts an array of MetaData objects into an F# map,
         /// with name as the key and value as the value.
@@ -300,6 +351,16 @@ namespace Services.Controllers
         {
             List<Tuple<string, ProductTypes.Meta>> tupleList = new List<Tuple<string, ProductTypes.Meta>>();
             foreach(MetaData data in dataset)
+=======
+                return File.OpenRead(fileInfo.FullName);
+            }
+            #region exceptions
+            catch (ProductExceptions.NoSuchProduct)
+            {
+                response.StatusCode = HttpStatusCode.NotFound;
+            }
+            catch (Exception)
+>>>>>>> dd71ead617be5cea535c7e17a9bc01a5f2598b05
             {
                 tupleList.Add(new Tuple<string, ProductTypes.Meta>(data.name, new ProductTypes.Meta(data.name, data.value)));
             }

@@ -73,7 +73,7 @@ namespace RentIt.Services.Controllers
                 else throw new BadRequestException(); // Never happens
             }
             catch (BadRequestException) { return h.Failure(400); }
-            catch (Account.UnknownAccType) { return h.Failure(400); }
+            catch (AccountExceptions.UnknownAccType) { return h.Failure(400); }
             catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
             catch (Exception) { return h.Failure(500); }
         }
@@ -109,7 +109,7 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { return h.Failure(400); }
             catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
-            catch (Account.NoSuchUser) { return h.Failure(404); }
+            catch (AccountExceptions.NoSuchUser) { return h.Failure(404); }
             catch (Exception) { return h.Failure(500); }
         }
 
@@ -135,7 +135,7 @@ namespace RentIt.Services.Controllers
                         // If we get so far, the update went as planned, so we can quit the loop
                         outdated = false;
                     }
-                    catch (Account.OutdatedData) { /* Exception = load latest data and update based on it */ }
+                    catch (AccountExceptions.OutdatedData) { /* Exception = load latest data and update based on it */ }
                 }
 
                 // SIGNAL SUCCESS
@@ -143,10 +143,10 @@ namespace RentIt.Services.Controllers
                 h.Success(204);
             }
             catch (BadRequestException) { h.Failure(400); }
-            catch (Account.BrokenInvariant) { h.Failure(400); }
+            catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
             catch (AccountPermissions.PermissionDenied) { h.Failure(403); }
-            catch (Account.NoSuchUser) { h.Failure(404); }
-            catch (Account.TooLargeData) { h.Failure(413); }
+            catch (AccountExceptions.NoSuchUser) { h.Failure(404); }
+            catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
         }
 
@@ -170,10 +170,10 @@ namespace RentIt.Services.Controllers
                 h.Success(204);
             }
             catch (BadRequestException) { h.Failure(400); }
-            catch (Account.BrokenInvariant) { h.Failure(400); }
+            catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
             catch (AccountPermissions.PermissionDenied) { h.Failure(403); }
-            catch (Account.UserAlreadyExists) { h.Failure(409); }
-            catch (Account.TooLargeData) { h.Failure(413); }
+            catch (AccountExceptions.UserAlreadyExists) { h.Failure(409); }
+            catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
         }
     }
