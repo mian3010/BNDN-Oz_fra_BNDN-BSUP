@@ -23,7 +23,6 @@ namespace RentIt.Services
         private IEnumerable<Type> types = new Type[]{
                                                         typeof(TokenData),
                                                         typeof(AccountData),
-                                                        typeof(AddressData),
                                                         typeof(ProductData),
                                                         typeof(PriceData),
                                                         typeof(RatingData),

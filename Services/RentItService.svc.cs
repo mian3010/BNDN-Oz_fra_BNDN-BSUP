@@ -131,7 +131,7 @@ namespace RentIt
 
         #region Credits
 
-        public void BuyCredits(string id, CreditsData data)
+        public void BuyCredits(CreditsData data)
         {
             h.Failure(501);
         }
