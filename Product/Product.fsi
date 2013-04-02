@@ -1,15 +1,8 @@
 ﻿namespace RentIt
 open ProductTypes
+open ProductExceptions
 
 module Product =
-
-  exception NoSuchProduct
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ArgumentException of string
-  exception ProductAlreadyExists
-  exception NoSuchProductType
-  exception UpdateNotAllowed of string
 
   /// <summay>
   /// Creater

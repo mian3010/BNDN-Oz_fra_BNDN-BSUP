@@ -1,4 +1,6 @@
 ﻿namespace RentIt
+open AccountExceptions
+open AccountTypes
 
 module Account =
     
@@ -56,22 +58,6 @@ module Account =
             let password = Internal.toBase64 password
             let hash = Internal.hash (password+hashed.salt)
             hashed.hash = hash
-    
-    ///////////////////////////////////////////////////////////////////////
-    
-    type Address =              AccountTypes.Address
-    type ExtraAccInfo =         AccountTypes.ExtraAccInfo
-    type Account =              AccountTypes.Account
-
-    // Exceptions
-
-    exception UserAlreadyExists // If one tries to create/persist an account whose username already is taken
-    exception UnknownAccType    // If no account type exists which matches the specified account type string
-    exception NoSuchUser        // If one tries to retrieve/update an account, but no account is found for the passed identifier
-    exception OutdatedData      // If a call to 'update' cannot succeed, because the changes conflict with more recent changes
-    exception BrokenInvariant   // If a function is invoked on an account whose invariants have been broken
-    exception TooLargeData      // If an account could not be persisted, because its fields were too large
-
 
     ////// CONSTRUCTOR FUNCTIONS
 
@@ -130,7 +116,7 @@ module Account =
             | AccountPersistence.UsernameAlreadyInUse                   -> raise UserAlreadyExists
             | AccountPersistence.IllegalAccountVersion                  -> raise BrokenInvariant
             | AccountPersistence.NoSuchAccountType                      -> raise UnknownAccType
-            | Persistence.Types.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - we do not know for sure =/
+            | PersistenceExceptions.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -174,7 +160,7 @@ module Account =
             | AccountPersistence.NoUserWithSuchName                     -> raise NoSuchUser
             | AccountPersistence.NewerVersionExist                      -> raise OutdatedData
             | AccountPersistence.IllegalAccountVersion                  -> raise BrokenInvariant
-            | Persistence.Types.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - we do not know for sure =/
+            | PersistenceExceptions.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
 
     ////// HELPER FUNCTIONS
 

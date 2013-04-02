@@ -4,10 +4,8 @@ module TestGetProductById =
 
   open Xunit
   open FsUnit.Xunit
-
-  type Product = ProductTypes.Product
-  exception ArgumentException = RentIt.Product.ArgumentException
-  exception NoSuchProduct = RentIt.Product.NoSuchProduct
+  open ProductExceptions
+  open ProductTypes
 
   [<Fact>]
   let ``get product by id should work``() =

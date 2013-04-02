@@ -3,12 +3,8 @@ module TestUpdate =
 
   open Xunit
   open FsUnit.Xunit
-
-  type Product = ProductTypes.Product
-  type Rating = ProductTypes.Rating
-  exception ArgumentException = RentIt.Product.ArgumentException
-  exception NoSuchProductType = RentIt.Product.NoSuchProductType
-  exception UpdateNotAllowed  = RentIt.Product.UpdateNotAllowed
+  open ProductExceptions
+  open ProductTypes
 
   let userId = "2"
   let name = "test product"

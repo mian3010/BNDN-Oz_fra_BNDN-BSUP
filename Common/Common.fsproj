@@ -37,10 +37,11 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
     <Compile Include="AccountTypes.fs" />
+    <Compile Include="Exceptions.fs" />
     <Compile Include="Ops.fs" />
+    <Compile Include="ProductTypes.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
-    <Compile Include="ProductTypes.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.CustomMatchers">

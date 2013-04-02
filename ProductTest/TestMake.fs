@@ -3,10 +3,8 @@
 module ProductTest = 
   open Xunit
   open FsUnit.Xunit
-
-  type Product = ProductTypes.Product
-  exception ArgumentException = RentIt.Product.ArgumentException
-  exception NoSuchProductType = RentIt.Product.NoSuchProductType
+  open ProductExceptions
+  open ProductTypes
 
   let userName = "Lynette"
   let name = "test product"
