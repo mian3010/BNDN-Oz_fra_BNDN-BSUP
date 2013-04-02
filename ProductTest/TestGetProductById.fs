@@ -11,19 +11,14 @@ module TestGetProductById =
 
   [<Fact>]
   let ``get product by id should work``() =
-    let p = Product.getProductById "1"
+    let p = Product.getProductById 1
     p |> should not' (be null)
     p |> should be ofExactType<Product>
 
   [<Fact>]
   let ``get product by id should throw arg``() =
-    (Product.getProductById "" |> ignore) |> should throw typeof<ArgumentException>
+    (Product.getProductById -2 |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``get product by id should throw no such``() =
-    (Product.getProductById "05897" |> ignore) |> should throw typeof<ArgumentException>
-   
-  [<Fact>]
-  let ``get product by id should throw no such #2``() =
-    (Product.getProductById "muhaHA" |> ignore) |> should throw typeof<NoSuchProduct>
-   
+    (Product.getProductById 05897 |> ignore) |> should throw typeof<NoSuchProduct> 
