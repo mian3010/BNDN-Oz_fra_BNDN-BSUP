@@ -3,9 +3,11 @@ open ProductTypes
 open System
     module ProductPersistenceHelper =
 
+      //Converts a datetime object to string that can be understood by the persistence layer
       let internal convertDatetimeToString (date:System.DateTime) =
-        (string date.Year)+"-"+(string date.Month)+"-"+(string date.Day)
+        (string date.Year)+"-"+(string date.Month)+"-"+(string date.Day)+" "+(string date.Hour)+":"+(string date.Minute)+":"+(string date.Second)
 
+      //Convert a product to a list of datain types for the persistence layer
       let internal convertToDataIn objectName (prod:Product) =
         let dataQ = ref (Persistence.DataIn.createDataIn [] objectName "Name" prod.name)
         dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Created_date" (convertDatetimeToString prod.createDate)
@@ -13,10 +15,16 @@ open System
         dataQ := Persistence.DataIn.createDataIn !dataQ objectName "User_Username" prod.owner
         dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Published" (string prod.published)
         if (prod.description.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Description" prod.description.Value
+        else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Description" "" Persistence.DataIn.Null
         if (prod.rentPrice.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Rent_price" (string prod.rentPrice.Value)
+        else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Rent_price" "" Persistence.DataIn.Null
         if (prod.buyPrice.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Buy_price" (string prod.buyPrice.Value)
+        else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Buy_price" "" Persistence.DataIn.Null
+        if (prod.thumbnailPath.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Thumbnail_path" (string prod.thumbnailPath.Value)
+        else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Thumbnail_path" "" Persistence.DataIn.Null
         !dataQ
 
+      //Convert metadata from persistence result to metadata type in option format
       let internal convertMetadataFromResult (result:Map<string,string> List) =
         let metadataMap:Map<string,ProductTypes.Meta> ref = ref (Map.empty)
         for row in result do
@@ -26,6 +34,7 @@ open System
           })
         if ((!metadataMap).Count > 0) then Some !metadataMap else None
 
+      //Get metadata from a product id from persistence layer
       let internal getMetaData productId =
         let objectName = "MetaData"
         let fieldsQ = ref (Persistence.ReadField.createReadField [] objectName "Content")
@@ -35,25 +44,29 @@ open System
         let readR = Persistence.Api.read !fieldsQ objectName joinsQ filtersQ
         convertMetadataFromResult readR
 
+      //Get the rating from a product id from persistence layer
       let internal getRating (productId:int) :ProductTypes.Rating option =
         let objectName = "ProductRating"
         let fieldsQ = ref (Persistence.ReadField.createReadFieldProc [] objectName "Rating" Persistence.ReadField.Num)
         fieldsQ := Persistence.ReadField.createReadFieldProc !fieldsQ objectName "Rating" Persistence.ReadField.Avg
         let filtersQ = Persistence.Filter.createFilter [] objectName "Product_Id" "=" (string productId)
         let ratingR = Persistence.Api.read !fieldsQ objectName [] filtersQ
-        if (ratingR.Length.Equals 1) then
+        if (ratingR.Length.Equals 1) && not (ratingR.Head.[objectName+"_Rating_Avg"].Equals "") && not (ratingR.Head.[objectName+"_Rating_Num"].Equals "") then
           Some {
             rating = (int ratingR.Head.[objectName+"_Rating_Avg"]);
             votes = (int ratingR.Head.[objectName+"_Rating_Num"]);
           }
         else None
 
-      let getOptionFromValue value =
-        if (value.Equals "null") then Some value else None;
+      //Get option from a database format string
+      let internal getOptionFromValue value =
+        if not (value.Equals "") then Some value else None;
 
-      let getOptionFromIntValue value =
-        if (value.Equals "null") then Some (int value) else None;
+      //Get option from a database format string and convert to int
+      let internal getOptionFromIntValue value =
+        if not (value.Equals "") then Some (int value) else None;
 
+      //Convert product from persistence layer result to type
       let internal convertFromResult (result:Map<string,string>) =
         let metaData = getMetaData result.["Id"]
         {
@@ -71,6 +84,7 @@ open System
           buyPrice = getOptionFromIntValue result.["Buy_price"];
         }:ProductTypes.Product
 
+      //Convert entire result set from persistence layer to product type
       let internal convertFromResults (result:Map<string,string> List) =
         let productList:ProductTypes.Product List ref = ref []
         for row in result do
