@@ -106,7 +106,7 @@ namespace RentIt
         [WebInvoke( Method = "POST",
                     UriTemplate = "/credits",
                     RequestFormat = WebMessageFormat.Json)]
-        void BuyCredits(string id, CreditsData data);
+        void BuyCredits(CreditsData data);
 
         #endregion
 
@@ -207,7 +207,11 @@ namespace RentIt
         [DataMember]
         public string name { get; set; }
         [DataMember]
-        public AddressData address { get; set; }
+        public string address { get; set; }
+        [DataMember]
+        public uint? postal { get; set; }
+        [DataMember]
+        public string country { get; set; }
         [DataMember]
         public string birth { get; set; }
         [DataMember]
@@ -218,17 +222,6 @@ namespace RentIt
         public string created { get; set; }
         [DataMember]
         public string authenticated { get; set; }
-    }
-
-    [DataContract]
-    public class AddressData
-    {
-        [DataMember]
-        public string address { get; set; }
-        [DataMember]
-        public uint? postal { get; set; }
-        [DataMember]
-        public string country { get; set; }
     }
 
     [DataContract]
