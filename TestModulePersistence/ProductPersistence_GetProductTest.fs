@@ -64,3 +64,13 @@
       getProd.rentPrice.Value |> should equal testProd.rentPrice.Value
       getProd.buyPrice.Value |> should equal testProd.buyPrice.Value
       Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test get product that does not exist``() =
+     let test = "TestGetProductThatDoesNotExist"
+     (fun () -> (getProductById 78723) |> ignore) |> should throw typeof<NoSuchProduct>
+
+    [<Fact>]
+    let ``Test get products that does not exist``() =
+     let test = "TestGetProductsThatDoesNotExist"
+     (fun () -> (getProductByName "DoesNotExist") |> ignore) |> should throw typeof<NoSuchProduct>

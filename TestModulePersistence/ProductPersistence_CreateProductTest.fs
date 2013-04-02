@@ -23,3 +23,26 @@
       result.rentPrice.Value |> should equal prod.rentPrice.Value
       result.buyPrice.Value |> should equal prod.buyPrice.Value
       Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test create product with wrong type``() =
+     let test = "TestCreateProductWrongType"
+     let testUser = Helper.createTestUser test
+     let testProduct = Helper.getTestProduct test
+     (fun () -> (createProduct testProduct) |> ignore) |> should throw typeof<NoSuchProductType>
+     Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test create product with wrong user``() =
+     let test = "TestCreateProductWrongUser"
+     let testUser = Helper.createTestType test
+     let testProduct = Helper.getTestProduct test
+     (fun () -> (createProduct testProduct) |> ignore) |> should throw typeof<NoSuchUser>
+     Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test create product that already exists``() =
+     let test = "TestCreateProductAlreadyExists"
+     let testProduct = Helper.createTestProduct test
+     (fun () -> (createProduct testProduct) |> ignore) |> should throw typeof<ProductAlreadyExists>
+     Helper.removeTestProduct test

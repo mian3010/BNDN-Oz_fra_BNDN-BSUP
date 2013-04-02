@@ -58,6 +58,15 @@ open System
           }
         else None
 
+      //Get product type from string
+      let internal getProductType pType =
+        let objectName = "ProductType"
+        let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+        let filtersQ = Persistence.Filter.createFilter [] objectName "Name" "=" pType
+        let prodType = Persistence.Api.read fieldsQ objectName [] filtersQ
+        if (prodType.Length < 1) then raise ProductExceptions.NoSuchProductType
+        else prodType.Head
+
       //Get option from a database format string
       let internal getOptionFromValue value =
         if not (value.Equals "") then Some value else None;

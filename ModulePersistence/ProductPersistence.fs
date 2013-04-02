@@ -23,25 +23,21 @@ module ProductPersistence =
   /// <exception> NoSuchUser </exception>
   /// <exception> NoSuchProductType </exception>
   let createProduct (p:Product) : Product =
+    if (p.id > 0) then raise ProductAlreadyExists
     let reader = Persistence.Api.create "Loggable" []
     let dataQ = ref (convertToDataIn objectName p)
     dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Id" ((reader.Item 0).Item "Id")
-    let createR = Persistence.Api.create objectName !dataQ
-    convertFromResult createR.Head
-
-  /// <summary>
-  /// Update an existing product
-  /// </summary>
-  /// <typeparam> Product </typeparam>
-  /// <returns> Product </returns>
-  /// <exception> NoSuchProduct </exception>
-  /// <exception> NoSuchUser </exception>
-  /// <exception> NoSuchProductType </exception>
-  let updateProduct (p:Product) : Product =
-    let dataQ = convertToDataIn objectName p
-    let filtersQ = Persistence.Filter.createFilter [] objectName "Id" "=" (string p.id)
-    let updateR = Persistence.Api.update objectName filtersQ dataQ
-    convertFromResult updateR.Head
+    try 
+      let createR = Persistence.Api.create objectName !dataQ
+      convertFromResult createR.Head
+    with
+      | PersistenceExceptions.ReferenceDoesNotExist -> 
+        try
+          let user = AccountPersistence.getUserByName p.owner
+          raise NoSuchProductType
+        with 
+          | AccountExceptions.NoSuchUser -> raise NoSuchUser
+          | _ as e -> raise e
 
   /// <summary>
   /// Get Product by its id
@@ -54,7 +50,34 @@ module ProductPersistence =
     let joinsQ = [];
     let filtersQ = Persistence.Filter.createFilter [] objectName "Id" "=" (string id)
     let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
+    if (readR.Length < 1) then raise NoSuchProduct
     convertFromResult readR.Head
+
+  /// <summary>
+  /// Update an existing product
+  /// </summary>
+  /// <typeparam> Product </typeparam>
+  /// <returns> Product </returns>
+  /// <exception> NoSuchProduct </exception>
+  /// <exception> NoSuchUser </exception>
+  /// <exception> NoSuchProductType </exception>
+  let updateProduct (p:Product) : Product =
+    let dataQ = convertToDataIn objectName p
+    let filtersQ = Persistence.Filter.createFilter [] objectName "Id" "=" (string p.id)
+    try
+      let updateR = Persistence.Api.update objectName filtersQ dataQ
+      if (updateR.Length < 1) then raise NoSuchProduct 
+      else convertFromResult updateR.Head
+    with
+      | PersistenceExceptions.ReferenceDoesNotExist -> 
+        try
+          let user = AccountPersistence.getUserByName p.owner
+          let prod = getProductById p.id
+          raise NoSuchProductType
+        with 
+          | AccountExceptions.NoSuchUser|AccountPersistence.NoUserWithSuchName -> raise NoSuchUser
+          | _ as e -> raise e
+      | _ as e -> raise e
 
   /// <summary>
   /// Get a list of Products by Product name
@@ -67,6 +90,7 @@ module ProductPersistence =
     let joinsQ = [];
     let filtersQ = Persistence.Filter.createFilter [] objectName "Name" "=" name
     let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
+    if (readR.Length < 1) then raise NoSuchProduct
     convertFromResults readR
 
   /// <summary>
@@ -77,6 +101,7 @@ module ProductPersistence =
   /// <exception> NoSuchProduct </exception>
   /// <exception> NoSuchProductType </exception>
   let getProductByType (pType:string) : Product list =
+    let prodType = getProductType pType
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] objectName "" Persistence.ReadField.All
     let joinsQ = [];
     let filtersQ = Persistence.Filter.createFilter [] objectName "ProductType_Name" "=" pType
@@ -89,6 +114,7 @@ module ProductPersistence =
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
   /// <exception> NoSuchProduct </exception>
+  /// <exception> NoSuchUser </exception>
   let rateProduct (pId:int) (user:string) (rating:int) = 
     let objectName = "ProductRating"
     let fieldsQ = Persistence.ReadField.createReadField [] objectName "Rating"
@@ -98,14 +124,23 @@ module ProductPersistence =
     let readR = Persistence.Api.read fieldsQ objectName joinsQ !filtersQ
     
     let dataQ = ref (Persistence.DataIn.createDataIn [] objectName "Rating" (string rating))
-    let rateR = if (readR.Length.Equals 0) then
-                  dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Product_Id" (string pId)
-                  dataQ := Persistence.DataIn.createDataIn !dataQ objectName "User_Username" user
-                  Persistence.Api.create objectName !dataQ
-                else
-                  Persistence.Api.update objectName !filtersQ !dataQ
+    try
+      let rateR = if (readR.Length.Equals 0) then
+                    dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Product_Id" (string pId)
+                    dataQ := Persistence.DataIn.createDataIn !dataQ objectName "User_Username" user
+                    Persistence.Api.create objectName !dataQ
+                  else
+                    Persistence.Api.update objectName !filtersQ !dataQ
 
-    getProductById pId
+      getProductById pId
+    with
+      | PersistenceExceptions.ReferenceDoesNotExist -> 
+        try
+          let user = AccountPersistence.getUserByName user
+          raise NoSuchProduct
+        with 
+          | AccountExceptions.NoSuchUser -> raise NoSuchUser
+          | _ as e -> raise e
     
 
   /// <summary>
@@ -117,8 +152,13 @@ module ProductPersistence =
   let publishProduct (pId:int) (status:bool) =
     let filtersQ = Persistence.Filter.createFilter [] objectName "Id" "=" (string pId)
     let dataQ = Persistence.DataIn.createDataIn [] objectName "Published" (string status)
-    let publishR = Persistence.Api.update objectName filtersQ dataQ
-    convertFromResult publishR.Head
+    try
+      let publishR = Persistence.Api.update objectName filtersQ dataQ
+      if (publishR.Length < 1) then raise NoSuchProduct
+      else convertFromResult publishR.Head
+    with
+      | PersistenceExceptions.ReferenceDoesNotExist -> raise NoSuchProduct
+      | _ as e -> raise e
 
   /// <summary>
   /// Create a product type

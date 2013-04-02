@@ -31,3 +31,17 @@
       Helper.removeTestUser (test+"3")
       Helper.removeTestUser (test+"4")
       Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test rate product that does not exist``() =
+     let test = "TestRateDoesNotExist"
+     let testUser = Helper.createTestUser test
+     (fun () -> (rateProduct 7833 testUser 5) |> ignore) |> should throw typeof<NoSuchProduct>
+     Helper.removeTestUser test
+
+    [<Fact>]
+    let ``Test rate product with user that does not exist``() =
+     let test = "TestRateUserDoesNotExist"
+     let testProd = Helper.createTestProduct test
+     (fun () -> (rateProduct testProd.id "DoesNotExist" 5) |> ignore) |> should throw typeof<NoSuchUser>
+     Helper.removeTestProduct test

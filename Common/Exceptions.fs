@@ -11,6 +11,8 @@ module ProductExceptions =
 
 module PersistenceExceptions =
   exception PersistenceException
+  exception ReferenceDoesNotExist
+  exception AlreadyExists
 
 module AccountExceptions = 
   exception UserAlreadyExists // If one tries to create/persist an account whose username already is taken

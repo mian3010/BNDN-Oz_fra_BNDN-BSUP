@@ -167,3 +167,27 @@
       (!testProd).buyPrice |> should equal prev
       //Clean up testdata
       Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test update product with wrong type``() =
+     let test = "TestUpdateProductWrongType"
+     let testProduct = ref (Helper.createTestProduct test)
+     testProduct := {!testProduct with productType = "DoesNotExist"}
+     (fun () -> (updateProduct !testProduct) |> ignore) |> should throw typeof<NoSuchProductType>
+     Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test update product with wrong user``() =
+     let test = "TestUpdateProductWrongUser"
+     let testProduct = ref (Helper.createTestProduct test)
+     testProduct := {!testProduct with owner = "DoesNotExist"}
+     (fun () -> (updateProduct !testProduct) |> ignore) |> should throw typeof<NoSuchUser>
+     Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test update product with wrong id``() =
+     let test = "TestUpdateProductWrongId"
+     let testProduct = ref (Helper.createTestProduct test)
+     testProduct := {!testProduct with id = 7238}
+     (fun () -> (updateProduct !testProduct) |> ignore) |> should throw typeof<NoSuchProduct>
+     Helper.removeTestProduct test

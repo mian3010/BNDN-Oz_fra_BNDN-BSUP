@@ -20,3 +20,8 @@
       (!testProd).published |> should equal true
       //Clean up after ourselves
       Helper.removeTestProduct test
+
+    [<Fact>]
+    let ``Test publish product that does not exist``() =
+     let test = "TestPublishNotExist"
+     (fun () -> (publishProduct 7833 true) |> ignore) |> should throw typeof<NoSuchProduct>
