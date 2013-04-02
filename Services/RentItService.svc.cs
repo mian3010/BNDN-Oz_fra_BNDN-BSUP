@@ -27,7 +27,7 @@ namespace RentIt
         {
             try
             {
-                string token = "{token: \"";
+                string token = "{\"token\": \"";
                 Tuple<string, DateTime> t = ControlledAuth.authenticate(user, password);
                 token += t.Item1 + "\", expires: \"" + JsonUtility.dateTimeToString(t.Item2) + "\"}";
                 return token;
