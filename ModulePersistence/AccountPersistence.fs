@@ -111,7 +111,7 @@ open System.Security
                         email = map.Item"Email"
                         password = Internal.splitDbPass (map.Item "Password")
                         created = DateTime.Parse (map.Item "Created_date")
-                        banned = if map.Item "Banned" = "0" then false else true
+                        banned = if (map.Item "Banned").Equals "False" then false else true
                         info = {
                                 name = None;
                                 address = {
