@@ -24,7 +24,7 @@ namespace Services.Controllers
             _c = converter;
         }
 
-        public uint[] GetProducts(string search, string type, string unpublished)
+        public Stream GetProducts(string search, string type, string unpublished)
         {
             // No way of getting the ID
             OutgoingWebResponseContext response = _h.GetResponse();
@@ -32,7 +32,7 @@ namespace Services.Controllers
             return null;
         }
 
-        public string GetProducts(string search, string type, string info, string unpublished)
+        public Stream GetProducts(string search, string type, string info, string unpublished)
         {
             OutgoingWebResponseContext response = _h.GetResponse();
 
@@ -65,13 +65,13 @@ namespace Services.Controllers
             return null;
         }
 
-        public string GetProduct(string id)
+        public Stream GetProduct(string id)
         {
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
             {
-                ProductTypes.Product product = Product.getProductById(id);
+                ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 ProductData returnData = ProductTypeToProductData(product);
 
                 response.StatusCode = HttpStatusCode.NoContent;
@@ -94,34 +94,28 @@ namespace Services.Controllers
 
             try
             {
-                ProductTypes.Product oldProduct = Product.getProductById(id);
-
-                ProductTypes.Product newProduct = new ProductTypes.Product(data.title,
-                                                                            oldProduct.createDate,
-                                                                            data.type,
-                                                                            data.owner,
-                                                                            FSharpOption<string>.Some(data.description),
-                                                                            data.price.rent == null ? FSharpOption<int>.None : FSharpOption<int>.Some((int)data.price.rent),
-                                                                            FSharpOption<int>.Some((int)data.price.buy));
+                ProductTypes.Product oldProduct = Product.getProductById(int.Parse(id));
+                ProductTypes.Product newProduct = 
+                    new ProductTypes.Product( 
+                        data.title,
+                        oldProduct.createDate,
+                        data.type,
+                        data.owner,
+                        data.rating == null ? FSharpOption<ProductTypes.Rating>.None : FSharpOption < ProductTypes.Rating >.Some(RatingDataToMetaTypeMap(data.rating)),
+                        data.published == null || (bool) data.published,
+                        int.Parse(id),
+                        FSharpOption<string>.None, // Use the API to get the thumbnail
+                        data.meta == null ? FSharpOption<FSharpMap<string, ProductTypes.Meta>>.None : FSharpOption<FSharpMap<string, ProductTypes.Meta>>.Some(MetaDataToMetaTypeMap(data.meta)),
+                        FSharpOption<string>.Some(data.description),
+                        data.price.rent == null ? FSharpOption<int>.None : FSharpOption<int>.Some((int)data.price.rent),
+                        FSharpOption<int>.Some((int)data.price.buy));
                 Product.update(newProduct);
                 response.StatusCode = HttpStatusCode.NoContent;
             }
-            catch (Product.NoSuchProduct)
-            {
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (Product.UpdateNotAllowed)
-            {
-                response.StatusCode = HttpStatusCode.Forbidden;
-            }
-            catch (Product.ArgumentException)
-            {
-                response.StatusCode = HttpStatusCode.BadRequest;
-            }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Product.UpdateNotAllowed) { response.StatusCode = HttpStatusCode.Forbidden; }
+            catch (Product.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
         }
 
         public void UpdateProductMedia(string id, Stream media)
@@ -129,7 +123,7 @@ namespace Services.Controllers
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
-                ProductTypes.Product product = Product.getProductById(id);
+                ProductTypes.Product product = Product.getProductById(int.Parse(id));
 
                 /* Gets the file extension of the uploaded file.
                  * if the MIME type is "image/jpeg" the file will be saved as "file.jpeg".
@@ -151,14 +145,8 @@ namespace Services.Controllers
 
                 response.StatusCode = HttpStatusCode.NoContent;
             }
-            catch (Product.NoSuchProduct)
-            {
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
         }
 
         public void UpdateProductThumbnail(string id, Stream media)
@@ -166,7 +154,7 @@ namespace Services.Controllers
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
-                ProductTypes.Product product = Product.getProductById(id);
+                ProductTypes.Product product = Product.getProductById(int.Parse(id));
 
                 /* Gets the file extension of the uploaded file.
                  * if the MIME type is "image/jpeg" the file will be saved as "file.jpeg".
@@ -196,23 +184,16 @@ namespace Services.Controllers
                 //TODO: No way of telling the persistence that a product thumbnail has been uploaded
                 response.StatusCode = HttpStatusCode.NoContent;
             }
-            catch (Product.NoSuchProduct)
-            {
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
         }
 
         public void DeleteProduct(string id)
         {
             OutgoingWebResponseContext response = _h.GetResponse();
-
             try
             {
-                ProductTypes.Product product = Product.getProductById(id);
+                ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 FileInfo productFileInfo = GetLocalProductFile(id, product.owner);
                 FileInfo thumbnailFileInfo = GetLocalProductFile(id, product.owner);
                 File.Delete(productFileInfo.FullName);
@@ -222,17 +203,11 @@ namespace Services.Controllers
 
                 response.StatusCode = HttpStatusCode.NoContent;
             }
-            catch (Product.NoSuchProduct)
-            {
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
         }
 
-        public string GetProductRating(string id)
+        public Stream GetProductRating(string id)
         {
             OutgoingWebResponseContext response = _h.GetResponse();
             response.StatusCode = HttpStatusCode.NotImplemented;
@@ -250,7 +225,7 @@ namespace Services.Controllers
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
-                ProductTypes.Product product = Product.getProductById(id);
+                ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 FileInfo fileInfo = GetLocalProductFile(id, product.owner);
 
                 _h.GetResponse().ContentType = "application/octet-stream";
@@ -259,14 +234,28 @@ namespace Services.Controllers
                 return File.OpenRead(fileInfo.FullName);
             }
             #region exceptions
-            catch (Product.NoSuchProduct)
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+            #endregion
+            return null;
+        }
+
+        public Stream GetProductThumbnail(string id)
+        {
+            OutgoingWebResponseContext response = _h.GetResponse();
+            try
             {
-                response.StatusCode = HttpStatusCode.NotFound;
+                ProductTypes.Product product = Product.getProductById(int.Parse(id));
+                FileInfo fileInfo = GetLocalThumbnailFile(id, product.owner);
+
+                _h.GetResponse().ContentType = "application/octet-stream";
+                response.StatusCode = HttpStatusCode.OK;
+
+                return File.OpenRead(fileInfo.FullName);
             }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            #region exceptions
+            catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
             #endregion
             return null;
         }
@@ -292,30 +281,30 @@ namespace Services.Controllers
             };
         }
 
-        public Stream GetProductThumbnail(string id)
+        /// <summary>
+        /// Converts a RatingData into a ProductTypes.Rating 
+        /// </summary>
+        /// <param name="data">The RatingData object to convert</param>
+        /// <returns>The RatingData converted into a ProductTypes.Rating</returns>
+        private static ProductTypes.Rating RatingDataToMetaTypeMap(RatingData data)
         {
-            OutgoingWebResponseContext response = _h.GetResponse();
-            try
-            {
-                ProductTypes.Product product = Product.getProductById(id);
-                FileInfo fileInfo = GetLocalThumbnailFile(id, product.owner);
+            return new ProductTypes.Rating(data.score, (int)data.count);
+        }
 
-                _h.GetResponse().ContentType = "application/octet-stream";
-                response.StatusCode = HttpStatusCode.OK;
-
-                return File.OpenRead(fileInfo.FullName);
-            }
-            #region exceptions
-            catch (Product.NoSuchProduct)
+        /// <summary>
+        /// Converts an array of MetaData objects into an F# map,
+        /// with name as the key and value as the value.
+        /// </summary>
+        /// <param name="dataset">The collection of MetaData to convert</param>
+        /// <returns>A new FSharpMap</returns>
+        private static FSharpMap<string, ProductTypes.Meta> MetaDataToMetaTypeMap(params MetaData[] dataset)
+        {
+            List<Tuple<string, ProductTypes.Meta>> tupleList = new List<Tuple<string, ProductTypes.Meta>>();
+            foreach(MetaData data in dataset)
             {
-                response.StatusCode = HttpStatusCode.NotFound;
+                tupleList.Add(new Tuple<string, ProductTypes.Meta>(data.name, new ProductTypes.Meta(data.name, data.value)));
             }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
-            #endregion
-            return null;
+            return new FSharpMap<string,ProductTypes.Meta>(tupleList);
         }
 
         /// <summary>
