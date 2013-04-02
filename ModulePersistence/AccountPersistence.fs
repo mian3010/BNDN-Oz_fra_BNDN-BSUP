@@ -65,7 +65,7 @@ open System.Security
                         email = result.Item"Email"
                         password = Internal.splitDbPass (result.Item "Password")
                         created = DateTime.Parse (result.Item "Created_date")
-                        banned = if result.Item "Banned" = "0" then false else true
+                        banned = if result.["Banned"].Equals "False" then false else true
 
                         // TODO: WTF?!?! Some fields are hardcoded!
 
