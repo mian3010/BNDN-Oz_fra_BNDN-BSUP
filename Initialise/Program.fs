@@ -24,6 +24,9 @@ module Main =
   let internal createDataInForLoggable id =
       [Persistence.DataIn.createDataIn [] "Loggable" "Id" id]
 
+  let internal createDataInForProductType name =
+      [Persistence.DataIn.createDataIn [] "ProductType" "Name" name]
+
   [<EntryPoint>]
   let main argv = 
     

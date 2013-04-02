@@ -113,10 +113,10 @@ module Account =
         try
             AccountPersistence.createUser acc
         with
-            | AccountPersistence.UsernameAlreadyInUse                   -> raise UserAlreadyExists
-            | AccountPersistence.IllegalAccountVersion                  -> raise BrokenInvariant
-            | AccountPersistence.NoSuchAccountType                      -> raise UnknownAccType
-            | PersistenceExceptions.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
+            | UsernameAlreadyInUse                   -> raise UserAlreadyExists
+            | IllegalAccountVersion                  -> raise BrokenInvariant
+            | NoSuchAccountType                      -> raise UnknownAccType
+            | PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -124,14 +124,14 @@ module Account =
         try
             AccountPersistence.getUserByName user
         with
-            | AccountPersistence.NoUserWithSuchName -> raise NoSuchUser
+            | NoUserWithSuchName -> raise NoSuchUser
     
     /// Retrieves all accounts of a specific type
     let getAllByType (accType:string) :Account list =
         try
             AccountPersistence.getAllUsersByType accType
         with
-            | AccountPersistence.NoSuchAccountType -> raise UnknownAccType
+            | NoSuchAccountType -> raise UnknownAccType
 
     /// Retrieves the date and time which the user {user} last authenticated
     /// 'None' means that the user never has authenticated
@@ -140,7 +140,7 @@ module Account =
         try
             AccountPersistence.getUsersLastAuthTime user
         with
-            | AccountPersistence.NoUserWithSuchName -> raise NoSuchUser
+            | NoUserWithSuchName -> raise NoSuchUser
 
     /// Deletes an previously created account. The account will be removed from persistence.
     let delete (acc:Account) =
@@ -157,10 +157,10 @@ module Account =
         try
             AccountPersistence.update acc
         with
-            | AccountPersistence.NoUserWithSuchName                     -> raise NoSuchUser
-            | AccountPersistence.NewerVersionExist                      -> raise OutdatedData
-            | AccountPersistence.IllegalAccountVersion                  -> raise BrokenInvariant
-            | PersistenceExceptions.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
+            | NoUserWithSuchName                     -> raise NoSuchUser
+            | NewerVersionExist                      -> raise OutdatedData
+            | IllegalAccountVersion                  -> raise BrokenInvariant
+            | PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
 
     ////// HELPER FUNCTIONS
 
