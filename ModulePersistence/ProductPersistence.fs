@@ -14,7 +14,7 @@ module ProductPersistence =
   exception ProductAlreadyExists
     
   let objectName = "Product"
-  /// <summay>
+  /// <summary>
   /// Creater in persistence layer
   /// </summary>
   /// <typeparam> Product </typeparam>
@@ -29,7 +29,7 @@ module ProductPersistence =
     let createR = Persistence.Api.create objectName !dataQ
     convertFromResult createR.Head
 
-  /// <summay>
+  /// <summary>
   /// Update an existing product
   /// </summary>
   /// <typeparam> Product </typeparam>
@@ -43,7 +43,7 @@ module ProductPersistence =
     let updateR = Persistence.Api.update objectName filtersQ dataQ
     convertFromResult updateR.Head
 
-  /// <summay>
+  /// <summary>
   /// Get Product by its id
   /// </summary>
   /// <typeparam> Product id </typeparam>
@@ -56,7 +56,7 @@ module ProductPersistence =
     let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
     convertFromResult readR.Head
 
-  /// <summay>
+  /// <summary>
   /// Get a list of Products by Product name
   /// </summary>
   /// <typeparam> Product name </typeparam>
@@ -69,7 +69,7 @@ module ProductPersistence =
     let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
     convertFromResults readR
 
-  /// <summay>
+  /// <summary>
   /// Get a list of Products by Product type
   /// </summary>
   /// <typeparam> Product type </typeparam>
@@ -83,7 +83,7 @@ module ProductPersistence =
     let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
     convertFromResults readR
 
-  /// <summay>
+  /// <summary>
   /// Rate Product
   /// </summary>
   /// <typeparam> Product id </typeparam>
@@ -108,7 +108,7 @@ module ProductPersistence =
     getProductById pId
     
 
-  /// <summay>
+  /// <summary>
   /// Change Published-flag on Product
   /// </summary>
   /// <typeparam> Product id </typeparam>

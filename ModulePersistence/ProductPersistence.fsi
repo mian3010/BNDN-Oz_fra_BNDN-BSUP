@@ -10,7 +10,7 @@ module ProductPersistence =
   exception ProductNotPublished
   exception ProductAlreadyExists
   
-  /// <summay>
+  /// <summary>
   /// Creater in persistence layer
   /// </summary>
   /// <typeparam> Product </typeparam>
@@ -20,7 +20,7 @@ module ProductPersistence =
   /// <exception> NoSuchProductType </exception>
   val createProduct : Product -> Product
 
-  /// <summay>
+  /// <summary>
   /// Update an existing product
   /// </summary>
   /// <typeparam> Product </typeparam>
@@ -30,7 +30,7 @@ module ProductPersistence =
   /// <exception> NoSuchProductType </exception>
   val updateProduct : Product -> Product
 
-  /// <summay>
+  /// <summary>
   /// Get Product by its id
   /// </summary>
   /// <typeparam> Product id </typeparam>
@@ -38,7 +38,7 @@ module ProductPersistence =
   /// <exception> NoSuchProduct </exception>
   val getProductById : int -> Product
 
-  /// <summay>
+  /// <summary>
   /// Get a list of Products by Product name
   /// </summary>
   /// <typeparam> Product name </typeparam>
@@ -46,7 +46,7 @@ module ProductPersistence =
   /// <exception> NoSuchProduct </exception>
   val getProductByName : string -> Product list
 
-  /// <summay>
+  /// <summary>
   /// Get a list of Products by Product type
   /// </summary>
   /// <typeparam> Product type </typeparam>
@@ -55,7 +55,7 @@ module ProductPersistence =
   /// <exception> NoSuchProductType </exception>
   val getProductByType : string -> Product list
 
-  /// <summay>
+  /// <summary>
   /// Rate Product
   /// </summary>
   /// <typeparam> Product id </typeparam>
@@ -64,7 +64,7 @@ module ProductPersistence =
   /// <exception> NoSuchProduct </exception>
   val rateProduct : int -> string -> int -> Product
 
-  /// <summay>
+  /// <summary>
   /// Change Published-flag on Product
   /// </summary>
   /// <typeparam> Product id </typeparam>

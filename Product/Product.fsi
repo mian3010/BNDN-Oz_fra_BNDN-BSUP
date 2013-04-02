@@ -4,7 +4,7 @@ open ProductExceptions
 
 module Product =
 
-  /// <summay>
+  /// <summary>
   /// Creater
   ///</summary>
   /// <typeparam> UserId </typeparam>
@@ -80,7 +80,7 @@ module Product =
   /// <exception> RentIt.Product.ArgumentException </exception>
   val rentProduct : int -> int -> 'a
 
-  /// <summay>
+  /// <summary>
   /// Rate Product
   ///</summary>
   /// <typeparam> Product id </typeparam>
@@ -88,7 +88,7 @@ module Product =
   /// <exception> NoSuchProduct </exception>
   val rateProduct : int -> string -> int -> Product
 
- /// <summay>
+ /// <summary>
   /// Change Published-flag on Product
   ///</summary>
   /// <typeparam> Product id </typeparam>

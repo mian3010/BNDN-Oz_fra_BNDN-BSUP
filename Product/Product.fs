@@ -28,7 +28,7 @@ module Product =
       | ProductPersistence.NoSuchUser           -> raise NoSuchUser
       | ProductPersistence.NoSuchProductType    -> raise NoSuchProductType
 
-  /// <summay>
+  /// <summary>
   /// Creater
   ///</summary>
   /// <typeparam> userName </typeparam>
@@ -143,7 +143,7 @@ module Product =
   let rentProduct (pId:int) (days:int) =
     raise (new System.NotImplementedException())
 
-  /// <summay>
+  /// <summary>
   /// Rate Product
   ///</summary>
   /// <typeparam> Product id </typeparam>
@@ -159,7 +159,7 @@ module Product =
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
 
-  /// <summay>
+  /// <summary>
   /// Change Published-flag on Product
   ///</summary>
   /// <typeparam> Product id </typeparam>
