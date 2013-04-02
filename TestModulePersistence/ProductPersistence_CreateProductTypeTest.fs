@@ -9,7 +9,7 @@
     let ``Test create product type``() =
       //Create test type
       let test = "TestCreateProductType"
-      let prod = Helper.createTestType
+      let prod = Helper.createTestType test
       let result = Helper.getProductType test
       //Test that it is the right one that are returned
       result |> should equal prod

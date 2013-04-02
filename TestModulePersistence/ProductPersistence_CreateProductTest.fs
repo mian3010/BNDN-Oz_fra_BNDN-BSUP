@@ -8,8 +8,8 @@
     [<Fact>]
     let ``Test create product``() =
       let test = "TestCreateProduct"
-      let prod = Helper.createTestProduct test
-      let result = Helper.getTestProduct test
+      let result = Helper.createTestProduct test
+      let prod = Helper.getTestProduct test
       result.name |> should equal prod.name
       result.createDate |> should equal prod.createDate
       result.productType |> should equal prod.productType
