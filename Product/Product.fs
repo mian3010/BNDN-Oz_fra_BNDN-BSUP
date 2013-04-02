@@ -1,20 +1,12 @@
 ﻿namespace RentIt
 open ProductTypes
+open ProductExceptions
 
 module Product =
 
   // Should this catch Exception and raise UnkownException?
 
-  // Exceptions
-  exception NoSuchProduct
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ArgumentException of string
-  exception ProductAlreadyExists
-  exception NoSuchProductType
-  exception UpdateNotAllowed of string
-
-   /// <summary>
+  /// <summary>
   /// Persist a new product, making the product available for publish
   /// </summary>
   // <typeparam> Product </typeparam>

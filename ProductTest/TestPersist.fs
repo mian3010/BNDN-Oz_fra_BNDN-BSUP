@@ -4,12 +4,8 @@ module TestPersist =
 
   open Xunit
   open FsUnit.Xunit
-
-  type Product = ProductTypes.Product
-  exception ArgumentException = RentIt.Product.ArgumentException
-  exception NoSuchProduct = RentIt.Product.NoSuchProduct
-  exception NoSuchUser = RentIt.Product.NoSuchUser
-  exception ProductAlreadyExists = RentIt.Product.ProductAlreadyExists
+  open ProductExceptions
+  open ProductTypes
 
   [<Fact>]
   let ``something with persist``() =

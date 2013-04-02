@@ -49,11 +49,11 @@ namespace Services.Controllers
                 response.StatusCode = HttpStatusCode.NoContent;
                 return _j.Json(returnData);
             }
-            catch (Product.NoSuchProductType)
+            catch (ProductExceptions.NoSuchProductType)
             {
                 response.StatusCode = HttpStatusCode.NotFound;
             }
-            catch (Product.ArgumentException)
+            catch (ProductExceptions.ArgumentException)
             {
                 response.StatusCode = HttpStatusCode.BadRequest;
             }
@@ -76,8 +76,7 @@ namespace Services.Controllers
 
                 response.StatusCode = HttpStatusCode.NoContent;
                 return _j.Json(returnData);
-            }
-            catch (Product.NoSuchProduct)
+            } catch (ProductExceptions.NoSuchProduct)
             {
                 response.StatusCode = HttpStatusCode.NotFound;
             }
@@ -111,7 +110,7 @@ namespace Services.Controllers
                         FSharpOption<int>.Some((int)data.price.buy));
                 Product.update(newProduct);
                 response.StatusCode = HttpStatusCode.NoContent;
-            }
+            } catch (ProductExceptions.NoSuchProduct)
             catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Product.UpdateNotAllowed) { response.StatusCode = HttpStatusCode.Forbidden; }
             catch (Product.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
@@ -144,7 +143,7 @@ namespace Services.Controllers
                 //TODO: No way of telling the persistence that a product has been uploaded
 
                 response.StatusCode = HttpStatusCode.NoContent;
-            }
+            } catch (ProductExceptions.NoSuchProduct)
             catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
         }
@@ -183,7 +182,7 @@ namespace Services.Controllers
                 }
                 //TODO: No way of telling the persistence that a product thumbnail has been uploaded
                 response.StatusCode = HttpStatusCode.NoContent;
-            }
+            } catch (ProductExceptions.NoSuchProduct)
             catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
         }
@@ -202,7 +201,7 @@ namespace Services.Controllers
                 //TODO: No way of telling the persistence that a product has been removed
 
                 response.StatusCode = HttpStatusCode.NoContent;
-            }
+            } catch (ProductExceptions.NoSuchProduct)
             catch (Product.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
         }

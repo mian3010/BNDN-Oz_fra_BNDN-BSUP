@@ -3,15 +3,9 @@
 open System
 open System.Data
 open System.Security
+open AccountPersistenceExceptions
 
     module AccountPersistence =
-
-        // Exceptions
-        exception NoUserWithSuchName
-        exception UsernameAlreadyInUse
-        exception NewerVersionExist
-        exception IllegalAccountVersion
-        exception NoSuchAccountType
 
         module internal Internal =
 
