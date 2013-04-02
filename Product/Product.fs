@@ -24,7 +24,7 @@ module Product =
   /// <exception> RentIt.Product.ArgumentException </exception>
   let persist (p:Product) = 
     // Defens
-    if (p.owner = null || p.owner.Trim().Length = 0) then raise (ArgumentException "UserId empty")
+    if (p.owner = null || p.owner.Trim().Length = 0) then raise (ArgumentException "userName empty")
     if (p.name = null || p.name.Trim().Length = 0) then raise (ArgumentException "Name empty")
     if (p.productType = null || p.productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
     
@@ -39,7 +39,7 @@ module Product =
   /// <summay>
   /// Creater
   ///</summary>
-  /// <typeparam> UserId </typeparam>
+  /// <typeparam> userName </typeparam>
   /// <typeparam> Name </typeparam>
   /// <typeparam> ProductType </typeparam>
   /// <typeparam> Description </typeparam>
@@ -47,15 +47,15 @@ module Product =
   /// <typeparam> RentPrice </typeparam>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let make (userId:string) (name:string) (productType:string) (description:string option) (buyPrice:int option) (rentPrice:int option) : Product =
-    if (userId = null || userId.Trim().Length = 0) then raise (ArgumentException "UserId empty")
+  let make (userName:string) (name:string) (productType:string) (description:string option) (buyPrice:int option) (rentPrice:int option) : Product =
+    if (userName = null || userName.Trim().Length = 0) then raise (ArgumentException "userName empty")
     if (name = null || name.Trim().Length = 0) then raise (ArgumentException "Name empty")
     if (productType = null || productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
     persist {
       name = name;
       createDate = System.DateTime.Now;
       productType = productType;
-      owner = userId;
+      owner = userName;
       description = description;
       rentPrice = rentPrice;
       buyPrice = buyPrice;
@@ -120,7 +120,7 @@ module Product =
   /// <exception> RentIt.Product.ArgumentException </exception>
   let update (p:Product) : Product =
     // Defens
-    if (p.owner = null || p.owner.Trim().Length = 0) then raise (ArgumentException "UserId empty")
+    if (p.owner = null || p.owner.Trim().Length = 0) then raise (ArgumentException "userName empty")
     if (p.name = null || p.name.Trim().Length = 0) then raise (ArgumentException "Name empty")
     if (p.productType = null || p.productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
     
