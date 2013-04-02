@@ -19,7 +19,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Initialise", "Initialise\In
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Product", "Product\Product.fsproj", "{5946EE56-1B91-4632-82BE-5C681D3C6C87}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ProductTest", "ProductTest\ProductTest.fsproj", "{89964D4C-2528-49D7-9074-992081F144F8}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestProduct", "ProductTest\TestProduct.fsproj", "{89964D4C-2528-49D7-9074-992081F144F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestClient", "RestClient\RestClient.csproj", "{E595F551-DB1A-4420-8DC1-06E787CBDE99}"
 EndProject
