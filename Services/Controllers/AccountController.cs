@@ -170,7 +170,7 @@ namespace RentIt.Services.Controllers
 
                 // SIGNAL SUCCESS
 
-                h.Success(204);
+                h.Success(201);
             }
             catch (BadRequestException) { h.Failure(400); }
             catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
