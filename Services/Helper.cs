@@ -124,7 +124,7 @@ namespace RentIt.Services
 
         public void SetHeader(string name, string value)
         {
-            WebOperationContext.Current.IncomingRequest.Headers[name] = value;
+            WebOperationContext.Current.IncomingRequest.Headers.Set(name, value);
         }
 
         public void Success(uint status=200, string responseType="application/json")
@@ -181,7 +181,11 @@ namespace RentIt.Services
 
         public uint Uint(string value)
         {
-            return System.UInt32.Parse(value);
+            try
+            {
+                return System.UInt32.Parse(value);
+            }
+            catch (Exception) {  throw new BadRequestException(); }
         }
 
         public HashSet<string> ExpandAccountTypes(string types)

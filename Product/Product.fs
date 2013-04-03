@@ -1,22 +1,12 @@
 ﻿namespace RentIt
+open ProductTypes
+open ProductExceptions
 
 module Product =
 
   // Should this catch Exception and raise UnkownException?
 
-  type Product = ProductTypes.Product
-  type Meta = ProductTypes.Meta
-
-  // Exceptions
-  exception NoSuchProduct
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ArgumentException of string
-  exception ProductAlreadyExists
-  exception NoSuchProductType
-  exception UpdateNotAllowed of string
-
-   /// <summary>
+  /// <summary>
   /// Persist a new product, making the product available for publish
   /// </summary>
   // <typeparam> Product </typeparam>
@@ -26,7 +16,7 @@ module Product =
   /// <exception> RentIt.Product.ArgumentException </exception>
   let persist (p:Product) = 
     // Defens
-    if (p.owner = null || p.owner.Trim().Length = 0) then raise (ArgumentException "UserId empty")
+    if (p.owner = null || p.owner.Trim().Length = 0) then raise (ArgumentException "userName empty")
     if (p.name = null || p.name.Trim().Length = 0) then raise (ArgumentException "Name empty")
     if (p.productType = null || p.productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
     
@@ -38,10 +28,10 @@ module Product =
       | ProductPersistence.NoSuchUser           -> raise NoSuchUser
       | ProductPersistence.NoSuchProductType    -> raise NoSuchProductType
 
-  /// <summay>
+  /// <summary>
   /// Creater
   ///</summary>
-  /// <typeparam> UserId </typeparam>
+  /// <typeparam> userName </typeparam>
   /// <typeparam> Name </typeparam>
   /// <typeparam> ProductType </typeparam>
   /// <typeparam> Description </typeparam>
@@ -49,15 +39,15 @@ module Product =
   /// <typeparam> RentPrice </typeparam>
   /// <exception> RentIt.Product.NoSuchUser </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let make (userId:string) (name:string) (productType:string) (description:string option) (buyPrice:int option) (rentPrice:int option) : Product =
-    if (userId = null || userId.Trim().Length = 0) then raise (ArgumentException "UserId empty")
+  let make (userName:string) (name:string) (productType:string) (description:string option) (buyPrice:int option) (rentPrice:int option) : Product =
+    if (userName = null || userName.Trim().Length = 0) then raise (ArgumentException "userName empty")
     if (name = null || name.Trim().Length = 0) then raise (ArgumentException "Name empty")
     if (productType = null || productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
     persist {
       name = name;
       createDate = System.DateTime.Now;
       productType = productType;
-      owner = userId;
+      owner = userName;
       description = description;
       rentPrice = rentPrice;
       buyPrice = buyPrice;
@@ -75,8 +65,8 @@ module Product =
   /// <returns> Product </returns>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let getProductById (id:string) : Product =
-    if (id = null || id.Trim().Length = 0) then raise (ArgumentException "Product id empty")
+  let getProductById (id:int) : Product =
+    if (id < 1) then raise (ArgumentException "Product id invalid")
     try
       ProductPersistence.getProductById id
     with
@@ -122,7 +112,7 @@ module Product =
   /// <exception> RentIt.Product.ArgumentException </exception>
   let update (p:Product) : Product =
     // Defens
-    if (p.owner = null || p.owner.Trim().Length = 0) then raise (ArgumentException "UserId empty")
+    if (p.owner = null || p.owner.Trim().Length = 0) then raise (ArgumentException "userName empty")
     if (p.name = null || p.name.Trim().Length = 0) then raise (ArgumentException "Name empty")
     if (p.productType = null || p.productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
     
@@ -140,7 +130,7 @@ module Product =
   // <typeparam> Product id </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let buyProduct (pId:string) =
+  let buyProduct (pId:int) =
     raise (new System.NotImplementedException())
 
   /// <summary>
@@ -150,18 +140,18 @@ module Product =
   // <typeparam> Number of days </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  let rentProduct (pId:string) (days:int) =
+  let rentProduct (pId:int) (days:int) =
     raise (new System.NotImplementedException())
 
-  /// <summay>
+  /// <summary>
   /// Rate Product
   ///</summary>
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
   /// <exception> NoSuchProduct </exception>
-  let rateProduct (pId:string) (user:string) (rating:int) = 
+  let rateProduct (pId:int) (user:string) (rating:int) = 
     // Defens
-    if (pId = null || pId.Trim().Length = 0) then raise (ArgumentException "ProductId empty")
+    if (pId < 1) then raise (ArgumentException "ProductId invalid")
     if (-5 > rating || rating > 5) then raise (ArgumentException "Rating must be between -5 and 5")
 
     try
@@ -169,16 +159,23 @@ module Product =
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
 
-  /// <summay>
+  /// <summary>
   /// Change Published-flag on Product
   ///</summary>
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Boolean </typeparam>
   /// <exception> NoSuchProduct </exception>
-  let publishProduct (pId:string) (status:bool) =
-    if (pId = null || pId.Trim().Length = 0) then raise (ArgumentException "ProductId empty")
+  let publishProduct (pId:int) (status:bool) =
+    if (pId < 1) then raise (ArgumentException "ProductId invalid")
 
     try
       ProductPersistence.publishProduct pId status
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
+
+  /// <summary>
+  /// Get a list of product types 
+  /// </summary>
+  /// <returns> String list of product types </returns>
+  let getListOfProductTypes =
+    ProductPersistence.getListOfProductTypes

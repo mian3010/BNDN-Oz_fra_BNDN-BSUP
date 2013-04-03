@@ -10,81 +10,78 @@ module ProductPersistence =
   exception ProductNotPublished
   exception ProductAlreadyExists
   
-  /// <summay>
+  /// <summary>
   /// Creater in persistence layer
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product </typeparam>
   /// <returns> Product </returns>
   /// <exception> ProductAlreadyExists </exception>
   /// <exception> NoSuchUser </exception>
   /// <exception> NoSuchProductType </exception>
-  let createProduct (p:Product) : Product =
-    raise (new System.NotImplementedException())
+  val createProduct : Product -> Product
 
-  /// <summay>
-  /// Update an exsisting product
-  ///</summary>
+  /// <summary>
+  /// Update an existing product
+  /// </summary>
   /// <typeparam> Product </typeparam>
   /// <returns> Product </returns>
   /// <exception> NoSuchProduct </exception>
   /// <exception> NoSuchUser </exception>
   /// <exception> NoSuchProductType </exception>
-  let updateProduct (p:Product) : Product =
-    raise (new System.NotImplementedException())
+  val updateProduct : Product -> Product
 
-  /// <summay>
+  /// <summary>
   /// Get Product by its id
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product id </typeparam>
   /// <returns> Product </returns>
   /// <exception> NoSuchProduct </exception>
-  let getProductById (id:string) : Product =
-    raise (new System.NotImplementedException())
+  val getProductById : int -> Product
 
-  /// <summay>
-  /// Get Product by its name and create data
-  /// Usefull when you don't know Product id
-  ///</summary>
-  /// <typeparam> Prodcut name </typeparam>
-  /// <typeparam> Prodcut create date </typeparam>
-  /// <returns> Product </returns>
-  /// <exception> NoSuchProduct </exception>
-  let getProductByNameAndCreateData (name:string) (date:string) : Product =
-    raise (new System.NotImplementedException())
-
-  /// <summay>
+  /// <summary>
   /// Get a list of Products by Product name
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product name </typeparam>
   /// <returns> Product list </returns>
   /// <exception> NoSuchProduct </exception>
-  let getProductByName (name:string) : Product list =
-    raise (new System.NotImplementedException())
+  val getProductByName : string -> Product list
 
-  /// <summay>
+  /// <summary>
   /// Get a list of Products by Product type
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product type </typeparam>
   /// <returns> Product list </returns>
   /// <exception> NoSuchProduct </exception>
   /// <exception> NoSuchProductType </exception>
-  let getProductByType (pType:string) : Product list =
-    raise (new System.NotImplementedException())
+  val getProductByType : string -> Product list
 
-  /// <summay>
+  /// <summary>
   /// Rate Product
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
+  /// <returns> The product rated </returns>
   /// <exception> NoSuchProduct </exception>
-  let rateProduct (pId:string) (user:string) (rating:int) = 
-    raise (new System.NotImplementedException())
+  val rateProduct : int -> string -> int -> Product
 
-  /// <summay>
+  /// <summary>
   /// Change Published-flag on Product
-  ///</summary>
+  /// </summary>
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Boolean </typeparam>
+  /// <returns> The product changed </returns>
   /// <exception> NoSuchProduct </exception>
-  let publishProduct (pId:string) (status:bool) =
-    raise (new System.NotImplementedException())
+  val publishProduct : int -> bool -> Product
+
+  /// <summary>
+  /// Create a product type
+  /// </summary>
+  /// <typeparam> Name of the product  type <//typeparam>
+  /// <returns> Bool depending on success </returns>
+  val createProductType : string -> bool
+
+  /// <summary>
+  /// Get a list of product types 
+  /// </summary>
+  /// <returns> String list of product types </returns>
+  val getListOfProductTypes : string List

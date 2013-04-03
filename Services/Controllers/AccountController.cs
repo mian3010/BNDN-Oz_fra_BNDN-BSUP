@@ -30,7 +30,10 @@ namespace RentIt.Services.Controllers
                 types = h.DefaultString(types, "ACP"); // Default
                 HashSet<string> fullTypes = h.ExpandAccountTypes(types);
 
-                info = h.OneOf(info, "more", "detailed");
+                info = h.DefaultString(info, "username");
+                info = h.OneOf(info, "username", "more", "detailed");
+
+                include_banned = h.DefaultString(include_banned, "true");
                 bool also_banned = h.Boolean(include_banned);
 
                 // AUTHORIZE
@@ -73,7 +76,7 @@ namespace RentIt.Services.Controllers
                 else throw new BadRequestException(); // Never happens
             }
             catch (BadRequestException) { return h.Failure(400); }
-            catch (Account.UnknownAccType) { return h.Failure(400); }
+            catch (AccountExceptions.UnknownAccType) { return h.Failure(400); }
             catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
             catch (Exception) { return h.Failure(500); }
         }
@@ -96,9 +99,9 @@ namespace RentIt.Services.Controllers
 
                 string[] keep = {};
 
-                if (accType.Equals("Customer")) keep = new string[] { "email", "type", "name", "address", "credits", "birth", "about" };
-                else if (accType.Equals("Content Provider")) keep = new string[] { "email", "type", "name", "address" };
-                else if (accType.Equals("Admin")) keep = new string[] { "email", "type", "name", "address", "credits", "birth", "about", "banned", "authenticated", "created" };
+                if (accType.Equals("Customer")) keep = new string[] { "email", "type", "name", "address", "postal", "country", "credits", "birth", "about" };
+                else if (accType.Equals("Content Provider")) keep = new string[] { "email", "type", "name", "address", "postal", "country" };
+                else if (accType.Equals("Admin")) keep = new string[] { "email", "type", "name", "address", "postal", "country", "credits", "birth", "about", "banned", "authenticated", "created" };
                 // else client is unauthenticated and nothing is returned
 
                 // RETURN
@@ -109,7 +112,7 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { return h.Failure(400); }
             catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
-            catch (Account.NoSuchUser) { return h.Failure(404); }
+            catch (AccountExceptions.NoSuchUser) { return h.Failure(404); }
             catch (Exception) { return h.Failure(500); }
         }
 
@@ -135,7 +138,7 @@ namespace RentIt.Services.Controllers
                         // If we get so far, the update went as planned, so we can quit the loop
                         outdated = false;
                     }
-                    catch (Account.OutdatedData) { /* Exception = load latest data and update based on it */ }
+                    catch (AccountExceptions.OutdatedData) { /* Exception = load latest data and update based on it */ }
                 }
 
                 // SIGNAL SUCCESS
@@ -143,10 +146,10 @@ namespace RentIt.Services.Controllers
                 h.Success(204);
             }
             catch (BadRequestException) { h.Failure(400); }
-            catch (Account.BrokenInvariant) { h.Failure(400); }
+            catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
             catch (AccountPermissions.PermissionDenied) { h.Failure(403); }
-            catch (Account.NoSuchUser) { h.Failure(404); }
-            catch (Account.TooLargeData) { h.Failure(413); }
+            catch (AccountExceptions.NoSuchUser) { h.Failure(404); }
+            catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
         }
 
@@ -158,22 +161,26 @@ namespace RentIt.Services.Controllers
 
                 var invoker = h.Authorize();
 
-                // UPDATE DATA
+                // CREATE ACCOUNT
+
+                data.user = user; // name must be username
 
                 if (data.type == null) data.type = "Customer"; // Default to customer account
+                if (data.type.Equals("Customer") && data.credits == null) data.credits = 0;
 
                 var account = c.Convert(data);
                 ControlledAccount.persist(invoker, account);
 
                 // SIGNAL SUCCESS
 
-                h.Success(204);
+                h.SetHeader("Location", "/accounts/"+user);
+                h.Success(201);
             }
             catch (BadRequestException) { h.Failure(400); }
-            catch (Account.BrokenInvariant) { h.Failure(400); }
+            catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
             catch (AccountPermissions.PermissionDenied) { h.Failure(403); }
-            catch (Account.UserAlreadyExists) { h.Failure(409); }
-            catch (Account.TooLargeData) { h.Failure(413); }
+            catch (AccountExceptions.UserAlreadyExists) { h.Failure(409); }
+            catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
         }
     }

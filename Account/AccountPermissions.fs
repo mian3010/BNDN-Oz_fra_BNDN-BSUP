@@ -3,7 +3,7 @@
 module AccountPermissions =  
 
     // The different kinds of users which may wish to attempt actions
-    type Invoker =    Auth of Account.Account   // authenticated invokers
+    type Invoker =    Auth of AccountTypes.Account   // authenticated invokers
                     | Unauth                    // anonymous invokers
 
     type Access =     Accepted

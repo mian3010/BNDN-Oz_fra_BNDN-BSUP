@@ -11,7 +11,7 @@ module Auth =
             try
                 Account.hasPassword (Account.getByUsername user) pass
             with
-                | Account.NoSuchUser -> false
+                | AccountExceptions.NoSuchUser -> false
 
     ///////////////////////////////////////////////////////////////////////
 

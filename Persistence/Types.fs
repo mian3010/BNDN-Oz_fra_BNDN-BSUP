@@ -2,8 +2,6 @@
     ///Containing all the types needed by persistence API.
     ///Processor field is the function to transform data to a string used by query.
     module Types =
-        ///Exception being raised whenever something is wrong with query
-        exception PersistenceException
         ///A generic type defining a field anywhere. SELECT Field FROM .. or .. WHERE Field = ..
         type Field = {
             objectName : string;
@@ -32,6 +30,7 @@
         type DataIn = {
             field : Field;
             value : string;
+            processor : DataIn -> string;
         }
         ///Defining a join between two tables in database. .. JOIN ObjectJoin ..
         type ObjectJoin = {

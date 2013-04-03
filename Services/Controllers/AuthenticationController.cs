@@ -25,6 +25,8 @@ namespace RentIt.Services.Controllers
         {
             try
             {
+                if (username == null || password == null) throw new BadRequestException();
+
                 Tuple<string, DateTime> t = ControlledAuth.authenticate(username, password);
 
                 h.Success();

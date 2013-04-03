@@ -1,4 +1,6 @@
 ﻿namespace RentIt
+open AccountExceptions
+open AccountTypes
 
 module Account =
     
@@ -56,22 +58,6 @@ module Account =
             let password = Internal.toBase64 password
             let hash = Internal.hash (password+hashed.salt)
             hashed.hash = hash
-    
-    ///////////////////////////////////////////////////////////////////////
-    
-    type Address =              AccountTypes.Address
-    type ExtraAccInfo =         AccountTypes.ExtraAccInfo
-    type Account =              AccountTypes.Account
-
-    // Exceptions
-
-    exception UserAlreadyExists // If one tries to create/persist an account whose username already is taken
-    exception UnknownAccType    // If no account type exists which matches the specified account type string
-    exception NoSuchUser        // If one tries to retrieve/update an account, but no account is found for the passed identifier
-    exception OutdatedData      // If a call to 'update' cannot succeed, because the changes conflict with more recent changes
-    exception BrokenInvariant   // If a function is invoked on an account whose invariants have been broken
-    exception TooLargeData      // If an account could not be persisted, because its fields were too large
-
 
     ////// CONSTRUCTOR FUNCTIONS
 
@@ -92,6 +78,8 @@ module Account =
             accType = accType;
             version = uint32(0);  
         }
+
+        // WHAT IS THIS? (~ Philip)
 
         (*
         if accType = null then raise BrokenInvariant
@@ -125,36 +113,36 @@ module Account =
     /// Raises TooLargeData if one or more of the account fields were too large to be persisted
     let persist (acc:Account) =
         try
-            Db.createUser acc
+            AccountPersistence.createUser acc
         with
-            | Db.UsernameAlreadyInUse                   -> raise UserAlreadyExists
-            | Db.IllegalAccountVersion                  -> raise BrokenInvariant
-            | Db.NoSuchAccountType                      -> raise UnknownAccType
-            | Persistence.Types.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - we do not know for sure =/
+            | UsernameAlreadyInUse                   -> raise UserAlreadyExists
+            | IllegalAccountVersion                  -> raise BrokenInvariant
+            | NoSuchAccountType                      -> raise UnknownAccType
+            | PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
     let getByUsername (user:string) :Account =
         try
-            Db.getUserByName user
+            AccountPersistence.getUserByName user
         with
-            | Db.NoUserWithSuchName -> raise NoSuchUser
+            | NoUserWithSuchName -> raise NoSuchUser
     
     /// Retrieves all accounts of a specific type
     let getAllByType (accType:string) :Account list =
         try
-            Db.getAllUsersByType accType
+            AccountPersistence.getAllUsersByType accType
         with
-            | Db.NoSuchAccountType -> raise UnknownAccType
+            | NoSuchAccountType -> raise UnknownAccType
 
     /// Retrieves the date and time which the user {user} last authenticated
     /// 'None' means that the user never has authenticated
     /// Raises NoSuchUser if no account is associated with the given username
     let getLastAuthTime (user:string) :System.DateTime option =
         try
-            Db.getUsersLastAuthTime user
+            AccountPersistence.getUsersLastAuthTime user
         with
-            | Db.NoUserWithSuchName -> raise NoSuchUser
+            | NoUserWithSuchName -> raise NoSuchUser
 
     /// Deletes an previously created account. The account will be removed from persistence.
     let delete (acc:Account) =
@@ -169,12 +157,12 @@ module Account =
     /// Raises TooLargeData if one or more of the new account fields were too large to be persisted
     let update (acc:Account) :Account =
         try
-            Db.update acc
+            AccountPersistence.update acc
         with
-            | Db.NoUserWithSuchName                     -> raise NoSuchUser
-            | Db.NewerVersionExist                      -> raise OutdatedData
-            | Db.IllegalAccountVersion                  -> raise BrokenInvariant
-            | Persistence.Types.PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - we do not know for sure =/
+            | NoUserWithSuchName                     -> raise NoSuchUser
+            | NewerVersionExist                      -> raise OutdatedData
+            | IllegalAccountVersion                  -> raise BrokenInvariant
+            | PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
 
     ////// HELPER FUNCTIONS
 
@@ -193,3 +181,10 @@ module Account =
             | []                            -> accs
             | acc :: accs when acc.banned   -> filterBanned accs
             | acc :: accs                   -> [acc] @ (filterBanned accs)
+
+    /// <summary>
+    /// Get a list of countries 
+    /// </summary>
+    /// <returns> String list of countries </returns>
+    let getListOfCountries =
+      AccountPersistence.getListOfCountries

@@ -8,6 +8,12 @@
         ///Read the max value of a field
         let Max (readField:Types.ReadField) = 
             "MAX("+Default readField+") AS "+readField.field.objectName+"_"+readField.field.field+"_Max"
+        ///Read the average value of a field
+        let Avg (readField:Types.ReadField) = 
+            "AVG("+Default readField+") AS "+readField.field.objectName+"_"+readField.field.field+"_Avg"
+        ///Read the number of rows
+        let Num (readField:Types.ReadField) = 
+            "COUNT("+Default readField+") AS "+readField.field.objectName+"_"+readField.field.field+"_Num"
         ///For select only. Select everything in query
         let All (readField:Types.ReadField) =
             "*"

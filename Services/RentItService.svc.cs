@@ -1,20 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Text;
-using System.Net;
-using System.Reflection;
-using RentIt;
-using Microsoft.FSharp.Core;
-using Microsoft.FSharp.Collections;
-using System.Web.Services;
+﻿using System.ServiceModel;
 using RentIt.Services;
 using RentIt.Services.Controllers;
 using System.IO;
-using RentIt.Services.Controllers;
+using Services.Controllers;
 
 namespace RentIt
 {
@@ -30,7 +18,7 @@ namespace RentIt
 
         private readonly AuthenticationController auth;
         private readonly AccountController account;
-   //     private readonly ProductController product;
+        private readonly ProductController product;
 
         public RentItService() : this(new Helper()) { }
 
@@ -51,6 +39,11 @@ namespace RentIt
 
         #region Authentication
 
+        public Stream DefaultAuthorize()
+        {
+            return Authorize(null, null);
+        }
+
         public Stream Authorize(string username, string password)
         {
             return auth.Authorize(username, password);
@@ -59,6 +52,11 @@ namespace RentIt
         #endregion
 
         #region Accounts
+
+        public Stream DefaultGetAccounts()
+        {
+            return GetAccounts(null, null, null);
+        }
 
         public Stream GetAccounts(string types, string info, string include_banned)
         {
@@ -84,58 +82,63 @@ namespace RentIt
 
         #region Products
 
+        public Stream DefaultGetProducts()
+        {
+            return GetProducts(null, null, null, null);
+        }
+
         public Stream GetProducts(string search, string type, string info, string unpublished)
         {
-            return h.Failure(501);
-            // return product.GetProducts(search, type, info, unpublished);
+            //return h.Failure(501);
+            return product.GetProducts(search, type, info, unpublished);
         }
 
         public Stream GetProduct(string id)
         {
-            return h.Failure(501);
-            // return product.GetProduct(id);
+            //return h.Failure(501);
+            return product.GetProduct(id);
         }
 
         public void UpdateProduct(string id, ProductData data)
         {
-            h.Failure(501);
-            //product.UpdateProduct(id, data);
+            //h.Failure(501);
+            product.UpdateProduct(id, data);
         }
 
         public void UpdateProductMedia(string id, Stream media)
         {
-             h.Failure(501);
-            //product.UpdateProductMedia(id, media);
+            //h.Failure(501);
+            product.UpdateProductMedia(id, media);
         }
 
         public void DeleteProduct(string id)
         {
-            h.Failure(501);
-            //product.DeleteProduct(id);
+            //h.Failure(501);
+            product.DeleteProduct(id);
         }
 
         public Stream GetProductRating(string id)
         {
-            return h.Failure(501);
-            //return product.GetProductRating(id);
+            //return h.Failure(501);
+            return product.GetProductRating(id);
         }
 
         public void UpdateProductRating(string id, RatingData data)
         {
-           h.Failure(501);
-           // product.UpdateProductRating(id, data);
+            //h.Failure(501);
+            product.UpdateProductRating(id, data);
         }
 
         public Stream GetProductThumbnail(string id)
         {
-            return h.Failure(501);
-            //return product.GetProductThumbnail(id);
+            //return h.Failure(501);
+            return product.GetProductThumbnail(id);
         }
 
         public void UpdateProductThumbnail(string id, Stream media)
         {
-            h.Failure(501);
-            //product.UpdateProductThumbnail(id, media);
+            //h.Failure(501);
+            product.UpdateProductThumbnail(id, media);
         }
 
         #endregion
@@ -150,6 +153,11 @@ namespace RentIt
         #endregion
 
         #region Purchases
+
+        public Stream DefaultGetPurchases(string customer)
+        {
+            return GetPurchases(customer, null, null);
+        }
 
         public Stream GetPurchases(string customer, string purchases, string info)
         {
@@ -175,6 +183,11 @@ namespace RentIt
         #endregion
 
         #region Provider Products
+
+        public Stream DefaultGetProviderProducts(string provider)
+        {
+            return GetProviderProducts(provider, null, null, null, null);
+        }
 
         public Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished)
         {

@@ -1,6 +1,7 @@
 ﻿namespace RentIt.Persistence
 open System
 open System.Data
+open RentIt.PersistenceExceptions
 
     // The Persistence module is used for reading and wrting data.
     // This module works with a SQL database
@@ -11,7 +12,7 @@ open System.Data
                 use reader = Helper.performSql (Create.Default createQuery)
                 Helper.extractData reader
             with
-                | _ -> raise Types.PersistenceException
+                | _ as e -> ExceptionHandler.handleException e
         ///Execute a create query taking the contents of it
         let create objectName data =
             let createQuery:Types.Create = {
@@ -26,7 +27,7 @@ open System.Data
                 use reader = Helper.performSql (readQuery.processor readQuery)
                 Helper.extractData reader
             with
-                | _ -> raise Types.PersistenceException
+                | _ as e -> ExceptionHandler.handleException e
         ///Execute a read query taking the contents of it
         let read fields objectName joins filters =
             let readQuery:Types.Read = {
@@ -54,7 +55,7 @@ open System.Data
                 use reader = Helper.performSql (Update.Default updateQuery)
                 Helper.extractData reader
             with
-                | _ -> raise Types.PersistenceException
+                | _ as e -> ExceptionHandler.handleException e
         ///Execute an update query taking the contents of it
         let update objectName filters dataIn =
             let updateQuery:Types.Update = {
@@ -70,7 +71,7 @@ open System.Data
                 use reader = Helper.performSql (Delete.Default deleteQuery)
                 Helper.extractData reader
             with
-                | _ -> raise Types.PersistenceException
+                | _ as e -> ExceptionHandler.handleException e
         ///Execute a delete query taking the contents of it
         let delete objectName filters =
             let deleteQuery:Types.Delete = {
@@ -87,4 +88,4 @@ open System.Data
                 if output.IsEmpty then false
                 else true
             with
-                | _ -> raise Types.PersistenceException
+                | _ as e -> ExceptionHandler.handleException e

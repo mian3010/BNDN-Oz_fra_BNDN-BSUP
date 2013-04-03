@@ -15,6 +15,8 @@ namespace RentIt.Services
             h = helper;
         }
 
+        #region TokenData
+
         public TokenData Convert(Tuple<string, DateTime> t)
         {
             if (t == null) return null;
@@ -24,6 +26,10 @@ namespace RentIt.Services
 
             return new TokenData() { token = token, expires = expires };
         }
+
+        #endregion
+
+        #region AccountData
 
         public AccountData Convert(AccountTypes.Account a, DateTime? authenticated)
         {
@@ -141,107 +147,93 @@ namespace RentIt.Services
             );
         }
 
-//        public ProductData Convert()
-//        {
-//            return new ProductData {
-            
+        #endregion
+
+        #region ProductData
+
+        //public ProductData Convert(ProductTypes.Product p)
+        //{
+        //    var metadata = h.OrNull(p.metadata);
+        //    MetaData[] meta = null;
+
+        //    if(metadata != null)
+        //    {
+        //        meta = new MetaData[metadata.Count];
+
+        //        int c = 0;
+        //        foreach (var m in metadata)
+        //        {
+        //            meta[c++] = Convert(m.Value);
+        //        }
                 
-//            };
+        //    }
 
-////[DataContract]
-////public class ProductData
-////{
-////    [DataMember]
-////    public string title { get; set; }
-////    [DataMember]
-////    public string description { get; set; }
-////    [DataMember]
-////    public string type { get; set; }
-////    [DataMember]
-////    public PriceData price { get; set; }
-////    [DataMember]
-////    public RatingData rating { get; set; }
-////    [DataMember]
-////    public string owner { get; set; }
-////    [DataMember]
-////    public MetaData[] meta { get; set; }
-////    [DataMember]
-////    public bool? published { get; set; }
-////}
-//        }
-
-//        public PriceData Convert()
-//        {
-//            return new PriceData {
+        //    return new ProductData {
             
-                
-//            };
+        //        title = p.name,
+        //        description = h.OrNull(p.description),
+        //        type = p.productType,
+        //        price = ConvertToPrice(p),
+        //        rating = Convert(p.rating),
+        //        owner = p.owner,
+        //        meta = meta,
+        //        published = p.published
+        //    };
+        //}
 
-////[DataContract]
-////public class PriceData
-////{
-////    [DataMember]
-////    public uint buy { get; set; }
-////    [DataMember]
-////    public uint? rent { get; set; }
-////}
-//        }
+        //public PriceData ConvertToPrice(ProductTypes.Product p)
+        //{
 
-//        public RatingData Convert()
-//        {
-//            return new RatingData {
+        //    return new PriceData {
             
-                
-//            };
-////[DataContract]
-////public class RatingData
-////{
-////    [DataMember]
-////    public int score { get; set; }
-////    [DataMember]
-////    public uint count { get; set; }
-////}
-//        }
+        //        buy = (uint) p.buyPrice,
+        //        rent = h.OrNulled(p.rentPrice, price => (uint) price)
+        //    };
+        //}
 
-//        public MetaData Convert()
-//        {
-//            return new MetaData {
+        //public RatingData Convert(ProductTypes.Rating r)
+        //{
+        //    return new RatingData {
             
-                
-//            };
-////[DataContract]
-////public class MetaData
-////{
-////    [DataMember]
-////    public string name { get; set; }
-////    [DataMember]
-////    public string value { get; set; }
-////}
-//        }
+        //        score = r.rating,
+        //        count = (uint) r.votes
+        //    };
+        //}
 
-//        public PurchaseData Convert()
-//        {
-//            return new PurchaseData {
+        //public MetaData Convert(ProductTypes.Meta m)
+        //{
+        //    return new MetaData {
             
-                
-//            };
+        //        name = m.key,
+        //        value = m.value
+        //    };
+        //}
 
-////[DataContract]
-////public class PurchaseData
-////{
-////    [DataMember]
-////    public string purchased { get; set; }
-////    [DataMember]
-////    public uint paid { get; set; }
-////    [DataMember]
-////    public string type { get; set; }
-////    [DataMember]
-////    public string expires { get; set; }
-////    [DataMember]
-////    public string title { get; set; }
-////    [DataMember]
-////    public uint product { get; set; }
-////}
+        #endregion
+
+        //public PurchaseData Convert()
+        //{
+        //    return new PurchaseData {
+
+
+        //    };
+
+        //[DataContract]
+//public class PurchaseData
+//{
+//    [DataMember]
+//    public string purchased { get; set; }
+//    [DataMember]
+//    public uint paid { get; set; }
+//    [DataMember]
+//    public string type { get; set; }
+//    [DataMember]
+//    public string expires { get; set; }
+//    [DataMember]
+//    public string title { get; set; }
+//    [DataMember]
+//    public uint product { get; set; }
+//}
 //        }
 
         public IdData Convert(uint id)

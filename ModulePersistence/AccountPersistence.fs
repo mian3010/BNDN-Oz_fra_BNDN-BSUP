@@ -4,7 +4,7 @@ open System
 open System.Data
 open System.Security
 
-    module Db =
+    module AccountPersistence =
 
         // Exceptions
         exception NoUserWithSuchName
@@ -28,6 +28,10 @@ open System.Security
                 
                 (int ((reader.Item 0).Item "Id"))
 
+            let tryFind (map:Map<string, string>) target=
+                let value = map.TryFind target
+                if (value.Equals (Some "")) then None else value
+
         ///////////////////////////////////////////////////////////////////////////////////
 
         ////// API functions
@@ -35,22 +39,17 @@ open System.Security
         /// Retrieves an account from persistence based on its associated username
         /// Raises NoUserWithSuchName
         let getUserByName userName :AccountTypes.Account =
-            //let internalFun =
-            (*
+            let internalFun =
+            
                 // If the user already exist in the cache, get him/her from there!
                 if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache) then
                     Map.find<string, AccountTypes.Account> userName Internal.cache
                 else
-                *)
+                
                     let fieldsQ         = Persistence.ReadField.createReadFieldProc [] "User" "Username" Persistence.ReadField.All
-                    
                     let baseObjectNameQ = "User"
-                    let joinsQ          = []
                     let filtersQ        = Persistence.Filter.createFilter [] "User" "Username" "=" userName
-                    let read = Persistence.Api.read fieldsQ baseObjectNameQ joinsQ filtersQ
-                    (*let fieldsQ = Persistence.ReadField.createReadField [] "User" "Username" //Persistence.ReadField.All    
-                    let filterQ = Persistence.Filter.createFilter [] "User" "Username" "=" userName
-                    let read    = Persistence.Api.read fieldsQ "User" [] filterQ*)
+                    let read = Persistence.Api.read fieldsQ baseObjectNameQ [] filtersQ
     
                     // Oooops, no user with that username. Hmm, u stupid or some?
                     if read.IsEmpty then
@@ -65,35 +64,35 @@ open System.Security
                         email = result.Item"Email"
                         password = Internal.splitDbPass (result.Item "Password")
                         created = DateTime.Parse (result.Item "Created_date")
-                        banned = if result.Item "Banned" = "0" then false else true
+                        banned = if (result.Item "Banned").Equals "False" then false else true
+
                         info = {
-                                name = None;
+                                name = Internal.tryFind result "Name";
                                 address = {
-                                            address = result.TryFind "Address"
-                                            postal = Some 2400
-                                                (*let zipString = result.TryFind "Zipcode"
+                                            address = Internal.tryFind result "Address"
+                                            postal = 
+                                                let zipString = Internal.tryFind result  "Zipcode"
                                                 if zipString = None then 
-                                                    None else Some (int (string zipString))*) // CANT CONVERT!!!
+                                                    None else Some (int zipString.Value)
                                             country = Some (result.Item "Country_Name") }
-                                birth = Some (DateTime.Parse "10/10/2013 12:00:00 AM")
-                                    (*let bodString = result.TryFind "Date_of_birth"
+                                birth =
+                                    let bodString = Internal.tryFind result "Date_of_birth"
                                     if bodString = None then 
-                                        None else Some (DateTime.Parse (string bodString))*) // CANT CONVERT!!!
+                                        None else Some (DateTime.Parse bodString.Value)
                                         
-                                about = result.TryFind "About_me"
-                                credits = Some 666
-                                    (*let cString = result.TryFind "Balance"           // CANT CONVERT!!!
+                                about = Internal.tryFind result "About_me"
+                                credits =
+                                    let cString = Internal.tryFind result "Balance"
                                     if cString = None then
-                                        None else Some (int (string cString)) *)
+                                        None else Some (int cString.Value)
                                 }
                         accType = result.Item "Type_name"
                         version = uint32 0 }
                     // Add the new account to the cache
-                    // Internal.cache <- Internal.cache.Add (acc.user, acc)
+                    Internal.cache <- Internal.cache.Add (acc.user, acc)
                     acc // Return him (or her)!
               
-                        
-            //lock Internal.cache (fun() -> internalFun)
+            lock Internal.cache (fun() -> internalFun)
 
         /// Retrieves all accounts of a specific type
         let getAllUsersByType accType :AccountTypes.Account list =
@@ -108,26 +107,26 @@ open System.Security
                         email = map.Item"Email"
                         password = Internal.splitDbPass (map.Item "Password")
                         created = DateTime.Parse (map.Item "Created_date")
-                        banned = if map.Item "Banned" = "0" then false else true
+                        banned = if (map.Item "Banned").Equals "False" then false else true
                         info = {
-                                name = None;
+                                name = Internal.tryFind map "Name";
                                 address = {
-                                            address = map.TryFind "Address"
-                                            postal = Some 2400
-                                                (*let zipString = result.TryFind "Zipcode"
+                                            address = Internal.tryFind map "Address"
+                                            postal = 
+                                                let zipString = Internal.tryFind map "Zipcode"
                                                 if zipString = None then 
-                                                    None else Some (int (string zipString))*) // CANT CONVERT!!!
+                                                    None else Some (int zipString.Value)
                                             country = Some (map.Item "Country_Name") }
-                                birth = Some (DateTime.Parse "10/10/2013 12:00:00 AM")
-                                    (*let bodString = result.TryFind "Date_of_birth"
+                                birth =
+                                    let bodString = Internal.tryFind map "Date_of_birth"
                                     if bodString = None then 
-                                        None else Some (DateTime.Parse (string bodString))*) // CANT CONVERT!!!
+                                        None else Some (DateTime.Parse bodString.Value)
                                         
-                                about = map.TryFind "About_me"
-                                credits = Some 666
-                                    (*let cString = result.TryFind "Balance"           // CANT CONVERT!!!
+                                about = Internal.tryFind map "About_me"
+                                credits =
+                                    let cString = Internal.tryFind map "Balance"
                                     if cString = None then
-                                        None else Some (int (string cString)) *)
+                                        None else Some (int cString.Value)
                                 }
                         accType = map.Item "Type_name"
                         version = uint32 0 }
@@ -199,21 +198,10 @@ open System.Security
             lock Internal.cache (fun() -> internalFun)
 
         /// Raises UsernameAlreadyInUse
-        //TODO Neews refactoring. getNextLoggableID risks giving the wrong id if
-        //called multiple times before write. getNextLoggableId (SMALL D) should
-        //return a query and that query should be added to transaction. If anything
-        //needs done in persistence for this, let me know
         let createUser (acc:AccountTypes.Account) =
             let internalFun =
                 let nextId = Internal.getNextLoggableID()
                 let transactionQ = Persistence.Transaction.createTransaction
-
-
-                (*let tableName = "Loggable"
-                let fieldProcessor = Persistence.Field.Default
-                let dataQ = Persistence.DataIn.createDataIn []    tableName "Id" (string nextId)
-                let createIdQ = Persistence.Create.createCreate tableName dataQ
-                let transactionQ = Persistence.Transaction.addCreate transactionQ createIdQ*)
 
                 let tableName = "User"
                 let fieldProcessor = Persistence.Field.Default
@@ -238,3 +226,15 @@ open System.Security
                 
                 Internal.cache <- Internal.cache.Add(acc.user, acc)
             lock Internal.cache (fun() -> internalFun)
+
+        /// <summary>
+        /// Get a list of countries 
+        /// </summary>
+        /// <returns> String list of countries </returns>
+        let getListOfCountries =
+          let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+          let v = Persistence.Api.read fieldsQ "Country" [] []
+          let mutable l:string list = []
+          for c in v do
+            l <- l@[c.["Name"]]
+          l

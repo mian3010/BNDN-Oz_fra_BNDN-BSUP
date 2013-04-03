@@ -1,18 +1,10 @@
 ﻿namespace RentIt
+open ProductTypes
+open ProductExceptions
 
 module Product =
 
-  type Product = ProductTypes.Product
-
-  exception NoSuchProduct
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ArgumentException of string
-  exception ProductAlreadyExists
-  exception NoSuchProductType
-  exception UpdateNotAllowed of string
-
-  /// <summay>
+  /// <summary>
   /// Creater
   ///</summary>
   /// <typeparam> UserId </typeparam>
@@ -33,7 +25,7 @@ module Product =
   /// <returns> Product </returns>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val getProductById : string -> Product 
+  val getProductById : int -> Product 
 
   /// <summary>
   /// Persist a new product, making the product available for publish
@@ -77,7 +69,7 @@ module Product =
   // <typeparam> Product id </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val buyProduct : string -> 'a
+  val buyProduct : int -> 'a
 
   /// <summary>
   /// Rent a product
@@ -86,20 +78,26 @@ module Product =
   // <typeparam> Number of days </typeparam>
   /// <exception> RentIt.Product.NoSuchProduct </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
-  val rentProduct : string -> int -> 'a
+  val rentProduct : int -> int -> 'a
 
-  /// <summay>
+  /// <summary>
   /// Rate Product
   ///</summary>
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Rating </typeparam>
   /// <exception> NoSuchProduct </exception>
-  val rateProduct : string -> string -> int -> 'a
+  val rateProduct : int -> string -> int -> Product
 
- /// <summay>
+ /// <summary>
   /// Change Published-flag on Product
   ///</summary>
   /// <typeparam> Product id </typeparam>
   /// <typeparam> Boolean </typeparam>
   /// <exception> NoSuchProduct </exception>
-  val publishProduct : string -> bool -> 'a
+  val publishProduct : int -> bool -> Product
+
+  /// <summary>
+  /// Get a list of product types 
+  /// </summary>
+  /// <returns> String list of product types </returns>
+  val getListOfProductTypes : string List
