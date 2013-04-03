@@ -181,3 +181,10 @@ module Account =
             | []                            -> accs
             | acc :: accs when acc.banned   -> filterBanned accs
             | acc :: accs                   -> [acc] @ (filterBanned accs)
+
+    /// <summary>
+    /// Get a list of countries 
+    /// </summary>
+    /// <returns> String list of countries </returns>
+    let getListOfCountries =
+      AccountPersistence.getListOfCountries

@@ -171,3 +171,15 @@ module ProductPersistence =
     let typeR = Persistence.Api.create objectName dataQ
     if (typeR.Length > 0) then true
     else false
+
+  /// <summary>
+  /// Get a list of product types 
+  /// </summary>
+  /// <returns> String list of product types </returns>
+  let getListOfProductTypes =
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    let v = Persistence.Api.read fieldsQ "ProductType" [] []
+    let mutable l:string list = []
+    for c in v do
+      l <- l@[c.["Name"]]
+    l

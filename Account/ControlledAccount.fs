@@ -87,3 +87,10 @@ module ControlledAccount =
         let allowed = AccountPermissions.mayResetPassword invoker user
         Internal.check invoker allowed |> ignore
         Account.resetPassword user
+
+    /// <summary>
+    /// Get a list of countries 
+    /// </summary>
+    /// <returns> String list of countries </returns>
+    let getListOfCountries = 
+      Account.getListOfCountries

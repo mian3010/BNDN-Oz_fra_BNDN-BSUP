@@ -172,3 +172,10 @@ module Product =
       ProductPersistence.publishProduct pId status
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
+
+  /// <summary>
+  /// Get a list of product types 
+  /// </summary>
+  /// <returns> String list of product types </returns>
+  let getListOfProductTypes =
+    ProductPersistence.getListOfProductTypes

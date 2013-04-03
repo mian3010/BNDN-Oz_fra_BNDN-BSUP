@@ -79,3 +79,9 @@ module ProductPersistence =
   /// <typeparam> Name of the product  type <//typeparam>
   /// <returns> Bool depending on success </returns>
   val createProductType : string -> bool
+
+  /// <summary>
+  /// Get a list of product types 
+  /// </summary>
+  /// <returns> String list of product types </returns>
+  val getListOfProductTypes : string List

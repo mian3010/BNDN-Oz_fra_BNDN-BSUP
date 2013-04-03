@@ -95,3 +95,9 @@ module Product =
   /// <typeparam> Boolean </typeparam>
   /// <exception> NoSuchProduct </exception>
   val publishProduct : int -> bool -> Product
+
+  /// <summary>
+  /// Get a list of product types 
+  /// </summary>
+  /// <returns> String list of product types </returns>
+  val getListOfProductTypes : string List
