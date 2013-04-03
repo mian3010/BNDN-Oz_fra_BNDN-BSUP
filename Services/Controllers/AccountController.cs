@@ -170,6 +170,7 @@ namespace RentIt.Services.Controllers
 
                 // SIGNAL SUCCESS
 
+                h.SetHeader("Location", "/accounts/"+user);
                 h.Success(201);
             }
             catch (BadRequestException) { h.Failure(400); }

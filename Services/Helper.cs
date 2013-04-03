@@ -124,7 +124,7 @@ namespace RentIt.Services
 
         public void SetHeader(string name, string value)
         {
-            WebOperationContext.Current.IncomingRequest.Headers[name] = value;
+            WebOperationContext.Current.IncomingRequest.Headers.Set(name, value);
         }
 
         public void Success(uint status=200, string responseType="application/json")
