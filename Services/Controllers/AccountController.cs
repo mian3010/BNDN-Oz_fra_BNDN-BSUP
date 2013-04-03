@@ -30,7 +30,10 @@ namespace RentIt.Services.Controllers
                 types = h.DefaultString(types, "ACP"); // Default
                 HashSet<string> fullTypes = h.ExpandAccountTypes(types);
 
-                info = h.OneOf(info, "more", "detailed");
+                info = h.DefaultString(info, "username");
+                info = h.OneOf(info, "username", "more", "detailed");
+
+                include_banned = h.DefaultString(include_banned, "true");
                 bool also_banned = h.Boolean(include_banned);
 
                 // AUTHORIZE

@@ -39,6 +39,11 @@ namespace RentIt
 
         #region Authentication
 
+        public Stream DefaultAuthorize()
+        {
+            return Authorize(null, null);
+        }
+
         public Stream Authorize(string username, string password)
         {
             return auth.Authorize(username, password);
@@ -47,6 +52,11 @@ namespace RentIt
         #endregion
 
         #region Accounts
+
+        public Stream DefaultGetAccounts()
+        {
+            return GetAccounts(null, null, null);
+        }
 
         public Stream GetAccounts(string types, string info, string include_banned)
         {
@@ -71,6 +81,11 @@ namespace RentIt
         #endregion
 
         #region Products
+
+        public Stream DefaultGetProducts()
+        {
+            return GetProducts(null, null, null, null);
+        }
 
         public Stream GetProducts(string search, string type, string info, string unpublished)
         {
@@ -139,6 +154,11 @@ namespace RentIt
 
         #region Purchases
 
+        public Stream DefaultGetPurchases(string customer)
+        {
+            return GetPurchases(customer, null, null);
+        }
+
         public Stream GetPurchases(string customer, string purchases, string info)
         {
             return h.Failure(501);
@@ -163,6 +183,11 @@ namespace RentIt
         #endregion
 
         #region Provider Products
+
+        public Stream DefaultGetProviderProducts(string provider)
+        {
+            return GetProviderProducts(provider, null, null, null, null);
+        }
 
         public Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished)
         {
