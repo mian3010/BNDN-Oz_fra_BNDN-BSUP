@@ -9,4 +9,9 @@ module TestPersist =
 
   [<Fact>]
   let ``something with persist``() =
-    0 |> should not' (be 0)
+    let user = Helper.createTestUser "test persist"
+    let typ = Helper.createTestType "test persist"
+    let tp = Product.persist (Helper.getTestProduct "test persist")
+    let p = (Product.getProductByName tp.name).Head
+    p |> should equal tp
+    Helper.removeTestProduct "test persist"

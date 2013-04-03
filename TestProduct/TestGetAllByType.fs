@@ -7,17 +7,17 @@ module TestGetAllByType =
   open ProductTypes
 
   [<Fact>]
-  let ``get product types by name should work``() =
-    Helper.createTestProduct "Test" |> ignore
-    let p = Product.getAllByType "TESTTYPE_Test"
+  let ``get products by type name should work``() =
+    let tp = Helper.createTestProduct "test get p by type"
+    let p = Product.getAllByType tp.productType
     p |> should be ofExactType<Product list>
-    Helper.removeTestProduct "Test"
+    Helper.removeTestProduct "test get p by type"
 
   [<Fact>]
-  let ``get product types by name should throw arg``() =
+  let ``get products by type name should throw arg``() =
     (fun () -> Product.getAllByType "" |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
-  let ``get product types by name should throw no such``() =
+  let ``get products by type name should throw no such``() =
     (fun () -> Product.getAllByType "This is very unlikely!" |> ignore) |> should throw typeof<NoSuchProductType>
    

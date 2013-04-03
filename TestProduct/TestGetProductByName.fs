@@ -9,10 +9,10 @@ module TestGetProductByName =
 
   [<Fact>]
   let ``get product by name should work``() =
-    let p2 = Helper.createTestProduct "Test"
+    let p2 = Helper.createTestProduct "test get p by name"
     let p = Product.getProductByName p2.name
     p |> should be ofExactType<Product list>
-    Helper.removeTestProduct "Test"
+    Helper.removeTestProduct "test get p by name"
 
   [<Fact>]
   let ``get product by name should throw arg``() =

@@ -8,10 +8,10 @@
   module TestGetProductById =
     [<Fact>]
     let ``get product by id should work``() =
-      Helper.createTestProduct "test" |> ignore
+      Helper.createTestProduct "test get p id" |> ignore
       let p = Product.getProductById 4
       p |> should be ofExactType<Product>
-      Helper.removeTestProduct "test"
+      Helper.removeTestProduct "test get p id"
 
     [<Fact>]
     let ``get product by id should throw arg``() =
