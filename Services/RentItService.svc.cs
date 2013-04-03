@@ -32,7 +32,7 @@ namespace RentIt
 
             auth = new AuthenticationController(h, j, c);
             account = new AccountController(h, j, c);
-      //      product = new ProductController(h, j, c);
+            product = new ProductController(h, j, c);
         }
 
         #endregion
@@ -76,6 +76,11 @@ namespace RentIt
         public void CreateAccount(string user, AccountData data)
         {
             account.CreateAccount(user, data);
+        }
+
+        public Stream GetListOfCountries() 
+        {
+            return account.GetListOfCountries();
         }
 
         #endregion
@@ -139,6 +144,11 @@ namespace RentIt
         {
             //h.Failure(501);
             product.UpdateProductThumbnail(id, media);
+        }
+
+        public Stream GetListOfProductTypes() 
+        {
+            return product.GetListOfProductTypes();
         }
 
         #endregion

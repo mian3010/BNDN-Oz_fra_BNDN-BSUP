@@ -100,4 +100,4 @@ module Product =
   /// Get a list of product types 
   /// </summary>
   /// <returns> String list of product types </returns>
-  val getListOfProductTypes : string List
+  val getListOfProductTypes : unit -> string[]

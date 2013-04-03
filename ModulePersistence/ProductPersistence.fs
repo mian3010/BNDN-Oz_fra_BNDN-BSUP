@@ -176,10 +176,10 @@ module ProductPersistence =
   /// Get a list of product types 
   /// </summary>
   /// <returns> String list of product types </returns>
-  let getListOfProductTypes =
+  let getListOfProductTypes () =
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
     let v = Persistence.Api.read fieldsQ "ProductType" [] []
-    let mutable l:string list = []
+    let mutable l:string list  = []
     for c in v do
       l <- l@[c.["Name"]]
-    l
+    List.toArray l

@@ -100,6 +100,17 @@ namespace RentIt.Services
             return asStream("[" + h.Join(values, ",") + "]");
         }
 
+        public Stream StrArray(string[] stra) 
+        {
+          string str = "[";
+          foreach (var s in stra) {
+            str += "\"" + s + "\",";
+          }
+          str += "]";
+
+          return asStream(str);
+        }
+
         // Causes any property but those specified by keep to be set to null
         private T nullOutBut<T>(T obj, HashSet<string> keep)
         {

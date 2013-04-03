@@ -259,6 +259,18 @@ namespace Services.Controllers
             return null;
         }
 
+        public Stream GetListOfProductTypes()
+        {
+          OutgoingWebResponseContext response = _h.GetResponse();
+
+          try {
+            return _j.StrArray(Product.getListOfProductTypes());
+          } catch (Exception) {
+            response.StatusCode = HttpStatusCode.InternalServerError;
+          }
+          return null;
+        }
+
         /// <summary>
         /// Converts a ProductTypes.Product into a ProductData
         /// </summary>

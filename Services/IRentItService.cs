@@ -41,6 +41,11 @@ namespace RentIt
         Stream DefaultGetAccounts();
 
         [OperationContract]
+        [WebGet(UriTemplate = "/accounts/countries",
+                    ResponseFormat = WebMessageFormat.Json)]
+        Stream GetListOfCountries();
+
+        [OperationContract]
         [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={include_banned}",
                     ResponseFormat = WebMessageFormat.Json)]
         Stream GetAccounts(string types, string info, string include_banned);
@@ -117,6 +122,12 @@ namespace RentIt
         [WebInvoke( Method = "POST",
                     UriTemplate = "/products/{id}/thumbnail")]
         void UpdateProductThumbnail(string id, Stream media);
+
+        [OperationContract]
+        [WebGet(UriTemplate = "/products/types",
+                    ResponseFormat = WebMessageFormat.Json,
+                    BodyStyle = WebMessageBodyStyle.Bare)]
+        Stream GetListOfProductTypes();
 
         #endregion
 
@@ -332,5 +343,4 @@ namespace RentIt
         [DataMember]
         public uint id { get; set; }
     }
-
 }
