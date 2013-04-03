@@ -8,8 +8,10 @@ module TestGetAllByType =
 
   [<Fact>]
   let ``get product types by name should work``() =
-    let p = Product.getAllByType "Movie"
+    Helper.createTestProduct "Test" |> ignore
+    let p = Product.getAllByType "TESTTYPE_Test"
     p |> should be ofExactType<Product list>
+    Helper.removeTestProduct "Test"
 
   [<Fact>]
   let ``get product types by name should throw arg``() =
