@@ -14,7 +14,16 @@ namespace RentIt
     [ServiceContract(Namespace = "http://rentit.itu.dk/RentIt27/WebServices/")]
     public interface IRentItService
     {
+
+        // ALL METHODS STARTING WITH "Default" HANDLES REQUESTS WHERE THE QUERY STRING IS LEFT OUT!!!
+
         #region Authentication
+
+        [OperationContract]
+        [WebGet(    UriTemplate = "/auth",
+                    ResponseFormat = WebMessageFormat.Json,
+                    BodyStyle = WebMessageBodyStyle.Bare)]
+        Stream DefaultAuthorize();
 
         [OperationContract]
         [WebGet(    UriTemplate = "/auth?user={username}&password={password}",
@@ -25,6 +34,11 @@ namespace RentIt
         #endregion
 
         #region Accounts
+
+        [OperationContract]
+        [WebGet(UriTemplate = "/accounts",
+                    ResponseFormat = WebMessageFormat.Json)]
+        Stream DefaultGetAccounts();
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={include_banned}",
@@ -51,6 +65,11 @@ namespace RentIt
         #endregion
 
         #region Products
+
+        [OperationContract]
+        [WebGet(    UriTemplate = "/products",
+                    ResponseFormat = WebMessageFormat.Json)]
+        Stream DefaultGetProducts();
 
         [OperationContract]
         [WebGet(    UriTemplate = "/products?search={search}&type={type}&info={info}&unpublished={unpublished}",
@@ -114,6 +133,11 @@ namespace RentIt
         #region Purchases
 
         [OperationContract]
+        [WebGet(    UriTemplate = "/accounts/{customer}/purchases",
+                    ResponseFormat = WebMessageFormat.Json)]
+        Stream DefaultGetPurchases(string customer);
+
+        [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{customer}/purchases?purchases={purchases}&info={info}",
                     ResponseFormat = WebMessageFormat.Json)]
         Stream GetPurchases(string customer, string purchases, string info);
@@ -137,6 +161,11 @@ namespace RentIt
         #endregion
 
         #region Content Provider Products
+
+        [OperationContract]
+        [WebGet(    UriTemplate = "/accounts/{provider}/products",
+                    ResponseFormat = WebMessageFormat.Json)]
+        Stream DefaultGetProviderProducts(string provider);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{provider}/products?search={search}&type={type}&info={info}&unpublished={unpublished}",

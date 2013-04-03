@@ -181,7 +181,11 @@ namespace RentIt.Services
 
         public uint Uint(string value)
         {
-            return System.UInt32.Parse(value);
+            try
+            {
+                return System.UInt32.Parse(value);
+            }
+            catch (Exception) {  throw new BadRequestException(); }
         }
 
         public HashSet<string> ExpandAccountTypes(string types)
