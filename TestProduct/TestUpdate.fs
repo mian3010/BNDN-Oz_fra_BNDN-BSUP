@@ -78,7 +78,7 @@ module TestUpdate =
               metadata = metadata;
               thumbnailPath = thumbnailPath
             }
-    (tp = Product.update tp |> ignore) |> should throw typeof<UpdateNotAllowed>
+    (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<UpdateNotAllowed>
 
   [<Fact>]
   let ``update name should work``() =
@@ -157,7 +157,7 @@ module TestUpdate =
               metadata = metadata;
               thumbnailPath = thumbnailPath
             }
-    (tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
+    (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``update name should throw arg``() =
@@ -176,7 +176,7 @@ module TestUpdate =
               metadata = metadata
               thumbnailPath = thumbnailPath
             }
-    (tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
+    (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``update productType should throw arg``() =
@@ -195,7 +195,7 @@ module TestUpdate =
               metadata = metadata;
               thumbnailPath = thumbnailPath
             }
-    (tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
+    (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``update productType should throw no such``() =
@@ -214,5 +214,5 @@ module TestUpdate =
               metadata = metadata;
               thumbnailPath = thumbnailPath
             }
-    (tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
+    (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
   

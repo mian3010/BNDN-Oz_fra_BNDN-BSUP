@@ -45,17 +45,17 @@ module ProductTest =
 
   [<Fact>]
   let ``owner should throw arg``() =
-    (Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
+    (fun () -> Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``name should throw arg``() =
-    (Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
+    (fun () -> Product.make userName null productType description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``productType should throw arg``() =
-    (Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
+    (fun () -> Product.make userName name null description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``productType should throw no such``() =
-    (Product.make null name productType description buyPrice rentPrice |> ignore) |> should throw typeof<NoSuchProductType>
+    (fun () -> Product.make userName name "asdlkfj s" description buyPrice rentPrice |> ignore) |> should throw typeof<NoSuchProductType>
   

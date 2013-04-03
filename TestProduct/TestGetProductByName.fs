@@ -9,15 +9,16 @@ module TestGetProductByName =
 
   [<Fact>]
   let ``get product by name should work``() =
-    let p = Product.getProductByName "Test"
-    p |> should not' (be null)
+    let p2 = Helper.createTestProduct "Test"
+    let p = Product.getProductByName p2.name
     p |> should be ofExactType<Product list>
+    Helper.removeTestProduct "Test"
 
   [<Fact>]
   let ``get product by name should throw arg``() =
-    (Product.getProductByName "" |> ignore) |> should throw typeof<ArgumentException>
+    (fun () -> Product.getProductByName "" |> ignore) |> should throw typeof<ArgumentException>
   
   [<Fact>]
   let ``get product byname should throw no such``() =
-    (Product.getProductByName "This is very unlikely!" |> ignore) |> should throw typeof<NoSuchProduct>
+    (fun () -> Product.getProductByName "This is very unlikely!" |> ignore) |> should throw typeof<NoSuchProduct>
    
