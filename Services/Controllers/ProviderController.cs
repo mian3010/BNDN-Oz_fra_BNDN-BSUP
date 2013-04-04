@@ -26,11 +26,7 @@ namespace Services.Controllers
 
         public Stream DefaultGetProviderProducts(string provider)
         {
-            var invoker = _h.Authorize();
-            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
-            OutgoingWebResponseContext response = _h.GetResponse();
-
-
+            return GetProviderProducts(provider, null, null, null, null);
         }
 
         public Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished)

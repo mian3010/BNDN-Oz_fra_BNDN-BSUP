@@ -229,22 +229,8 @@ namespace Services.Controllers
 
         public void DeleteProduct(string id)
         {
-            var invoker = _h.Authorize();
-            OutgoingWebResponseContext response = _h.GetResponse();
-            try
-            {
-                ProductTypes.Product product = Product.getProductById(int.Parse(id));
-                FileInfo productFileInfo = GetLocalProductFile(id, product.owner);
-                FileInfo thumbnailFileInfo = GetLocalProductFile(id, product.owner);
-                File.Delete(productFileInfo.FullName);
-                File.Delete(thumbnailFileInfo.FullName);
-
-                //TODO: No way of telling the persistence that a product has been removed
-
-                response.StatusCode = HttpStatusCode.NoContent;
-            }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+            _h.Failure(401);
+            return;
         }
 
         public Stream GetProductRating(string id)
@@ -319,27 +305,6 @@ namespace Services.Controllers
             }
            // catch (ProductPermissions.PermissionDenied) { return _h.Failure(403); }
             catch (Exception) { return _h.Failure(500); }
-        }
-
-        /// <summary>
-        /// Converts a ProductTypes.Product into a ProductData
-        /// </summary>
-        /// <param name="product">The ProductTypes.Product to convert</param>
-        /// <returns>The ProductTypes.Product converted into a ProductData object</returns>
-        private static ProductData ProductTypeToProductData(ProductTypes.Product product)
-        {
-            return new ProductData
-                {
-                title = product.name,
-                type = product.productType,
-                owner = product.owner,
-                description = product.description.Equals(FSharpOption<string>.None) ? null : product.description.ToString(),
-                price = new PriceData
-                {
-                    buy = product.buyPrice.Equals(FSharpOption<int>.None) ? 0 : uint.Parse(product.buyPrice.Value.ToString()),
-                    rent = product.rentPrice.Equals(FSharpOption<int>.None) ? 0 : uint.Parse(product.rentPrice.Value.ToString())
-                }
-            };
         }
 
         /// <summary>

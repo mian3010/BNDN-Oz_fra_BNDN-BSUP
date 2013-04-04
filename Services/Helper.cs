@@ -271,9 +271,7 @@ namespace RentIt.Services
 
         #endregion
 
-        #region Null handlers
-
-        #region Null Converters
+        #region Null Handlers
 
         public T OrNull<T>(FSharpOption<T> option) where T : class
         {
@@ -306,7 +304,29 @@ namespace RentIt.Services
             catch (NullReferenceException) { return null; }
         }
 
-        #endregion
+        public FSharpOption<T> ToOption<T>(T t)
+        {
+            if (t == null)
+            {
+                return FSharpOption<T>.None;
+            }
+            else
+            {
+                return FSharpOption<T>.Some(t);
+            }
+        }
+
+        public FSharpOption<T> ToOption<T>(T? t)
+        {
+            if (t == null)
+            {
+                return FSharpOption<T>.None;
+            }
+            else
+            {
+                return FSharpOption<T>.Some(t.Value);
+            }
+        }
 
         #endregion
     }

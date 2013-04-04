@@ -113,3 +113,9 @@ module Product =
   ///</summary>
   /// <typeparam> products </typeparam>
   val filterUnpublished : Product list -> Product list
+
+  /// <summary>
+  /// Returns all MIME types supported for a given product type
+  ///</summary>
+  /// <typeparam> product type </typeparam>
+  val getMimesForProductType : string -> string list

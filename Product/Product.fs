@@ -204,3 +204,9 @@ module Product =
       | []                                    -> products
       | p :: products when not p.published    -> filterUnpublished products
       | p :: products                         -> [p] @ (filterUnpublished products)
+
+  /// <summary>
+  /// Returns all MIME types supported for a given product type
+  ///</summary>
+  /// <typeparam> product type </typeparam>
+  let getMimesForProductType (productType:string) : string list = raise (new System.NotImplementedException("TODO")); // TODO
