@@ -11,9 +11,13 @@
         ///Defining a filter in a query. In WHERE clause
         type Filter = {
             field : Field;
-            operator : string;
             value : string;
             processor : Filter -> string;
+        }
+        // Group of filters
+        type FilterGroup = {
+          filters : Filter List;
+          processor : FilterGroup -> string
         }
         ///Defining a field to be read by a select query. SELECT ReadField FROM ..
         type ReadField = {
@@ -47,19 +51,19 @@
             fields : ReadField List;
             baseObjectName : string;
             joins : ObjectJoin List;
-            filters : Filter List;
+            filters : FilterGroup List;
             processor : Read -> string
         }
         ///Defining an update query, and the information needed
         type Update = {
             objectName : string;
-            filters : Filter List;
+            filters : FilterGroup List;
             data : DataIn List;
         }
         ///Defining a delete query, and the information needed
         type Delete = {
             objectName : string;
-            filters : Filter List;
+            filters : FilterGroup List;
         }
         ///Defining a transaction, with a sequence of queries
         type Transaction = {

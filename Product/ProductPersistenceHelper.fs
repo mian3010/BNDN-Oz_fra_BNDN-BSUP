@@ -20,8 +20,6 @@ open System
         else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Rent_price" "" Persistence.DataIn.Null
         if (prod.buyPrice.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Buy_price" (string prod.buyPrice.Value)
         else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Buy_price" "" Persistence.DataIn.Null
-        if (prod.thumbnailPath.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Thumbnail_path" (string prod.thumbnailPath.Value)
-        else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Thumbnail_path" "" Persistence.DataIn.Null
         !dataQ
 
       //Convert metadata from persistence result to metadata type in option format
@@ -40,7 +38,7 @@ open System
         let fieldsQ = ref (Persistence.ReadField.createReadField [] objectName "Content")
         fieldsQ := Persistence.ReadField.createReadField !fieldsQ objectName "MetaDataType_Name"
         let joinsQ = []
-        let filtersQ = Persistence.Filter.createFilter [] objectName "Product_Id" "=" (string productId)
+        let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Product_Id" (string productId)
         let readR = Persistence.Api.read !fieldsQ objectName joinsQ filtersQ
         convertMetadataFromResult readR
 
@@ -49,7 +47,7 @@ open System
         let objectName = "ProductRating"
         let fieldsQ = ref (Persistence.ReadField.createReadFieldProc [] objectName "Rating" Persistence.ReadField.Num)
         fieldsQ := Persistence.ReadField.createReadFieldProc !fieldsQ objectName "Rating" Persistence.ReadField.Avg
-        let filtersQ = Persistence.Filter.createFilter [] objectName "Product_Id" "=" (string productId)
+        let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Product_Id" (string productId)
         let ratingR = Persistence.Api.read !fieldsQ objectName [] filtersQ
         if (ratingR.Length.Equals 1) && not (ratingR.Head.[objectName+"_Rating_Avg"].Equals "") && not (ratingR.Head.[objectName+"_Rating_Num"].Equals "") then
           Some {
@@ -62,7 +60,7 @@ open System
       let internal getProductType pType =
         let objectName = "ProductType"
         let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-        let filtersQ = Persistence.Filter.createFilter [] objectName "Name" "=" pType
+        let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Name" pType
         let prodType = Persistence.Api.read fieldsQ objectName [] filtersQ
         if (prodType.Length < 1) then raise ProductExceptions.NoSuchProductType
         else prodType.Head
@@ -86,7 +84,6 @@ open System
           rating = getRating (int result.["Id"])
           published = (Boolean.Parse result.["Published"]);
           id = (int result.["Id"]);
-          thumbnailPath = getOptionFromValue result.["Thumbnail_path"];
           metadata = metaData;
           description = getOptionFromValue result.["Description"];
           rentPrice = getOptionFromIntValue result.["Rent_price"];

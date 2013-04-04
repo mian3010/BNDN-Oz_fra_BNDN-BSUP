@@ -4,6 +4,19 @@ open ProductExceptions
 
 module Product =
 
+  let internal getLocalProductFile (id:int) owner =
+      let path = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + owner
+      let dir = new System.IO.DirectoryInfo(path);
+      try
+        dir.GetFiles(id.ToString() + ".*").[0]
+      with
+        | :? System.IO.DirectoryNotFoundException -> raise ProductExceptions.NoSuchMedia
+
+  let internal getLocalThumbnailFile (id:int) owner =
+      let path = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + owner + "\\Thumbnails"
+      let dir = new System.IO.DirectoryInfo(path);
+      dir.GetFiles(id.ToString() + ".*").[0]
+
   // Should this catch Exception and raise UnkownException?
 
   /// <summary>
@@ -55,7 +68,6 @@ module Product =
       rating = None;
       published = false;
       metadata = None;
-      thumbnailPath = None;
     }
 
   /// <summary>
@@ -175,6 +187,7 @@ module Product =
   let rateProduct (pId:int) (user:string) (rating:int) = 
     // Defens
     if (pId < 1) then raise (ArgumentException "ProductId invalid")
+    if (user = null || user.Trim().Length = 0) then raise (ArgumentException "User invalid")
     if (-5 > rating || rating > 5) then raise (ArgumentException "Rating must be between -5 and 5")
 
     try
@@ -196,3 +209,75 @@ module Product =
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
 
+  /// <summary>
+  /// Removes unpublished products from a list of products
+  ///</summary>
+  /// <typeparam> products </typeparam>
+  let rec filterUnpublished (products:Product list) =
+    match products with
+      | []                                    -> products
+      | p :: products when not p.published    -> filterUnpublished products
+      | p :: products                         -> [p] @ (filterUnpublished products)
+
+  /// <summary>
+  /// Returns all MIME types supported for a given product type
+  ///</summary>
+  /// <typeparam> product type </typeparam>
+  let getMimesForProductType (productType:string) : string list = raise (new System.NotImplementedException("TODO")); // TODO
+
+  /// <summary>
+  /// Persist a new media
+  ///</summary>
+  let persistMedia (id:uint32) (mime:string) (stream:System.IO.Stream) =
+    let p = getProductById (int id)
+    let fileName = p.id.ToString() + "." + mime.Replace(@"/", "_");
+    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\" + fileName
+
+    let fs = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
+    stream.CopyTo(fs);
+    stream.Close();
+    ()
+
+  /// <summary>
+  /// Persist a new media thumbnail
+  ///</summary>
+  let persistMediaThumbnail (id:uint32) (mime:string) (stream:System.IO.Stream) =
+    let p = getProductById (int id)
+    let fileType = mime.Substring(mime.IndexOf(@"/") + 1).ToLower();
+    let allowedTypes = Set.ofList ["jpeg"; "jpg"; "gif"; "png"]
+    if not (allowedTypes.Contains fileType) then raise ProductExceptions.MimeTypeNotAllowed
+    
+    let fileName = p.id.ToString() + "." + mime.Replace(@"/", "_");
+    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\Thumbnails\\" + fileName
+
+    let fs = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
+    stream.CopyTo(fs);
+    stream.Close();
+    ()
+
+  /// <summary>
+  /// Gets a stream to the requeste media and the media MIME type
+  ///</summary>
+  /// <exception> MediaNotFound </exception>
+  let getMedia (id:uint32) =
+    let product = getProductById (int id)
+    let info = getLocalProductFile (int id) product.owner
+    try
+      System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+    with
+      | :? System.IO.FileNotFoundException -> raise ProductExceptions.NoSuchMedia
+
+  /// <summary>
+  /// Gets a stream to the requeste media thumbnail and the media MIME type
+  ///</summary>
+  /// <exception> MediaNotFound </exception>
+  let getMediaThumbnail (id:uint32) = 
+    let product = getProductById (int id)
+    let info = getLocalThumbnailFile (int id) product.owner
+    try
+      System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+    with
+      | :? System.IO.FileNotFoundException -> raise ProductExceptions.NoSuchMedia
+
+  let searchProducts search =
+    ProductPersistence.searchProducts search

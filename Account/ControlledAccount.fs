@@ -2,6 +2,8 @@
 
 module ControlledAccount =
 
+    open PermissionExceptions
+    open PermissionsUtil
     open AccountPermissions
 
     ///////////////////////////////////////////////////////////////////////
@@ -88,9 +90,11 @@ module ControlledAccount =
         Internal.check invoker allowed |> ignore
         Account.resetPassword user
 
-    /// <summary>
-    /// Get a list of countries 
-    /// </summary>
-    /// <returns> String list of countries </returns>
-    let getListOfCountries = 
-      Account.getListOfCountries
+    /// Wrapper for Account.getAcceptedCountries, with the addition of {invoker}
+    /// {invoker} is of type Permissions.Invoker
+    /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
+    /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
+    let getAcceptedCountries invoker = 
+        let allowed = AccountPermissions.mayRetrieveCountryList invoker
+        Internal.check invoker allowed |> ignore
+        Account.getAcceptedCountries

@@ -66,7 +66,7 @@ namespace RentIt.Services.Controllers
 
                 // PRODUCE RESPONSE
 
-                AccountData[] results = h.Map(ListModule.ToArray(accounts), a => c.Convert(a, alsoAuth ? authTimes[a.user] : null));
+                AccountData[] results = h.Map(accounts, a => c.Convert(a, alsoAuth ? authTimes[a.user] : null));
 
                 h.Success();
 
@@ -77,7 +77,7 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { return h.Failure(400); }
             catch (AccountExceptions.UnknownAccType) { return h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (Exception) { return h.Failure(500); }
         }
 
@@ -88,7 +88,7 @@ namespace RentIt.Services.Controllers
                 // VERIFY
 
                 var invoker = h.Authorize();
-                var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth) invoker).Item.accType : "";
+                var accType = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth) invoker).Item.accType : "";
 
                 // GET DATA
 
@@ -111,7 +111,7 @@ namespace RentIt.Services.Controllers
                 return j.Json(account, keep);
             }
             catch (BadRequestException) { return h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (AccountExceptions.NoSuchUser) { return h.Failure(404); }
             catch (Exception) { return h.Failure(500); }
         }
@@ -147,7 +147,7 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { h.Failure(400); }
             catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); }
             catch (AccountExceptions.NoSuchUser) { h.Failure(404); }
             catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
@@ -158,6 +158,8 @@ namespace RentIt.Services.Controllers
             try
             {
                 // VERIFY
+
+                if (data == null || string.IsNullOrEmpty(data.email) || string.IsNullOrEmpty(data.password)) throw new BadRequestException();
 
                 var invoker = h.Authorize();
 
@@ -176,19 +178,26 @@ namespace RentIt.Services.Controllers
                 h.SetHeader("Location", "/accounts/"+user);
                 h.Success(201);
             }
-            catch (BadRequestException) { h.Failure(400); }
+            catch (BadRequestException) { h.Failure(400); } // TODO: Should also be returned for too long usernames, instead of 413 
             catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); } 
+            catch (AccountExceptions.UnknownAccType) { h.Failure(400); }
             catch (AccountExceptions.UserAlreadyExists) { h.Failure(409); }
             catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
         }
 
-        public Stream GetListOfCountries() {
-          try {
-            return j.StrArray(Account.getListOfCountries());
-          } catch (Exception) { h.Failure(500);  }
-          return null;
+        public Stream GetAcceptedCountries() {
+
+            try
+            {
+                var invoker = h.Authorize();
+
+                h.Success();
+                return j.Json(ControlledAccount.getAcceptedCountries(invoker));
+            }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
+            catch (Exception) { return h.Failure(500);  }
         }
     }
 }

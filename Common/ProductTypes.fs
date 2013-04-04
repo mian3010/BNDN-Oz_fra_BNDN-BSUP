@@ -20,7 +20,6 @@ module ProductTypes =
                    rating : Rating option;
                    published : bool;
                    id : int;
-                   thumbnailPath : string option;
                    metadata : Map<string, Meta> option;
                    description : string option;
                    rentPrice : int option;

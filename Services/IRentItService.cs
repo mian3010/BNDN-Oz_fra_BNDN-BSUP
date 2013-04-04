@@ -41,11 +41,6 @@ namespace RentIt
         Stream DefaultGetAccounts();
 
         [OperationContract]
-        [WebGet(UriTemplate = "/accounts/countries",
-                    ResponseFormat = WebMessageFormat.Json)]
-        Stream GetListOfCountries();
-
-        [OperationContract]
         [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={include_banned}",
                     ResponseFormat = WebMessageFormat.Json)]
         Stream GetAccounts(string types, string info, string include_banned);
@@ -66,6 +61,15 @@ namespace RentIt
                     UriTemplate = "/accounts/{user}",
                     RequestFormat = WebMessageFormat.Json)]
         void CreateAccount(string user, AccountData data);
+
+        #endregion
+
+        #region Countries
+
+        [OperationContract]
+        [WebGet(    UriTemplate = "/countries",
+                    ResponseFormat = WebMessageFormat.Json)]
+        Stream GetAcceptedCountries();
 
         #endregion
 
@@ -124,10 +128,9 @@ namespace RentIt
         void UpdateProductThumbnail(string id, Stream media);
 
         [OperationContract]
-        [WebGet(UriTemplate = "/products/types",
-                    ResponseFormat = WebMessageFormat.Json,
-                    BodyStyle = WebMessageBodyStyle.Bare)]
-        Stream GetListOfProductTypes();
+        [WebGet(    UriTemplate = "/products/types",
+                    ResponseFormat = WebMessageFormat.Json)]
+        Stream GetSupportedProductTypes();
 
         #endregion
 
@@ -290,7 +293,7 @@ namespace RentIt
     public class PriceData
     {
         [DataMember]
-        public uint buy { get; set; }
+        public uint? buy { get; set; }
         [DataMember]
         public uint? rent { get; set; }
     }

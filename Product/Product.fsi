@@ -1,4 +1,4 @@
-﻿namespace RentIt
+namespace RentIt
 open ProductTypes
 open ProductExceptions
 
@@ -107,3 +107,37 @@ module Product =
   /// </summary>
   /// <returns> List of products </returns>
   val getAll : unit -> Product list
+
+  /// <summary>
+  /// Removes unpublished products from a list of products
+  ///</summary>
+  /// <typeparam> products </typeparam>
+  val filterUnpublished : Product list -> Product list
+
+  /// <summary>
+  /// Returns all MIME types supported for a given product type
+  ///</summary>
+  /// <typeparam> product type </typeparam>
+  val getMimesForProductType : string -> string list
+
+  /// <summary>
+  /// Persist a new media
+  ///</summary>
+  val persistMedia : uint32 -> string -> System.IO.Stream -> unit
+
+  /// <summary>
+  /// Persist a new media thumbnail
+  ///</summary>
+  val persistMediaThumbnail : uint32 -> string -> System.IO.Stream -> unit
+
+  /// <summary>
+  /// Gets a stream to the requeste media and the media MIME type
+  ///</summary>
+  /// <exception> MediaNotFound </exception>
+  val getMedia : uint32 -> System.IO.FileStream*string
+
+  /// <summary>
+  /// Gets a stream to the requeste media thumbnail and the media MIME type
+  ///</summary>
+  /// <exception> MediaNotFound </exception>
+  val getMediaThumbnail : uint32 -> System.IO.FileStream*string

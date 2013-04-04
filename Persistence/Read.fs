@@ -8,20 +8,20 @@
                 | x::[] -> x.processor x
                 | x::xs -> x.processor x+","+joinReadFields xs
         ///Join ObjectJoin list in an SQL format
-        let rec internal joinJoins (fields:Types.ObjectJoin List) =
-            match fields with 
+        let rec internal joinJoins (joins:Types.ObjectJoin List) =
+            match joins with 
                 | [] -> ""
                 | x::[] -> ObjectJoin.Default x
                 | x::xs -> ObjectJoin.Default x+" "+joinJoins xs
         ///Join Filter list in an SQL format
-        let rec internal joinFilters (fields:Types.Filter List) =
-            match fields with 
+        let rec internal joinFilterGroups (filters:Types.FilterGroup List) =
+            match filters with 
                 | [] -> "1=1"
-                | x::[] -> x.processor x
-                | x::xs -> x.processor x+" AND "+joinFilters xs
+                | x::[] -> "("+ (x.processor x) + ")"
+                | x::xs -> "("+ (x.processor x) + ") AND "+joinFilterGroups xs
         ///Default processor
         let Default (read:Types.Read) =
-            "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilters read.filters
+            "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilterGroups read.filters
 
         //Factory functions
         let createRead fields objectName joins filters =

@@ -108,25 +108,6 @@
         Helper.removeTestProduct test
 
     [<Fact>]
-    let ``Test update product thumbnail path``() =
-      let test = "TestUpdateProductThumbnailPath"
-      try
-        //Create test data
-        let testProd = ref (Helper.createTestProduct test)
-        let update = Some "NewThumbnailPath"
-        //Change to updated name and test for change
-        testProd := {!testProd with thumbnailPath = update}
-        testProd := updateProduct !testProd
-        (!testProd).thumbnailPath |> should equal update
-        //Change back to prev and test for change
-        testProd := {!testProd with thumbnailPath = None}
-        testProd := updateProduct !testProd
-        (!testProd).thumbnailPath.IsNone |> should equal true
-      finally
-        //Clean up testdata
-        Helper.removeTestProduct test
-
-    [<Fact>]
     let ``Test update product description``() =
       let test = "TestUpdateProductDescription"
       try

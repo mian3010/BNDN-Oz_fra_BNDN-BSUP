@@ -36,7 +36,7 @@ module ProductPersistence =
           let user = AccountPersistence.getUserByName p.owner
           raise NoSuchProductType
         with 
-          | AccountExceptions.NoSuchUser -> raise NoSuchUser
+          | AccountExceptions.NoSuchUser|AccountPersistenceExceptions.NoUserWithSuchName -> raise NoSuchUser
           | _ as e -> raise e
 
   /// <summary>
@@ -48,7 +48,7 @@ module ProductPersistence =
   let getProductById (id:int) : Product =
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] objectName "" Persistence.ReadField.All
     let joinsQ = [];
-    let filtersQ = Persistence.Filter.createFilter [] objectName "Id" "=" (string id)
+    let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Id" (string id)
     let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
     if (readR.Length < 1) then raise NoSuchProduct
     convertFromResult readR.Head
@@ -63,7 +63,7 @@ module ProductPersistence =
   /// <exception> NoSuchProductType </exception>
   let updateProduct (p:Product) : Product =
     let dataQ = convertToDataIn objectName p
-    let filtersQ = Persistence.Filter.createFilter [] objectName "Id" "=" (string p.id)
+    let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Id" (string p.id)
     try
       let updateR = Persistence.Api.update objectName filtersQ dataQ
       if (updateR.Length < 1) then raise NoSuchProduct 
@@ -75,7 +75,7 @@ module ProductPersistence =
           let prod = getProductById p.id
           raise NoSuchProductType
         with 
-          | AccountExceptions.NoSuchUser|AccountPersistence.NoUserWithSuchName -> raise NoSuchUser
+          | AccountExceptions.NoSuchUser|AccountPersistenceExceptions.NoUserWithSuchName -> raise NoSuchUser
           | _ as e -> raise e
       | _ as e -> raise e
 
@@ -88,7 +88,7 @@ module ProductPersistence =
   let getProductByName (name:string) : Product list =
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] objectName "" Persistence.ReadField.All
     let joinsQ = [];
-    let filtersQ = Persistence.Filter.createFilter [] objectName "Name" "=" name
+    let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Name" name
     let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
     if (readR.Length < 1) then raise NoSuchProduct
     convertFromResults readR
@@ -104,7 +104,7 @@ module ProductPersistence =
     let prodType = getProductType pType
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] objectName "" Persistence.ReadField.All
     let joinsQ = [];
-    let filtersQ = Persistence.Filter.createFilter [] objectName "ProductType_Name" "=" pType
+    let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "ProductType_Name" pType
     let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
     convertFromResults readR
 
@@ -119,8 +119,8 @@ module ProductPersistence =
     let objectName = "ProductRating"
     let fieldsQ = Persistence.ReadField.createReadField [] objectName "Rating"
     let joinsQ = [];
-    let filtersQ = ref (Persistence.Filter.createFilter [] objectName "User_Username" "=" user)
-    filtersQ := Persistence.Filter.createFilter !filtersQ objectName "Product_Id" "=" (string pId)
+    let filtersQ = ref (Persistence.FilterGroup.createSingleFilterGroup [] objectName "User_Username" user)
+    filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "Product_Id" (string pId)
     let readR = Persistence.Api.read fieldsQ objectName joinsQ !filtersQ
     
     let dataQ = ref (Persistence.DataIn.createDataIn [] objectName "Rating" (string rating))
@@ -139,7 +139,7 @@ module ProductPersistence =
           let user = AccountPersistence.getUserByName user
           raise NoSuchProduct
         with 
-          | AccountExceptions.NoSuchUser -> raise NoSuchUser
+          | AccountExceptions.NoSuchUser|AccountPersistenceExceptions.NoUserWithSuchName -> raise NoSuchUser
           | _ as e -> raise e
     
 
@@ -150,7 +150,7 @@ module ProductPersistence =
   /// <typeparam> Boolean </typeparam>
   /// <exception> NoSuchProduct </exception>
   let publishProduct (pId:int) (status:bool) =
-    let filtersQ = Persistence.Filter.createFilter [] objectName "Id" "=" (string pId)
+    let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Id" (string pId)
     let dataQ = Persistence.DataIn.createDataIn [] objectName "Published" (string status)
     try
       let publishR = Persistence.Api.update objectName filtersQ dataQ
@@ -183,3 +183,12 @@ module ProductPersistence =
     for c in v do
       l <- l@[c.["Name"]]
     List.toArray l
+
+  let searchProducts search =
+    let objectName = "Product"
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    let joinsQ = Persistence.ObjectJoin.createObjectJoin [] "Product" "Id" "MetaData" "Product_Id"
+    let filtersQ = ref (Persistence.FilterGroup.createFilterGroupProcProc [] objectName "Name" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition)
+    filtersQ := Persistence.FilterGroup.createFilterGroupProcProc !filtersQ objectName "Description" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition
+    filtersQ := Persistence.FilterGroup.createFilterGroupProcProc !filtersQ "MetaData" "Content" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition
+    convertFromResults (Persistence.Api.read fieldsQ objectName joinsQ !filtersQ)
