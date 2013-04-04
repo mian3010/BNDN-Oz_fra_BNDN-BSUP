@@ -211,3 +211,6 @@ module AccountPermissions =
             | _                                     -> check (CheckTarget.Type accType)
         with
         | NoSuchUser -> Access.Denied "No account with the target username exists"
+
+    /// Whether some invoker may return all accepted country names of the Account.ExtraAccInfo.address field
+    let mayRetrieveCountryList invoker = Access.Accepted // TODO: Add permission check to database

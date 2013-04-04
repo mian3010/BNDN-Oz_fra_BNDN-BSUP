@@ -259,16 +259,15 @@ namespace Services.Controllers
             return null;
         }
 
-        public Stream GetListOfProductTypes()
+        public Stream GetSupportedProductTypes()
         {
-          OutgoingWebResponseContext response = _h.GetResponse();
-
-          try {
-            return _j.StrArray(Product.getListOfProductTypes());
-          } catch (Exception) {
-            response.StatusCode = HttpStatusCode.InternalServerError;
-          }
-          return null;
+            try
+            {
+                var invoker = _h.Authorize();
+                return _j.Json(Product.getListOfProductTypes(/*invoker*/));
+            }
+           // catch (ProductPermissions.PermissionDenied) { return _h.Failure(403); }
+            catch (Exception) { return _h.Failure(500); }
         }
 
         /// <summary>
