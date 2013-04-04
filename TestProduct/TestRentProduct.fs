@@ -1,10 +1,11 @@
-﻿namespace RentIt
+﻿namespace RentIt.Test
 module TestRentProduct =
 
   open Xunit
   open FsUnit.Xunit
-  open ProductExceptions
-  open ProductTypes
+  open RentIt.ProductExceptions
+  open RentIt.ProductTypes
+  open RentIt
   
   [<Fact>]
   let ``something with rent``() =

@@ -186,5 +186,5 @@ module Account =
     /// Get a list of countries 
     /// </summary>
     /// <returns> String list of countries </returns>
-    let getListOfCountries =
-      AccountPersistence.getListOfCountries
+    let getListOfCountries () =
+      AccountPersistence.getListOfCountries ()

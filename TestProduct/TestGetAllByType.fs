@@ -1,17 +1,20 @@
-﻿namespace RentIt
+﻿namespace RentIt.Test
 module TestGetAllByType =
 
   open Xunit
   open FsUnit.Xunit
-  open ProductExceptions
-  open ProductTypes
+  open RentIt.ProductExceptions
+  open RentIt.ProductTypes
+  open RentIt
 
   [<Fact>]
   let ``get products by type name should work``() =
     let tp = Helper.createTestProduct "test get p by type"
     let p = Product.getAllByType tp.productType
-    p |> should be ofExactType<Product list>
-    Helper.removeTestProduct "test get p by type"
+    try
+      p |> should be ofExactType<Product list>
+    finally
+      Helper.removeTestProduct "test get p by type"
 
   [<Fact>]
   let ``get products by type name should throw arg``() =

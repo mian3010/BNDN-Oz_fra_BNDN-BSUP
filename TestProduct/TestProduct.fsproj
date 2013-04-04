@@ -38,7 +38,6 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="app.config" />
-    <Compile Include="Helper.fs" />
     <Compile Include="TestMake.fs" />
     <Compile Include="TestGetProductById.fs" />
     <Compile Include="TestPersist.fs" />
@@ -47,8 +46,19 @@
     <Compile Include="TestUpdate.fs" />
     <Compile Include="TestBuyProduct.fs" />
     <Compile Include="TestRentProduct.fs" />
+    <Compile Include="ProductPersistence_CreateProductTest.fs" />
+    <Compile Include="ProductPersistence_UpdateProductTest.fs" />
+    <Compile Include="ProductPersistence_GetProductTest.fs" />
+    <Compile Include="ProductPersistence_RateProductTest.fs" />
+    <Compile Include="ProductPersistence_PublishProduct.fs" />
+    <Compile Include="ProductPersistence_CreateProductTypeTest.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TestHelpers\TestHelpers.fsproj">
+      <Name>TestHelpers</Name>
+      <Project>{22854d1d-95b5-410e-a494-4cf02f662f7e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <Reference Include="FsUnit.CustomMatchers">
       <HintPath>..\packages\FsUnit.xUnit.1.2.1.2\lib\Net40\FsUnit.CustomMatchers.dll</HintPath>
       <Private>True</Private>
@@ -80,11 +90,6 @@
     <ProjectReference Include="..\Common\Common.fsproj">
       <Name>Common</Name>
       <Project>{1a2ef8ab-e695-43ca-a3db-e9c0d71ee5be}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\ModulePersistence\ModulePersistence.fsproj">
-      <Name>ModulePersistence</Name>
-      <Project>{5226b644-3db6-43b1-bb57-959fe2b70e88}</Project>
       <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\Persistence\Persistence.fsproj">

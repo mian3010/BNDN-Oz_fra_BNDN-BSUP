@@ -183,5 +183,12 @@ namespace RentIt.Services.Controllers
             catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
         }
+
+        public Stream GetListOfCountries() {
+          try {
+            return j.StrArray(Account.getListOfCountries());
+          } catch (Exception) { h.Failure(500);  }
+          return null;
+        }
     }
 }

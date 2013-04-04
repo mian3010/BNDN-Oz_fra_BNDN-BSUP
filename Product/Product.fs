@@ -57,6 +57,28 @@ module Product =
       metadata = None;
       thumbnailPath = None;
     }
+
+  /// <summary>
+  /// Get a list of product types 
+  /// </summary>
+  /// <returns> String list of product types </returns>
+  let getListOfProductTypes () : string[] =
+    ProductPersistence.getListOfProductTypes ()
+
+  /// <summary>
+  /// Get all products
+  /// </summary>
+  /// <returns> List of products </returns>
+  let getAll () : Product list =
+    let types = getListOfProductTypes ()
+    let returnList = ref []
+    try
+      for s in types do
+        returnList := returnList.Value @ ProductPersistence.getProductByType s
+      returnList.Value
+    with
+      | ProductPersistence.NoSuchProduct     -> raise NoSuchProduct
+      | ProductPersistence.NoSuchProductType -> raise NoSuchProductType
   
   /// <summary>
   /// Get prodcut by product id
@@ -89,16 +111,17 @@ module Product =
 
   /// <summary>
   /// Get all products by product type
+  /// If the type argument is empty, all products will be returned
   /// </summary>
   // <typeparam> Product type name </typeparam>
   /// <returns> List of products </returns>
   /// <exception> RentIt.Product.NoSuchProductType </exception>
   /// <exception> RentIt.Product.ArgumentException </exception>
   let getAllByType (typeName:string) : Product list =
-    if (typeName = null || typeName.Trim().Length = 0) then raise (ArgumentException "Product type name empty")
+    if (typeName = null) then raise (ArgumentException "Product type name empty")
 
     try
-      ProductPersistence.getProductByType typeName
+      if typeName.Trim().Length = 0 then getAll() else ProductPersistence.getProductByType typeName
     with
       | ProductPersistence.NoSuchProduct     -> raise NoSuchProduct
       | ProductPersistence.NoSuchProductType -> raise NoSuchProductType
@@ -173,9 +196,3 @@ module Product =
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
 
-  /// <summary>
-  /// Get a list of product types 
-  /// </summary>
-  /// <returns> String list of product types </returns>
-  let getListOfProductTypes =
-    ProductPersistence.getListOfProductTypes

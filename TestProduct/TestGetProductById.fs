@@ -1,17 +1,20 @@
-﻿namespace RentIt
+﻿namespace RentIt.Test
   open System
   open Xunit
   open FsUnit.Xunit
-  open ProductExceptions
-  open ProductTypes
+  open RentIt.ProductExceptions
+  open RentIt.ProductTypes
+  open RentIt
 
   module TestGetProductById =
     [<Fact>]
     let ``get product by id should work``() =
-      Helper.createTestProduct "test get p id" |> ignore
-      let p = Product.getProductById 4
-      p |> should be ofExactType<Product>
-      Helper.removeTestProduct "test get p id"
+      let testProd = Helper.createTestProduct "test get p id"
+      let p = Product.getProductById testProd.id
+      try
+        p |> should be ofExactType<Product>
+      finally
+        Helper.removeTestProduct "test get p id"
 
     [<Fact>]
     let ``get product by id should throw arg``() =

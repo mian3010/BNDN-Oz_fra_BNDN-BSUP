@@ -231,10 +231,10 @@ open System.Security
         /// Get a list of countries 
         /// </summary>
         /// <returns> String list of countries </returns>
-        let getListOfCountries =
+        let getListOfCountries () =
           let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
           let v = Persistence.Api.read fieldsQ "Country" [] []
           let mutable l:string list = []
           for c in v do
             l <- l@[c.["Name"]]
-          l
+          List.toArray l
