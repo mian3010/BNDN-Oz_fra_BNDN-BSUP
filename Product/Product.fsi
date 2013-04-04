@@ -101,3 +101,9 @@ module Product =
   /// </summary>
   /// <returns> String list of product types </returns>
   val getListOfProductTypes : unit -> string[]
+
+   /// <summary>
+  /// Get all products
+  /// </summary>
+  /// <returns> List of products </returns>
+  val getAll : unit -> Product list
