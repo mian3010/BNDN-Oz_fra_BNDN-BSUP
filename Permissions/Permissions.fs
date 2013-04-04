@@ -34,7 +34,18 @@ open RentIt
       else result
 
     let checkProductPermission (id:int) (permission:string) : bool =
-      raise (System.NotImplementedException())
+      // Find Product_has_AllowedAction
+      // WHERE Product_Id = id
+      // WHERE AllowedAction = permission
+      let objectName = "Product_has_AllowedAction"
+      let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+      let filtersQ = ref (Persistence.Filter.createFilter [] objectName "Product_Id" "=" (string id))
+      filtersQ := Persistence.Filter.createFilter !filtersQ objectName "AllowedAction" "=" permission
+      let permissions = Persistence.Api.read fieldsQ objectName [] !filtersQ
+
+      // Check if any results
+      if not permissions.IsEmpty then true
+      else false
 
     // Assign a Permission to an ActionGroup
     // Takes ActionGroup Name and Permission. Both as strings
