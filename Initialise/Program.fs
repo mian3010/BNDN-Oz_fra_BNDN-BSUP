@@ -200,9 +200,8 @@ module Main =
     
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "CREATE_TYPE_Customer"
 
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDIT"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDITS"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "RATE_PRODUCT_ANY"
-
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_PRODUCT_ANY"
     
