@@ -34,13 +34,13 @@
     /// <summary>
     /// Create a buy transaction
     /// </summary>
-    /// <typeparam> Username of account that creates the transaction </typeparam>
+    /// <typeparam> The buy transaction to create </typeparam>
     /// <typeparam> The time of the transaction </typeparam>
     /// <typeparam> The product id </typeparam>
     /// <returns> The new transaction. Persisted </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
-    let createBuyTransaction (username:string) (create:System.DateTime) (product:int) :RentOrBuy =
+    let createBuyTransaction (buy:Buy) :Buy =
       raise (new System.NotImplementedException())
 
     /// <summary>
@@ -53,7 +53,7 @@
     /// <returns> The new transaction. Persisted </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
-    let createRentTransaction (username:string) (create:System.DateTime) (product:int) (expire:System.DateTime) :RentOrBuy =
+    let createRentTransaction (rent:Rent) :Rent =
       raise (new System.NotImplementedException())
 
     /// <summary>

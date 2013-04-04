@@ -101,18 +101,37 @@ open RentIt.CreditsPersistence
       let removeUser = removeTestUser test
       ()
 
+    //Create a transaction type
+    let createTestBuyTransactionType user payDate product =
+      {
+        item=({
+              id=(-1);
+              user=user;
+              purchased=payDate;
+              product=product;
+              paid=20;
+        }:CreditsTypes.Transaction)
+      }:CreditsTypes.Buy
+    //Create a transaction type
+    let createTestRentTransactionType user payDate product expiresDate =
+      {
+        item=({
+              id=(-1);
+              user=user;
+              purchased=payDate;
+              product=product;
+              paid=20;
+        }:CreditsTypes.Transaction);
+        expires=expiresDate;
+      }:CreditsTypes.Rent
+
     //Create test buy transaction
     let createTestBuyTransaction test =
       let payDate = System.DateTime.Parse "2012-01-01 01:01:01"
-      (match (createBuyTransaction ("TESTUSER_"+test) payDate (getProductByName ("TESTPRODUCT_"+test)).Head.id) with
-        | CreditsTypes.RentOrBuy.Rent b -> Some b
-        | _ -> None).Value
+      createBuyTransaction (createTestBuyTransactionType ("TESTUSER_"+test) payDate (getProductByName ("TESTPRODUCT_"+test)).Head)
 
     //Create test rent transaction
     let createTestRentTransaction test =
       let payDate = System.DateTime.Parse "2012-01-01 01:01:01"
       let expireDate = System.DateTime.Parse "2012-01-02 01:01:01"
-      (match (createRentTransaction ("TESTUSER_"+test) payDate (getProductByName ("TESTPRODUCT_"+test)).Head.id expireDate) with
-        | CreditsTypes.RentOrBuy.Rent b -> Some b
-        | _ -> None).Value
-
+      createRentTransaction (createTestRentTransactionType ("TESTUSER_"+test) payDate (getProductByName ("TESTPRODUCT_"+test)).Head expireDate)
