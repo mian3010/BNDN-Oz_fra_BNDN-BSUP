@@ -293,7 +293,7 @@ namespace RentIt
     public class PriceData
     {
         [DataMember]
-        public uint buy { get; set; }
+        public uint? buy { get; set; }
         [DataMember]
         public uint? rent { get; set; }
     }

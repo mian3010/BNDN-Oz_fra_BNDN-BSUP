@@ -105,7 +105,7 @@ namespace RentIt.Services
             return asStream("[" + h.Join(h.Map(strings, s => escape(s)), ",") + "]");
         }
 
-        public Stream JsonArray(uint[] intArray)
+        public Stream Json(uint[] intArray)
         {
             return asStream("[" + h.Join(intArray, ",") + "]");
         }

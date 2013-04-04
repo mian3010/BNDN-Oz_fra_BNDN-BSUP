@@ -8,6 +8,8 @@ module ProductExceptions =
   exception ProductAlreadyExists
   exception NoSuchProductType
   exception UpdateNotAllowed of string
+  exception OutdatedData      // If a call to 'update' cannot succeed, because the changes conflict with more recent changes
+  exception TooLargeData      // If an product could not be persisted, because its fields were too large
 
 module PersistenceExceptions =
   exception PersistenceException

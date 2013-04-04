@@ -14,7 +14,6 @@ open RentIt
         rating = None;
         published = true;
         id = -1;
-        thumbnailPath = None;
         metadata = None;
         description = Some "Description";
         rentPrice = Some 20;

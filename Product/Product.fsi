@@ -107,3 +107,35 @@ module Product =
   /// </summary>
   /// <returns> List of products </returns>
   val getAll : unit -> Product list
+
+  /// <summary>
+  /// Removes unpublished products from a list of products
+  ///</summary>
+  /// <typeparam> products </typeparam>
+  val filterUnpublished : Product list -> Product list
+
+  /// <summary>
+  /// Returns all MIME types supported for a given product type
+  ///</summary>
+  /// <typeparam> product type </typeparam>
+  val getMimesForProductType : string -> string list
+
+  /// <summary>
+  /// Persist a new media
+  ///</summary>
+  val persistMedia : ProductTypes.Product -> string -> System.IO.Stream -> unit
+
+  /// <summary>
+  /// Persist a new media thumbnail
+  ///</summary>
+  val persistMediaThumbnail : ProductTypes.Product -> string -> System.IO.Stream -> unit
+
+  /// <summary>
+  /// Gets a stream to the requeste media and the media MIME type
+  ///</summary>
+  val getMedia : uint32 -> System.IO.Stream*string
+
+  /// <summary>
+  /// Gets a stream to the requeste media thumbnail and the media MIME type
+  ///</summary>
+  val getMediaThumbnail : uint32 -> System.IO.Stream*string
