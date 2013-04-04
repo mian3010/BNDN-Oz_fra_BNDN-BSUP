@@ -40,7 +40,7 @@ open System
         let fieldsQ = ref (Persistence.ReadField.createReadField [] objectName "Content")
         fieldsQ := Persistence.ReadField.createReadField !fieldsQ objectName "MetaDataType_Name"
         let joinsQ = []
-        let filtersQ = Persistence.Filter.createFilter [] objectName "Product_Id" "=" (string productId)
+        let filtersQ = Persistence.Filter.createFilter [] objectName "Product_Id" (string productId)
         let readR = Persistence.Api.read !fieldsQ objectName joinsQ filtersQ
         convertMetadataFromResult readR
 
@@ -49,7 +49,7 @@ open System
         let objectName = "ProductRating"
         let fieldsQ = ref (Persistence.ReadField.createReadFieldProc [] objectName "Rating" Persistence.ReadField.Num)
         fieldsQ := Persistence.ReadField.createReadFieldProc !fieldsQ objectName "Rating" Persistence.ReadField.Avg
-        let filtersQ = Persistence.Filter.createFilter [] objectName "Product_Id" "=" (string productId)
+        let filtersQ = Persistence.Filter.createFilter [] objectName "Product_Id" (string productId)
         let ratingR = Persistence.Api.read !fieldsQ objectName [] filtersQ
         if (ratingR.Length.Equals 1) && not (ratingR.Head.[objectName+"_Rating_Avg"].Equals "") && not (ratingR.Head.[objectName+"_Rating_Num"].Equals "") then
           Some {
@@ -62,7 +62,7 @@ open System
       let internal getProductType pType =
         let objectName = "ProductType"
         let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-        let filtersQ = Persistence.Filter.createFilter [] objectName "Name" "=" pType
+        let filtersQ = Persistence.Filter.createFilter [] objectName "Name" pType
         let prodType = Persistence.Api.read fieldsQ objectName [] filtersQ
         if (prodType.Length < 1) then raise ProductExceptions.NoSuchProductType
         else prodType.Head
