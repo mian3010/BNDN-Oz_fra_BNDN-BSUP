@@ -278,3 +278,6 @@ module Product =
       System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
     with
       | :? System.IO.FileNotFoundException -> raise ProductExceptions.NoSuchMedia
+
+  let searchProducts search =
+    ProductPersistence.searchProducts search

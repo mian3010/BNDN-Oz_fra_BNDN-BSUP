@@ -85,3 +85,5 @@ module ProductPersistence =
   /// </summary>
   /// <returns> String list of product types </returns>
   val getListOfProductTypes : unit -> string[]
+
+  val searchProducts : string -> Product list

@@ -36,7 +36,7 @@ module ProductPersistence =
           let user = AccountPersistence.getUserByName p.owner
           raise NoSuchProductType
         with 
-          | AccountExceptions.NoSuchUser -> raise NoSuchUser
+          | AccountExceptions.NoSuchUser|AccountPersistenceExceptions.NoUserWithSuchName -> raise NoSuchUser
           | _ as e -> raise e
 
   /// <summary>
@@ -139,7 +139,7 @@ module ProductPersistence =
           let user = AccountPersistence.getUserByName user
           raise NoSuchProduct
         with 
-          | AccountExceptions.NoSuchUser -> raise NoSuchUser
+          | AccountExceptions.NoSuchUser|AccountPersistenceExceptions.NoUserWithSuchName -> raise NoSuchUser
           | _ as e -> raise e
     
 
@@ -184,6 +184,11 @@ module ProductPersistence =
       l <- l@[c.["Name"]]
     List.toArray l
 
-  //let searchProducts search =
-    //let baseObject = "Product"
-    //fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+  let searchProducts search =
+    let objectName = "Product"
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    let joinsQ = Persistence.ObjectJoin.createObjectJoin [] "Product" "Id" "MetaData" "Product_Id"
+    let filtersQ = ref (Persistence.FilterGroup.createFilterGroupProcProc [] objectName "Name" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition)
+    filtersQ := Persistence.FilterGroup.createFilterGroupProcProc !filtersQ objectName "Description" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition
+    filtersQ := Persistence.FilterGroup.createFilterGroupProcProc !filtersQ "MetaData" "Content" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition
+    convertFromResults (Persistence.Api.read fieldsQ objectName joinsQ !filtersQ)
