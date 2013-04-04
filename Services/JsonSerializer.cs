@@ -111,6 +111,11 @@ namespace RentIt.Services
           return asStream(str);
         }
 
+        public Stream JsonArray(uint[] intArray)
+        {
+            return asStream("[" + h.Join(intArray, ",") + "]");
+        }
+
         // Causes any property but those specified by keep to be set to null
         private T nullOutBut<T>(T obj, HashSet<string> keep)
         {
