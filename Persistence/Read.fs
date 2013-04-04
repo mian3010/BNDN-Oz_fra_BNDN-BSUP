@@ -18,7 +18,8 @@
             match filters with 
                 | [] -> "1=1"
                 | x::[] -> "("+ (x.processor x) + ")"
-                | x::xs -> "("+ (x.processor x) + ") AND "+joinFilterGroups xs
+                | x::xs when x.joiner.IsSome -> "("+ (x.processor x) + ") " + x.joiner.Value + " "+joinFilterGroups xs
+                | x::xs -> "("+ (x.processor x) + ") " + FilterGroup.defaultJoiner + " "+joinFilterGroups xs
         ///Default processor
         let Default (read:Types.Read) =
             "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilterGroups read.filters

@@ -44,6 +44,7 @@
     <Compile Include="Credits.fsi" />
     <Compile Include="Credits.fs" />
     <Compile Include="CreditsPersistence.fsi" />
+    <Compile Include="CreditsPersistenceHelper.fs" />
     <Compile Include="CreditsPersistence.fs" />
   </ItemGroup>
   <ItemGroup>

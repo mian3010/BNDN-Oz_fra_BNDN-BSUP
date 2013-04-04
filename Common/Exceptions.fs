@@ -37,3 +37,4 @@ module AccountPersistenceExceptions =
 module CreditsExceptions =
   exception NotEnoughCredits
   exception NoSuchTransaction
+  exception UnexpectedType
