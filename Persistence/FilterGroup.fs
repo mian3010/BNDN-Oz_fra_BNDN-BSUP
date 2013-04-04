@@ -36,3 +36,6 @@
 
     let createFilterGroupFiltersProc (list:Types.FilterGroup List) (filters:Types.Filter List) processor =
       list@[({filters=filters;processor=processor;}:Types.FilterGroup)]
+
+    let createFilterGroupFilters (list:Types.FilterGroup List) (filters:Types.Filter List)=
+      list@[({filters=filters;processor=Default;}:Types.FilterGroup)]
