@@ -31,7 +31,6 @@ namespace Services.Controllers
         {
             var invoker = _h.Authorize();
             var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
-            
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
@@ -123,11 +122,11 @@ namespace Services.Controllers
                         oldProduct.createDate,
                         data.type,
                         data.owner,
-                        data.rating == null ? FSharpOption<ProductTypes.Rating>.None : FSharpOption < ProductTypes.Rating >.Some(RatingDataToMetaTypeMap(data.rating)),
+                        _h.RatingDataToRatingTypeOption(data.rating),
                         data.published == null || (bool) data.published,
                         int.Parse(id),
                         FSharpOption<string>.None, // Use the API to get the thumbnail
-                        data.meta == null ? FSharpOption<FSharpMap<string, ProductTypes.Meta>>.None : FSharpOption<FSharpMap<string, ProductTypes.Meta>>.Some(MetaDataToMetaTypeMap(data.meta)),
+                        _h.MetaDataToMetaTypeMapOption(data.meta),
                         FSharpOption<string>.Some(data.description),
                         data.price.rent == null ? FSharpOption<int>.None : FSharpOption<int>.Some((int)data.price.rent),
                         FSharpOption<int>.Some((int)data.price.buy));
@@ -325,32 +324,6 @@ namespace Services.Controllers
                     rent = product.rentPrice.Equals(FSharpOption<int>.None) ? 0 : uint.Parse(product.rentPrice.Value.ToString())
                 }
             };
-        }
-
-        /// <summary>
-        /// Converts a RatingData into a ProductTypes.Rating 
-        /// </summary>
-        /// <param name="data">The RatingData object to convert</param>
-        /// <returns>The RatingData converted into a ProductTypes.Rating</returns>
-        private static ProductTypes.Rating RatingDataToMetaTypeMap(RatingData data)
-        {
-            return new ProductTypes.Rating(data.score, (int)data.count);
-        }
-
-        /// <summary>
-        /// Converts an array of MetaData objects into an F# map,
-        /// with name as the key and value as the value.
-        /// </summary>
-        /// <param name="dataset">The collection of MetaData to convert</param>
-        /// <returns>A new FSharpMap</returns>
-        private static FSharpMap<string, ProductTypes.Meta> MetaDataToMetaTypeMap(params MetaData[] dataset)
-        {
-            List<Tuple<string, ProductTypes.Meta>> tupleList = new List<Tuple<string, ProductTypes.Meta>>();
-            foreach(MetaData data in dataset)
-            {
-                tupleList.Add(new Tuple<string, ProductTypes.Meta>(data.name, new ProductTypes.Meta(data.name, data.value)));
-            }
-            return new FSharpMap<string,ProductTypes.Meta>(tupleList);
         }
 
         /// <summary>
