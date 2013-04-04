@@ -178,7 +178,8 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { h.Failure(400); } // TODO: Should also be returned for too long usernames, instead of 413 
             catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { h.Failure(403); }
+            catch (AccountPermissions.PermissionDenied) { h.Failure(403); } 
+            catch (AccountExceptions.UnknownAccType) { h.Failure(400); }
             catch (AccountExceptions.UserAlreadyExists) { h.Failure(409); }
             catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }

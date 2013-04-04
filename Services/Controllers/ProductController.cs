@@ -343,32 +343,6 @@ namespace Services.Controllers
         }
 
         /// <summary>
-        /// Converts a RatingData into a ProductTypes.Rating 
-        /// </summary>
-        /// <param name="data">The RatingData object to convert</param>
-        /// <returns>The RatingData converted into a ProductTypes.Rating</returns>
-        private static ProductTypes.Rating RatingDataToMetaTypeMap(RatingData data)
-        {
-            return new ProductTypes.Rating(data.score, (int)data.count);
-        }
-
-        /// <summary>
-        /// Converts an array of MetaData objects into an F# map,
-        /// with name as the key and value as the value.
-        /// </summary>
-        /// <param name="dataset">The collection of MetaData to convert</param>
-        /// <returns>A new FSharpMap</returns>
-        private static FSharpMap<string, ProductTypes.Meta> MetaDataToMetaTypeMap(params MetaData[] dataset)
-        {
-            List<Tuple<string, ProductTypes.Meta>> tupleList = new List<Tuple<string, ProductTypes.Meta>>();
-            foreach(MetaData data in dataset)
-            {
-                tupleList.Add(new Tuple<string, ProductTypes.Meta>(data.name, new ProductTypes.Meta(data.name, data.value)));
-            }
-            return new FSharpMap<string,ProductTypes.Meta>(tupleList);
-        }
-
-        /// <summary>
         /// Finds a file located on the server, by using the ID and the owner of the file
         /// </summary>
         /// <param name="id">The id of the file</param>

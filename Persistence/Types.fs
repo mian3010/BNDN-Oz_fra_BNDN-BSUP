@@ -11,7 +11,6 @@
         ///Defining a filter in a query. In WHERE clause
         type Filter = {
             field : Field;
-            operator : string;
             value : string;
             processor : Filter -> string;
         }
