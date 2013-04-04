@@ -165,19 +165,26 @@ namespace Services.Controllers
                 // VERIFY
 
                 int pId;
-                try { pId = (int)h.Uint(id); }
+                try { pId = (int) h.Uint(id); }
                 catch (BadRequestException) { throw new NotFoundException(); }
 
                 string mime = h.Header("Content-Type");
                 if (string.IsNullOrEmpty(mime)) throw new BadRequestException();
 
-                if (data == null) throw new BadRequestException();
+                bool mimeOk = false;
+                var product = Product.getProductById(pId);
+                foreach (string m in Product.getMimesForProductType(product.productType)) {
+
+                    if (m.Equals(mime)) { mimeOk = true; break; }
+                }
+
+                if (data == null || !mimeOk) throw new BadRequestException();
 
                 var invoker = h.Authorize();
 
                 // PERSIST
 
-                Product.persistMediaThumbnail(pId, mime, data);
+                Product.persistMedia((uint) pId, mime, data);
 
                 // SIGNAL SUCCESS
 
@@ -195,8 +202,8 @@ namespace Services.Controllers
             {
                 // VERIFY
 
-                int pId;
-                try { pId = (int)h.Uint(id); }
+                uint pId;
+                try { pId = h.Uint(id); }
                 catch (BadRequestException) { throw new NotFoundException(); }
 
                 string mime = h.Header("Content-Type");
@@ -286,14 +293,34 @@ namespace Services.Controllers
             catch (Exception) { h.Failure(500); }
         }
 
-        public Stream GetPurchasedMedia(string customer, string id)
-        {
-
-        }
-
         public Stream GetProductThumbnail(string id)
         {
- 
+            try
+            {
+                // VERIFY
+
+                uint pId;
+                try { pId = h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                var invoker = h.Authorize();
+
+                // LOAD
+
+                var result = Product.getMediaThumbnail(pId);
+
+                // SIGNAL SUCCESS
+
+                h.SetHeader("Content-Length", result.Item1.Length.ToString());
+                h.Success(200, result.Item2);
+
+                return result.Item1;
+            }
+            catch (BadRequestException) { return h.Failure(400); }
+            catch (NotFoundException) { return h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { return h.Failure(404); }
+            catch (ProductExceptions.NoSuchMedia) { return h.Failure(404); }
+            catch (Exception) { return h.Failure(500); } 
         }
 
         public Stream GetSupportedProductTypes()
