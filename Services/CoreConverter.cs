@@ -298,8 +298,8 @@ namespace RentIt.Services
 
         public MetaData[] Convert(FSharpMap<string, ProductTypes.Meta> meta)
         {
-            if (meta == null || meta.Count == null) return null;
-
+            if (meta == null || meta.Count == 0) return null;
+            
             return h.Map(meta, pair => Convert(pair.Value));
         }
 

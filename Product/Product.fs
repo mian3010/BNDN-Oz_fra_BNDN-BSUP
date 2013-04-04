@@ -4,6 +4,16 @@ open ProductExceptions
 
 module Product =
 
+  let internal getLocalProductFile (id:int) owner =
+      let path = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + owner
+      let dir = new System.IO.DirectoryInfo(path);
+      dir.GetFiles(id.ToString() + ".*").[0]
+
+  let internal getLocalThumbnailFile (id:int) owner =
+      let path = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + owner + "\\Thumbnails"
+      let dir = new System.IO.DirectoryInfo(path);
+      dir.GetFiles(id.ToString() + ".*").[0]
+
   // Should this catch Exception and raise UnkownException?
 
   /// <summary>
@@ -211,3 +221,49 @@ module Product =
   ///</summary>
   /// <typeparam> product type </typeparam>
   let getMimesForProductType (productType:string) : string list = raise (new System.NotImplementedException("TODO")); // TODO
+
+  /// <summary>
+  /// Persist a new media
+  ///</summary>
+  let persistMedia (id:uint32) (mime:string) (stream:System.IO.Stream) =
+    let p = getProductById (int id)
+    let fileName = p.id.ToString() + "." + mime.Replace(@"/", "_");
+    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\" + fileName
+
+    let fs = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
+    stream.CopyTo(fs);
+    stream.Close();
+    ()
+
+  /// <summary>
+  /// Persist a new media thumbnail
+  ///</summary>
+  let persistMediaThumbnail (id:uint32) (mime:string) (stream:System.IO.Stream) =
+    let p = getProductById (int id)
+    let fileType = mime.Substring(mime.IndexOf(@"/") + 1).ToLower();
+    let allowedTypes = Set.ofList ["jpeg"; "jpg"; "gif"; "png"]
+    if not (allowedTypes.Contains fileType) then raise ProductExceptions.MIMETypeNotAllowed
+    
+    let fileName = p.id.ToString() + "." + mime.Replace(@"/", "_");
+    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\Thumbnails\\" + fileName
+
+    let fs = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
+    stream.CopyTo(fs);
+    stream.Close();
+    ()
+
+  /// <summary>
+  /// Gets a stream to the requeste media and the media MIME type
+  ///</summary>
+  let getMedia (id:uint32) =
+    let product = getProductById (int id)
+    let info = getLocalProductFile (int id) product.owner
+    System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+
+  /// <summary>
+  /// Gets a stream to the requeste media thumbnail and the media MIME type
+  ///</summary>
+  let getMediaThumbnail (id:uint32) = 
+    let product = getProductById (int id)
+    let info = getLocalThumbnailFile (int id) product.owner
+    System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
