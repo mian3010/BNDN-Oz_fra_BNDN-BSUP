@@ -133,9 +133,11 @@ module Product =
   /// <summary>
   /// Gets a stream to the requeste media and the media MIME type
   ///</summary>
+  /// <exception> MediaNotFound </exception>
   val getMedia : uint32 -> System.IO.FileStream*string
 
   /// <summary>
   /// Gets a stream to the requeste media thumbnail and the media MIME type
   ///</summary>
+  /// <exception> MediaNotFound </exception>
   val getMediaThumbnail : uint32 -> System.IO.FileStream*string

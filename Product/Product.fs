@@ -7,7 +7,10 @@ module Product =
   let internal getLocalProductFile (id:int) owner =
       let path = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + owner
       let dir = new System.IO.DirectoryInfo(path);
-      dir.GetFiles(id.ToString() + ".*").[0]
+      try
+        dir.GetFiles(id.ToString() + ".*").[0]
+      with
+        | :? System.IO.DirectoryNotFoundException -> raise ProductExceptions.MediaNotFound
 
   let internal getLocalThumbnailFile (id:int) owner =
       let path = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + owner + "\\Thumbnails"
@@ -255,15 +258,23 @@ module Product =
   /// <summary>
   /// Gets a stream to the requeste media and the media MIME type
   ///</summary>
+  /// <exception> MediaNotFound </exception>
   let getMedia (id:uint32) =
     let product = getProductById (int id)
     let info = getLocalProductFile (int id) product.owner
-    System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+    try
+      System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+    with
+      | :? System.IO.FileNotFoundException -> raise ProductExceptions.MediaNotFound
 
   /// <summary>
   /// Gets a stream to the requeste media thumbnail and the media MIME type
   ///</summary>
+  /// <exception> MediaNotFound </exception>
   let getMediaThumbnail (id:uint32) = 
     let product = getProductById (int id)
     let info = getLocalThumbnailFile (int id) product.owner
-    System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+    try
+      System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+    with
+      | :? System.IO.FileNotFoundException -> raise ProductExceptions.MediaNotFound
