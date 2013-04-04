@@ -54,7 +54,9 @@ module Main =
     // "Name" "Description"
     let mutable insert:((Persistence.Types.DataIn List) List) = []
     insert <- insert@createDataInForAllowedAction "HAS_CREDITS" "Allows an account to have credits associated"
-    
+    insert <- insert@createDataInForAllowedAction "BUYABLE" "Allows a Product to bought"
+    insert <- insert@createDataInForAllowedAction "RENTABLE" "Allows a Product to be rented"
+    insert <- insert@createDataInForAllowedAction "CREATE_PRODUCT" "Allows an account to create products"
 
     insert <- insert@createDataInForAllowedAction "BAN_UNBAN_ANY" "Ban/unban accounts"
     insert <- insert@createDataInForAllowedAction "CHANGE_EMAIL_ANY" "CHANGE_EMAIL"
@@ -63,9 +65,16 @@ module Main =
     insert <- insert@createDataInForAllowedAction "TAKE_CREDITS_ANY" "TAKE_CREDITS from an account which has credits"
     insert <- insert@createDataInForAllowedAction "READ_AUTH_INFO_ANY" "Read last time of authentication"
     insert <- insert@createDataInForAllowedAction "RESET_PASSWORD_ANY" "RESET_PASSWORD"
+    insert <- insert@createDataInForAllowedAction "CREATE_ANY" "CREATE any account type"
     insert <- insert@createDataInForAllowedAction "READ_ANY" "READ account information"
     insert <- insert@createDataInForAllowedAction "EDIT_ANY" "EDIT additional account information"
-    insert <- insert@createDataInForAllowedAction "CREATE_ANY" "CREATE account"
+    insert <- insert@createDataInForAllowedAction "READ_PRODUCT_ANY" "Read any published product"
+    insert <- insert@createDataInForAllowedAction "READ_UNPUBLISHED_PRODUCT_ANY" "Read any unpublished product"
+    insert <- insert@createDataInForAllowedAction "EDIT_PRODUCT_ANY" "Edit any product"
+    insert <- insert@createDataInForAllowedAction "EDIT_UNPUBLISHED_PRODUCT_ANY" "Edit any unpublished product"
+    insert <- insert@createDataInForAllowedAction "PUBLISH_PRODUCT_ANY" "Publish/unpublish any product"
+    insert <- insert@createDataInForAllowedAction "UPLOAD_MEDIA_ANY" "Upload media for any product"
+    insert <- insert@createDataInForAllowedAction "UPLOAD_THUMBNAIL_ANY" "Upload thumbnail for any product"
 
     insert <- insert@createDataInForAllowedAction "BAN_UNBAN_OWN" "Ban/unban accounts"
     insert <- insert@createDataInForAllowedAction "CHANGE_EMAIL_OWN" "CHANGE_EMAIL"
@@ -76,6 +85,13 @@ module Main =
     insert <- insert@createDataInForAllowedAction "RESET_PASSWORD_OWN" "RESET_PASSWORD"
     insert <- insert@createDataInForAllowedAction "READ_OWN" "READ account information"
     insert <- insert@createDataInForAllowedAction "EDIT_OWN" "EDIT additional account information"
+    insert <- insert@createDataInForAllowedAction "READ_PRODUCT_OWN" "Read OWN published product"
+    insert <- insert@createDataInForAllowedAction "READ_UNPUBLISHED_PRODUCT_OWN" "Read OWN unpublished product"
+    insert <- insert@createDataInForAllowedAction "EDIT_PRODUCT_OWN" "Edit OWN product"
+    insert <- insert@createDataInForAllowedAction "EDIT_UNPUBLISHED_PRODUCT_OWN" "Edit OWN unpublished product"
+    insert <- insert@createDataInForAllowedAction "PUBLISH_PRODUCT_OWN" "Publish/unpublish OWN product"
+    insert <- insert@createDataInForAllowedAction "UPLOAD_MEDIA_OWN" "Upload media for OWN product"
+    insert <- insert@createDataInForAllowedAction "UPLOAD_THUMBNAIL_OWN" "Upload thumbnail for OWN product"
 
     insert <- insert@createDataInForAllowedAction "BAN_UNBAN_TYPE_ADMIN" "Ban/unban accounts"
     insert <- insert@createDataInForAllowedAction "CHANGE_EMAIL_TYPE_ADMIN" "CHANGE_EMAIL"
@@ -110,7 +126,6 @@ module Main =
     for i in insert do
       Persistence.Api.create "AllowedAction" i |> ignore
     
-    
     // Create ActionGroup
     // "Name" "Description"
     let mutable insert:((Persistence.Types.DataIn List) List) = []
@@ -135,6 +150,13 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "RESET_PASSWORD_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CREATE_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_PRODUCT_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_UNPUBLISHED_PRODUCT_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "EDIT_PRODUCT_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "EDIT_UNPUBLISHED_PRODUCT_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "PUBLISH_PRODUCT_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "UPLOAD_MEDIA_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "UPLOAD_THUMBNAIL_ANY"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "BAN_UNBAN_TYPE_Admin"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CHANGE_EMAIL_TYPE_Admin"
@@ -171,11 +193,14 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_TYPE_Content Provider"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_TYPE_Customer"
+
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_ANY" //For testing
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_PRODUCT_ANY"
     
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "CREATE_TYPE_Customer"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_PRODUCT_ANY"
     
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_TYPE_Admin"
 
@@ -192,6 +217,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_OWN"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_PRODUCT_ANY"
     
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_TYPE_Admin"
 
@@ -204,6 +230,12 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_AUTH_INFO_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "RESET_PASSWORD_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_UNPUBLISHED_PRODUCT_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "EDIT_PRODUCT_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "EDIT_UNPUBLISHED_PRODUCT_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "PUBLISH_PRODUCT_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "UPLOAD_MEDIA_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "UPLOAD_THUMBNAIL_OWN"
 
     printfn "%A" ("---------- Create " + "ActionGroup_has_AllowedAction" + " ----------")
     for i in insert do
