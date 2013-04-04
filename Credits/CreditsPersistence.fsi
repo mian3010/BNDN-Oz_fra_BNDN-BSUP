@@ -74,4 +74,4 @@
     /// </summary>
     /// <typeparam> Username of the account to get by </typeparam>
     /// <returns> The transactions </returns>
-    val getTransactionByAccountAccess : string -> RentOrBuy
+    val getTransactionByAccountAccess : string -> RentOrBuy List

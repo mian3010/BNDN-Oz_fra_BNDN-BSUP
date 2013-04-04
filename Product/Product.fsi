@@ -1,4 +1,4 @@
-﻿namespace RentIt
+namespace RentIt
 open ProductTypes
 open ProductExceptions
 

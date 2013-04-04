@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>a958b288-1d10-40bf-bd61-8dec714bc639</ProjectGuid>
+    <ProjectGuid>88f00369-f601-412e-860a-1d533c2b4df7</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Persistence</RootNamespace>
-    <AssemblyName>Persistence</AssemblyName>
+    <RootNamespace>TestCredits</RootNamespace>
+    <AssemblyName>TestCredits</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>Persistence</Name>
+    <Name>TestCredits</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +20,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Persistence.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\TestCredits.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,33 +29,35 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Persistence.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\TestCredits.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
-    <Compile Include="Types.fs" />
-    <Compile Include="Field.fs" />
-    <Compile Include="Filter.fs" />
-    <Compile Include="FilterGroup.fs" />
-    <Compile Include="ReadField.fs" />
-    <Compile Include="ObjectJoin.fs" />
-    <Compile Include="DataIn.fs" />
-    <Compile Include="Create.fs" />
-    <Compile Include="Read.fs" />
-    <Compile Include="Update.fs" />
-    <Compile Include="Delete.fs" />
-    <Compile Include="Transaction.fs" />
-    <Compile Include="Settings.fs" />
-    <Compile Include="Helper.fs" />
-    <Compile Include="ExceptionHandler.fs" />
-    <Compile Include="Api.fs" />
+    <Compile Include="CreditsPersistence_UpdateCreditsTest.fs" />
+    <Compile Include="CreditsPersistence_CreateBuyTransactionTest.fs" />
+    <Compile Include="CreditsPersistence_CreateRentTransaction.fs" />
+    <Compile Include="CreditsPersistence_GetTransactionByIdTest.fs" />
+    <Compile Include="CreditsPersistence_GetTransactionByAccountTest.fs" />
+    <Compile Include="CreditsPersistence_GetTransactionsByTypeTest.fs" />
+    <Compile Include="CreditsPersistence_GetTransactionByTypeAccountTest.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="CreditsPersistence_GetTransactionByAccountAccess.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Account\Account.fsproj">
+      <Name>Account</Name>
+      <Project>{7ee274b7-c8a3-4299-b766-e00862b8ad5e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Product\Product.fsproj">
+      <Name>Product</Name>
+      <Project>{5946ee56-1b91-4632-82be-5c681d3c6c87}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <Reference Include="FsUnit.CustomMatchers">
       <HintPath>..\packages\FsUnit.xUnit.1.2.1.2\lib\Net40\FsUnit.CustomMatchers.dll</HintPath>
       <Private>True</Private>
@@ -74,17 +76,26 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
-    <Reference Include="xunit">
-      <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <ProjectReference Include="..\Common\Common.fsproj">
       <Name>Common</Name>
       <Project>{1a2ef8ab-e695-43ca-a3db-e9c0d71ee5be}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Credits\Credits.fsproj">
+      <Name>Credits</Name>
+      <Project>{85bc9aa7-317b-4fea-864c-df4cd158ae4c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\TestHelpers\TestHelpers.fsproj">
+      <Name>TestHelpers</Name>
+      <Project>{22854d1d-95b5-410e-a494-4cf02f662f7e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <Reference Include="xunit">
+      <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

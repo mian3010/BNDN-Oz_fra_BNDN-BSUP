@@ -15,7 +15,7 @@ module ProductTest =
   let rentPrice = Some 5
 
   let removeProduct name =
-    let filtersQ = Persistence.Filter.createFilter [] "Product" "Name" name
+    let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "Product" "Name" name
     Persistence.Api.delete "Product" filtersQ |> ignore
 
   [<Fact>]

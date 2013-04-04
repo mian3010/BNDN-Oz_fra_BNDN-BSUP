@@ -32,7 +32,7 @@ module Main =
         let fieldsQ         = Persistence.ReadField.createReadField fieldsQ "Country" "Name"
         let baseObjectNameQ = "User"
         let joinsQ          = Persistence.ObjectJoin.createObjectJoin [] "User" "Country_Name" "Country" "Name"
-        let filtersQ        = Persistence.Filter.createFilter [] "Country" "Name" "Denmark"
+        let filtersQ        = Persistence.FilterGroup.createSingleFilterGroup [] "Country" "Name" "Denmark"
         let readR1 = Persistence.Api.read fieldsQ baseObjectNameQ joinsQ filtersQ
         printfn "%A" readR1
         
@@ -49,7 +49,7 @@ module Main =
         printfn "%A" "---------- Update query ----------"
         let objectName = "User"
         let dataQ      = Persistence.DataIn.createDataIn [] "User" "Address" "Updated address"
-        let filtersQ   = Persistence.Filter.createFilter [] "User" "Username" "tumpe2"
+        let filtersQ   = Persistence.FilterGroup.createSingleFilterGroup [] "User" "Username" "tumpe2"
         let updateR = Persistence.Api.update objectName filtersQ dataQ
         printfn "%A" updateR
 
@@ -87,12 +87,12 @@ module Main =
         let transactionQ = Persistence.Transaction.addCreate transactionQ createQ2
 
         let objectName = "User"
-        let filtersQ   = Persistence.Filter.createFilter [] "User" "Id" "3"
+        let filtersQ   = Persistence.FilterGroup.createSingleFilterGroup [] "User" "Id" "3"
         let deleteQ = Persistence.Delete.createDelete objectName filtersQ
         let transactionQ = Persistence.Transaction.addDelete transactionQ deleteQ
 
         let objectName = "Loggable"
-        let filtersQ   = Persistence.Filter.createFilter [] "Loggable" "Id" "3"
+        let filtersQ   = Persistence.FilterGroup.createSingleFilterGroup [] "Loggable" "Id" "3"
         let deleteQ2 = Persistence.Delete.createDelete objectName filtersQ
         let transactionQ = Persistence.Transaction.addDelete transactionQ deleteQ2
 

@@ -13,7 +13,7 @@ namespace Services.Controllers
     public class ProviderController
     {
 
-        private readonly Helper _h;
+        /*private readonly Helper _h;
         private readonly JsonSerializer _j;
         private CoreConverter _c;
 
@@ -98,5 +98,6 @@ namespace Services.Controllers
             OutgoingWebResponseContext response = _h.GetResponse();
 
         }
+         * */
     }
 }

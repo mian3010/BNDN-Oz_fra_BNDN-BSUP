@@ -3,7 +3,7 @@
     module Delete =
         ///Default processor
         let Default (delete:Types.Delete) =
-            "DELETE FROM ["+delete.objectName+"] OUTPUT DELETED.* WHERE "+Read.joinFilters delete.filters
+            "DELETE FROM ["+delete.objectName+"] OUTPUT DELETED.* WHERE "+Read.joinFilterGroups delete.filters
 
         //Factory functions
         let createDelete objectName filters =

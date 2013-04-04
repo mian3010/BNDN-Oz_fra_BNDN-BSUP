@@ -54,6 +54,11 @@
       <Project>{1a2ef8ab-e695-43ca-a3db-e9c0d71ee5be}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Credits\Credits.fsproj">
+      <Name>Credits</Name>
+      <Project>{85bc9aa7-317b-4fea-864c-df4cd158ae4c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Persistence\Persistence.fsproj">
       <Name>Persistence</Name>
       <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
