@@ -12,6 +12,9 @@ namespace Services.Controllers
 {
     public class ProductController
     {
+
+        //TODO: Make calls to ControlledProduct instead og Product
+        //TODO: Add catch for permission denied
         
         private readonly Helper _h;
         private readonly JsonSerializer _j;
@@ -26,22 +29,50 @@ namespace Services.Controllers
 
         public Stream GetProducts(string search, string type, string info, string unpublished)
         {
+            var invoker = _h.Authorize();
+            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
+            
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
             {
                 FSharpList<ProductTypes.Product> products = string.IsNullOrEmpty(type) ? Product.getAll() : Product.getAllByType(type);
-
-                ProductData[] returnData = new ProductData[products.Length];
-
-                for (int i = 0; i < products.Length; i++)
+                Stream returnStream;
+                // DEFINE RETURN CONTENT
+                string[] keep = { };
+                if (_h.DefaultString(info, "id").Equals("id"))
                 {
-                    returnData[i] = ProductTypeToProductData(products[i]);
-                }
+                    uint[] idList = new uint[products.Length];
+                    for (int i = 0; i < products.Length; i++)
+                    {
+                        idList[i] = (uint) products[i].id;
+                    }
+                    returnStream = _j.JsonArray(idList);
+                } else {
+                    if (info.ToLowerInvariant().Equals("more"))
+                    {
+                        if (accType.Equals("Customer")) keep = new string[]             { "title", "description", "type", "price", "owner"};
+                        else if (accType.Equals("Content Provider")) keep = new string[]{ "title", "description", "type", "price", "owner" };
+                        else if (accType.Equals("Admin")) keep = new string[]           { "title", "description", "type", "price", "owner", "published" };
+                    } else if (info.ToLowerInvariant().Equals("detailed"))
+                    {
+                        if (accType.Equals("Customer")) keep = new string[]             { "title", "description", "type", "price", "rating", "owner", "meta" };
+                        else if (accType.Equals("Content Provider")) keep = new string[]{ "title", "description", "type", "price", "rating", "owner", "meta" };
+                        else if (accType.Equals("Admin")) keep = new string[]           { "title", "description", "type", "price", "rating", "owner", "meta", "published" };
+                    }
 
-                _h.GetResponse().ContentType = "text/json";
-                response.StatusCode = HttpStatusCode.NoContent;
-                return _j.Json(returnData);
+                    ProductData[] returnData = new ProductData[products.Length];
+
+                    for (int i = 0; i < products.Length; i++)
+                    {
+                        returnData[i] = ProductTypeToProductData(products[i]);
+                    }
+
+                    _h.GetResponse().ContentType = "text/json";
+                    response.StatusCode = HttpStatusCode.NoContent;
+                    returnStream = _j.Json(returnData, keep);
+                }
+                return returnStream;
             }
             catch (ProductExceptions.NoSuchProductType) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (ProductExceptions.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
@@ -52,6 +83,10 @@ namespace Services.Controllers
             
         public Stream GetProduct(string id)
         {
+            var invoker = _h.Authorize();
+            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
+            var user = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.user : "";
+
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
@@ -59,9 +94,15 @@ namespace Services.Controllers
                 ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 ProductData returnData = ProductTypeToProductData(product);
 
+                // DEFINE RETURN CONTENT
+            string[] keep = { };
+            if (accType.Equals("Customer")) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta"};
+            else if (accType.Equals("Admin") || Ops.compareUsernames(product.owner, user)) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta", "published" }; // Check for ownership before check for "Provider" type, due to the fact that the owner is a provider.
+            else if (accType.Equals("Content Provider")) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta"};
+
                 _h.GetResponse().ContentType = "text/json";
                 response.StatusCode = HttpStatusCode.NoContent;
-                return _j.Json(returnData);
+                return _j.Json(returnData, keep);
             } 
             catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
             catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
@@ -70,6 +111,7 @@ namespace Services.Controllers
 
         public void UpdateProduct(string id, ProductData data)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
@@ -100,6 +142,7 @@ namespace Services.Controllers
 
         public void UpdateProductMedia(string id, Stream media)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -131,6 +174,7 @@ namespace Services.Controllers
 
         public void UpdateProductThumbnail(string id, Stream media)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -170,6 +214,7 @@ namespace Services.Controllers
 
         public void DeleteProduct(string id)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -189,6 +234,8 @@ namespace Services.Controllers
 
         public Stream GetProductRating(string id)
         {
+            var invoker = _h.Authorize();
+            
             OutgoingWebResponseContext response = _h.GetResponse();
             _h.GetResponse().ContentType = "text/json";
             response.StatusCode = HttpStatusCode.NotImplemented;
@@ -197,12 +244,15 @@ namespace Services.Controllers
 
         public void UpdateProductRating(string id, RatingData data)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             response.StatusCode = HttpStatusCode.NotImplemented;
         }
 
         public Stream GetPurchasedMedia(string customer, string id)
         {
+            var invoker = _h.Authorize();
+
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -223,6 +273,8 @@ namespace Services.Controllers
 
         public Stream GetProductThumbnail(string id)
         {
+            var invoker = _h.Authorize();
+
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {

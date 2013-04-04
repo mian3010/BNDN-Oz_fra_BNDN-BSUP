@@ -9,3 +9,5 @@ module Ops =
             if not (u2 = null) then (u1.ToLowerInvariant()) = (u2.ToLowerInvariant())
             else false
         else u2 = null // only true if both are null
+
+    let compareUsernames u1 u2 = u1 == u2
