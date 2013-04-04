@@ -36,7 +36,7 @@ module ProductPersistence =
           let user = AccountPersistence.getUserByName p.owner
           raise NoSuchProductType
         with 
-          | AccountExceptions.NoSuchUser -> raise NoSuchUser
+          | AccountExceptions.NoSuchUser|AccountPersistenceExceptions.NoUserWithSuchName -> raise NoSuchUser
           | _ as e -> raise e
 
   /// <summary>
@@ -139,7 +139,7 @@ module ProductPersistence =
           let user = AccountPersistence.getUserByName user
           raise NoSuchProduct
         with 
-          | AccountExceptions.NoSuchUser -> raise NoSuchUser
+          | AccountExceptions.NoSuchUser|AccountPersistenceExceptions.NoUserWithSuchName -> raise NoSuchUser
           | _ as e -> raise e
     
 

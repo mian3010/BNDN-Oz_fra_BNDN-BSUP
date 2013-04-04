@@ -87,8 +87,8 @@ open RentIt.CreditsPersistence
       createProduct prod
 
     let removeTestTransactions test =
-      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "Transactions" "User_Username" ("TESTUSER_"+test)
-      Persistence.Api.delete "Transactions" filtersQ |> ignore
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "Transaction" "User_Username" ("TESTUSER_"+test)
+      Persistence.Api.delete "Transaction" filtersQ |> ignore
       ()
 
     //Remove test product
