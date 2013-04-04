@@ -159,6 +159,8 @@ namespace RentIt.Services.Controllers
             {
                 // VERIFY
 
+                if (data == null || string.IsNullOrEmpty(data.email) || string.IsNullOrEmpty(data.password)) throw new BadRequestException();
+
                 var invoker = h.Authorize();
 
                 // CREATE ACCOUNT

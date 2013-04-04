@@ -5,6 +5,7 @@ module CreditsTypes =
   
   type Transaction = {
     id : int;
+    user : string;
     purchased : System.DateTime;
     paid : int;
     product : Product;

@@ -18,15 +18,15 @@ namespace Services.Controllers
         //TODO: Check for permissions to view unpublished products
         //TODO: Implement product search
         
-        private readonly Helper _h;
-        private readonly JsonSerializer _j;
-        private CoreConverter _c;
+        private readonly Helper h;
+        private readonly JsonSerializer j;
+        private CoreConverter c;
 
         public ProductController(Helper helper, JsonSerializer json, CoreConverter converter)
         {
-            _h = helper;
-            _j = json;
-            _c = converter;
+            h = helper;
+            j = json;
+            c = converter;
         }
 
         public Stream GetProducts(string search, string types, string info, string unpublished)
@@ -35,19 +35,19 @@ namespace Services.Controllers
             {
                 // VALIDATE PARAMETERS
 
-                search = _h.DefaultString(search, ""); // Default
-                types = _h.DefaultString(types, ""); // Default
-                HashSet<string> fullTypes = _h.ExpandProductTypes(types);
+                search = h.DefaultString(search, ""); // Default
+                types = h.DefaultString(types, ""); // Default
+                HashSet<string> fullTypes = h.ExpandProductTypes(types);
 
-                info = _h.DefaultString(info, "id");
-                info = _h.OneOf(info, "id", "more", "detailed");
+                info = h.DefaultString(info, "id");
+                info = h.OneOf(info, "id", "more", "detailed");
 
-                unpublished = _h.DefaultString(unpublished, "false");
-                bool also_unpublished = _h.Boolean(unpublished);
+                unpublished = h.DefaultString(unpublished, "false");
+                bool also_unpublished = h.Boolean(unpublished);
 
                 // AUTHORIZE
 
-                var invoker = _h.Authorize();
+                var invoker = h.Authorize();
                 var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
             
                 // RETRIEVE PRODUCTS
@@ -77,46 +77,48 @@ namespace Services.Controllers
                     else keep =                          new string[]{ "title", "description", "type", "price", "rating", "owner", "meta", "published" };
                 }
 
-                _h.Success();
+                h.Success();
 
-                if (info.Equals("detailed")) return _j.Json(_h.Map(products, p => _c.Convert(p)), keep);
-                if (info.Equals("more")) return _j.Json(_h.Map(products, p => _c.Convert(p)), keep);
-                if (info.Equals("id")) return _j.Json(_h.Map(products, p => (uint)p.id));  // Only ids are returned
+                if (info.Equals("detailed")) return j.Json(h.Map(products, p => c.Convert(p)), keep);
+                if (info.Equals("more")) return j.Json(h.Map(products, p => c.Convert(p)), keep);
+                if (info.Equals("id")) return j.Json(h.Map(products, p => (uint)p.id));  // Only ids are returned
                 else throw new BadRequestException(); // Never happens
             }
-            catch (BadRequestException) { return _h.Failure(400); }
-            catch (ProductExceptions.ArgumentException) { return _h.Failure(400); }
-            catch (Exception) { return _h.Failure(500); }
+            catch (BadRequestException) { return h.Failure(400); }
+            catch (Exception) { return h.Failure(500); }
         }
             
         public Stream GetProduct(string id)
         {
             try
             {
+                // VERIFY
+
+                int pId = (int)h.Uint(id);
+
                 // AUTHORIZE
 
-                var invoker = _h.Authorize();
+                var invoker = h.Authorize();
                 var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
                 var user = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.user : "";
 
                 // RETRIEVE PRODUCT
 
                 // NB: MUST THROW EXCEPTION IF WE ARE NOT ALLOWED TO VIEW PRODUCT, BECAUSE IT IS UNPUBLISHED!
-                ProductData product = _c.Convert(Product.getProductById((int) _h.Uint(id)));
+                ProductData product = c.Convert(Product.getProductById(pId));
 
                 // PRODUCE RESPONSE
 
                 // Normal users do not get the publish status of products
                 if (!Ops.compareUsernames(user, product.owner) && !accType.Equals("Admin")) product.published = null;
 
-                _h.Success();
+                h.Success();
 
-                return _j.Json(product);
+                return j.Json(product);
             }
-            catch (BadRequestException) { return _h.Failure(400); }
-            catch (ProductExceptions.ArgumentException) { return _h.Failure(400); }
-            catch (ProductExceptions.NoSuchProduct) { return _h.Failure(404); }
-            catch (Exception) { return _h.Failure(500); }
+            catch (BadRequestException) { return h.Failure(404); } // Only thrown if id != uint
+            catch (ProductExceptions.NoSuchProduct) { return h.Failure(404); }
+            catch (Exception) { return h.Failure(500); }
         }
 
         public void UpdateProduct(string id, ProductData data)
@@ -125,7 +127,9 @@ namespace Services.Controllers
             {
                 // VERIFY
 
-                var invoker = _h.Authorize();
+                int pId = (int) h.Uint(id);
+
+                var invoker = h.Authorize();
 
                 // UPDATE DATA
 
@@ -134,8 +138,8 @@ namespace Services.Controllers
                 {
                     try
                     {
-                        var product = Product.getProductById((int) _h.Uint(id));
-                        var updated = _c.Merge(product, data);
+                        var product = Product.getProductById(pId);
+                        var updated = c.Merge(product, data);
                         Product.update(updated);
 
                         // If we get so far, the update went as planned, so we can quit the loop
@@ -146,200 +150,190 @@ namespace Services.Controllers
 
                 // SIGNAL SUCCESS
 
-                _h.Success(204);
+                h.Success(204);
             }
-            catch (BadRequestException) { _h.Failure(400); }
-            catch (ProductExceptions.ArgumentException) { _h.Failure(400); }
-            catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
-            catch (ProductExceptions.TooLargeData) { _h.Failure(413); }
-            catch (Exception) { _h.Failure(500); }
+            catch (BadRequestException) { h.Failure(404); } // Only thrown if id != uint
+            catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
+            catch (ProductExceptions.TooLargeData) { h.Failure(413); }
+            catch (Exception) { h.Failure(500); }
         }
 
-        public void UpdateProductMedia(string id, Stream media)
+        public void UpdateProductMedia(string id, Stream data)
         {
-            var invoker = _h.Authorize();
-            OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
-                ProductTypes.Product product = Product.getProductById(int.Parse(id));
+                // VERIFY
 
-                /* Gets the file extension of the uploaded file.
-                 * if the MIME type is "image/jpeg" the file will be saved as "file.jpeg".
-                 * It is therefore of most importance that the part after the slash is a valid file extension
-                 * */
-                string contentType = WebOperationContext.Current.IncomingRequest.ContentType;
-                contentType = contentType.Replace(@"/", "_");
+                int pId;
+                try { pId = (int) h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
 
-                // Set the upload path to be "WCF-folder/Owner/ID.extension"
-                string filePath = string.Format("{0}Uploads\\{1}\\{2}",
-                                                    AppDomain.CurrentDomain.BaseDirectory,
-                                                    product.owner, id + "." + contentType);
-                using (FileStream fs = new FileStream(filePath, FileMode.Create))
-                {
-                    media.CopyTo(fs);
-                    media.Close();
+                string mime = h.Header("Content-Type");
+                if (string.IsNullOrEmpty(mime)) throw new BadRequestException();
+
+                bool mimeOk = false;
+                var product = Product.getProductById(pId);
+                foreach (string m in Product.getMimesForProductType(product.productType)) {
+
+                    if (m.Equals(mime)) { mimeOk = true; break; }
                 }
-                //TODO: No way of telling the persistence that a product has been uploaded
 
-                response.StatusCode = HttpStatusCode.NoContent;
+                if (data == null || !mimeOk) throw new BadRequestException();
+
+                var invoker = h.Authorize();
+
+                // PERSIST
+
+                Product.persistMedia((uint) pId, mime, data);
+
+                // SIGNAL SUCCESS
+
+                h.Success(204);
             }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+            catch (BadRequestException) { h.Failure(400); }
+            catch (NotFoundException) { h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
+            catch (Exception) { h.Failure(500); }
         }
 
-        public void UpdateProductThumbnail(string id, Stream media)
+        public void UpdateProductThumbnail(string id, Stream data)
         {
-            var invoker = _h.Authorize();
-            OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
-                ProductTypes.Product product = Product.getProductById(int.Parse(id));
+                // VERIFY
 
-                /* Gets the file extension of the uploaded file.
-                 * if the MIME type is "image/jpeg" the file will be saved as "file.jpeg".
-                 * It is therefore of most importance that the part after the slash is a valid file extension
-                 * */
-                string contentType = WebOperationContext.Current.IncomingRequest.ContentType;
+                uint pId;
+                try { pId = h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
 
-                string fileType = contentType.Substring(contentType.IndexOf(@"/") + 1).ToLower();
-                HashSet<string> allowedTypes = new HashSet<string> { "jpeg", "jpg", "gif", "png" };
-                if (allowedTypes.Contains(fileType))
-                {
-                    response.StatusCode = HttpStatusCode.PreconditionFailed;
-                    return;
-                }
+                string mime = h.Header("Content-Type");
+                if (mime == null || !(mime.Equals("image/png") || mime.Equals("image/gif") || mime.Equals("image/jpeg"))) throw new BadRequestException();
 
-                contentType = contentType.Replace(@"/", "_");
+                if (data == null) throw new BadRequestException();
 
-                // Set the upload path to be "WCF-folder/Owner/ID.extension"
-                string filePath = string.Format("{0}Uploads\\{1}\\thumbnails\\{2}",
-                                                    AppDomain.CurrentDomain.BaseDirectory,
-                                                    product.owner, id + "." + contentType);
-                using (FileStream fs = new FileStream(filePath, FileMode.Create))
-                {
-                    media.CopyTo(fs);
-                    media.Close();
-                }
-                //TODO: No way of telling the persistence that a product thumbnail has been uploaded
-                response.StatusCode = HttpStatusCode.NoContent;
+                var invoker = h.Authorize();
+
+                // PERSIST
+
+                Product.persistMediaThumbnail(pId, mime, data);
+
+                // SIGNAL SUCCESS
+
+                h.Success(204);
             }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+            catch (BadRequestException) { h.Failure(400); }
+            catch (NotFoundException) { h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
+            catch (Exception) { h.Failure(500); }
         }
 
         public void DeleteProduct(string id)
         {
-            _h.Failure(401);
+            h.Failure(401);
             return;
         }
 
         public Stream GetProductRating(string id)
         {
-            var invoker = _h.Authorize();
-            
-            OutgoingWebResponseContext response = _h.GetResponse();
-            _h.GetResponse().ContentType = "text/json";
-            response.StatusCode = HttpStatusCode.NotImplemented;
-            return null;
+            try
+            {
+                // AUTHORIZE
+
+                var invoker = h.Authorize();
+
+                // RETRIEVE RATING
+
+                int pId = (int)h.Uint(id);
+
+                RatingData rating = c.Convert(h.OrNull(Product.getProductById(pId).rating));
+
+                // PRODUCE RESPONSE
+
+                h.Success();
+
+                return j.Json(rating);
+            }
+            catch (BadRequestException) { return h.Failure(404); } // Only thrown if id != uint
+            catch (ProductExceptions.ArgumentException) { return h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { return h.Failure(404); }
+            catch (Exception) { return h.Failure(500); }
         }
 
         public void UpdateProductRating(string id, RatingData data)
         {
-            var invoker = _h.Authorize();
-            OutgoingWebResponseContext response = _h.GetResponse();
-            response.StatusCode = HttpStatusCode.NotImplemented;
-        }
-
-        public Stream GetPurchasedMedia(string customer, string id)
-        {
-            var invoker = _h.Authorize();
-
-            OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
-                ProductTypes.Product product = Product.getProductById(int.Parse(id));
-                FileInfo fileInfo = GetLocalProductFile(id, product.owner);
-                string contentType = fileInfo.Extension.Substring(1);
-                _h.GetResponse().ContentType = contentType.Replace("-", @"/");
-                response.StatusCode = HttpStatusCode.OK;
+                // VERIFY
 
-                return File.OpenRead(fileInfo.FullName);
+                int pId;
+                try { pId = (int)h.Uint(id); }
+                catch(BadRequestException){ throw new NotFoundException(); }
+
+                var invoker = h.Authorize();
+
+                string user;
+                if (invoker.IsAuth) user = ((AccountPermissions.Invoker.Auth)invoker).Item.user;
+                else throw new AccountPermissions.PermissionDenied();
+
+                // Rating is valid
+                if(data == null || (data.score >= -5 && data.score <= 5)) throw new BadRequestException();
+
+                // ADD RATING
+
+                Product.rateProduct(pId, user, data.score);
+
+                // SIGNAL SUCCESS
+
+                h.Success(204);
             }
-            #region exceptions
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
-            #endregion
-            return null;
+            catch (BadRequestException) { h.Failure(400); }
+            catch (NotFoundException) { h.Failure(404); }
+            catch (ProductExceptions.ArgumentException) { h.Failure(400); }
+            catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
+            catch (Exception) { h.Failure(500); }
         }
 
         public Stream GetProductThumbnail(string id)
         {
-            var invoker = _h.Authorize();
-
-            OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
-                ProductTypes.Product product = Product.getProductById(int.Parse(id));
-                FileInfo fileInfo = GetLocalThumbnailFile(id, product.owner);
-                string contentType = fileInfo.Extension.Substring(1);
-                _h.GetResponse().ContentType = contentType.Replace("-", @"/");
-                response.StatusCode = HttpStatusCode.OK;
+                // VERIFY
 
-                return File.OpenRead(fileInfo.FullName);
+                uint pId;
+                try { pId = h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                var invoker = h.Authorize();
+
+                // LOAD
+
+                var result = Product.getMediaThumbnail(pId);
+
+                // SIGNAL SUCCESS
+
+                h.SetHeader("Content-Length", result.Item1.Length.ToString());
+                h.Success(200, result.Item2);
+
+                return result.Item1;
             }
-            #region exceptions
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
-            #endregion
-            return null;
+            catch (BadRequestException) { return h.Failure(400); }
+            catch (NotFoundException) { return h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { return h.Failure(404); }
+            catch (ProductExceptions.NoSuchMedia) { return h.Failure(404); }
+            catch (Exception) { return h.Failure(500); } 
         }
 
         public Stream GetSupportedProductTypes()
         {
             try
             {
-                var invoker = _h.Authorize();
+                var invoker = h.Authorize();
 
-                _h.Success();
-                return _j.Json(Product.getListOfProductTypes(/*invoker*/));
+                h.Success();
+                return j.Json(Product.getListOfProductTypes(/*invoker*/));
             }
-           // catch (ProductPermissions.PermissionDenied) { return _h.Failure(403); }
-            catch (Exception) { return _h.Failure(500); }
+            // catch (ProductPermissions.PermissionDenied) { return h.Failure(403); }
+            catch (Exception) { return h.Failure(500); }
         }
-
-        /// <summary>
-        /// Finds a file located on the server, by using the ID and the owner of the file
-        /// </summary>
-        /// <param name="id">The id of the file</param>
-        /// <param name="owner">The name of the owner of the file</param>
-        /// <returns>A FileInfo about the asked file</returns>
-        private static FileInfo GetLocalProductFile(string id, string owner)
-        {
-            string folderPath = string.Format("{0}Uploads\\{1}",
-                                                    AppDomain.CurrentDomain.BaseDirectory,
-                                                    owner);
-            DirectoryInfo dir = new DirectoryInfo(folderPath);
-
-            FileInfo[] files = dir.GetFiles(id + ".*");
-            return files[0];
-        }
-
-        /// <summary>
-        /// Finds a thumbnail located on the server, by using the ID and the owner of the file
-        /// </summary>
-        /// <param name="id">The id of the file</param>
-        /// <param name="owner">The name of the owner of the file</param>
-        /// <returns>A FileInfo about the asked file</returns>
-        private static FileInfo GetLocalThumbnailFile(string id, string owner)
-        {
-            string folderPath = string.Format("{0}Uploads\\{1}\\thumbnails",
-                                                    AppDomain.CurrentDomain.BaseDirectory,
-                                                    owner);
-            DirectoryInfo dir = new DirectoryInfo(folderPath);
-
-            FileInfo[] files = dir.GetFiles(id + ".*");
-            return files[0];
-        }
-
     }
 }

@@ -17,7 +17,6 @@
         transaction.item.paid |> should equal testProd.buyPrice
         transaction.item.product |> should equal testProd
         transaction.item.purchased |> should equal payDate
-        transaction.item.id > 0 |> should equal true
       finally
         Helper.removeTestProduct test
 
@@ -27,7 +26,7 @@
       let testProd = Helper.createTestProduct test
       try
         let payDate = System.DateTime.Parse "2012-01-01 01:01:01"
-        (fun () -> (createBuyTransaction "DoesNotExist" payDate testProd.id) |> ignore) |> should throw typeof<AccountExceptions.NoSuchUser>
+        (fun () -> (createBuyTransaction (Helper.createTestBuyTransactionType "DoesNotExist" payDate testProd)) |> ignore) |> should throw typeof<AccountExceptions.NoSuchUser>
       finally
         Helper.removeTestProduct test
 
@@ -35,8 +34,10 @@
     let ``Test buy product that does not exist``() =
       let test = "TestBuyProductNotExist"
       let testUser = Helper.createTestUser test
+      let testProduct = Helper.createTestProduct (test+"2")
+      Helper.removeTestProduct (test+"2")
       try
         let payDate = System.DateTime.Parse "2012-01-01 01:01:01"
-        (fun () -> (createBuyTransaction testUser payDate 45345) |> ignore) |> should throw typeof<ProductExceptions.NoSuchProduct>
+        (fun () -> (createBuyTransaction (Helper.createTestBuyTransactionType testUser payDate testProduct)) |> ignore) |> should throw typeof<ProductExceptions.NoSuchProduct>
       finally
         Helper.removeTestUser test

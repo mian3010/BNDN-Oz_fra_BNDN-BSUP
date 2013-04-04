@@ -24,7 +24,7 @@
     /// <returns> The new transaction. Persisted </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
-    val createBuyTransaction : string -> System.DateTime -> int -> RentOrBuy
+    val createBuyTransaction : Buy -> Buy
 
     /// <summary>
     /// Create a rent transaction
@@ -36,7 +36,7 @@
     /// <returns> The new transaction. Persisted </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
-    val createRentTransaction : string -> System.DateTime -> int -> System.DateTime -> RentOrBuy
+    val createRentTransaction : Rent -> Rent
 
     /// <summary>
     /// Get a transaction by Id

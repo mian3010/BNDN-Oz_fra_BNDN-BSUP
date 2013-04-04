@@ -26,7 +26,10 @@
       list@[({filters=[({field=(Field.createField [] objectName field).Head;value=value;processor=fProc}:Types.Filter)];processor=gProc;}:Types.FilterGroup)]
 
     let createSingleFilterGroup (list:Types.Filter list) objectName field value =
-      createFilterGroup [{filters=list;processor=Default}] objectName field value
+      let group =
+        if (list.Length = 0) then []
+        else [({filters=list;processor=Default}:Types.FilterGroup)]
+      createFilterGroup group objectName field value
 
     let createSingleFilterGroupProc (list:Types.Filter list) objectName field value processor =
       createFilterGroup [{filters=list;processor=processor}] objectName field value
