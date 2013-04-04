@@ -5,6 +5,7 @@ using System.Net;
 using System.ServiceModel.Web;
 using System.Web;
 using Microsoft.FSharp.Core;
+using Microsoft.FSharp.Collections;
 using System.IO;
 
 namespace RentIt.Services
@@ -214,6 +215,94 @@ namespace RentIt.Services
         #endregion
 
         #region converters
+
+        public ProductTypes.Product ProductDataToProductType(ProductData data)
+        {
+            return new ProductTypes.Product(data.title,
+                                            DateTime.Now, // Created date, cant set...
+                                            data.type,
+                                            data.owner,
+                                            RatingDataToRatingTypeOption(data.rating),
+                                            data.published == null ? false : (bool)data.published,
+                                            -1, // ID, cant set...
+                                            ToOption<string>(null), // thumnnaiPath, not to set...
+                                            MetaDataToMetaTypeMapOption(data.meta),
+                                            ToOption<string>(data.description),
+                                            ToOption<int>((int)data.price.rent),
+                                            ToOption<int>((int)data.price.buy));
+        }
+
+        /// <summary>
+        /// Converts an array of MetaData objects into an F# Map Option,
+        /// with name as the key and value as the value.
+        /// If the map are emtpy, None is returned.
+        /// </summary>
+        /// <param name="dataset">The collection of MetaData to convert</param>
+        /// <returns>A new FSharpMap Option</returns>
+        public FSharpOption<FSharpMap<string, ProductTypes.Meta>> MetaDataToMetaTypeMapOption(params MetaData[] dataset)
+        {
+            FSharpMap<string, ProductTypes.Meta> tmp = MetaDataToMetaTypeMap(dataset);
+            return tmp.IsEmpty ? FSharpOption<FSharpMap<string, ProductTypes.Meta>>.None : FSharpOption<FSharpMap<string, ProductTypes.Meta>>.Some(tmp);
+        }
+
+        /// <summary>
+        /// Converts an array of MetaData objects into an F# Map,
+        /// with name as the key and value as the value.
+        /// </summary>
+        /// <param name="dataset">The collection of MetaData to convert</param>
+        /// <returns>A new FSharpMap</returns>
+        public FSharpMap<string, ProductTypes.Meta> MetaDataToMetaTypeMap(params MetaData[] dataset)
+        {
+            List<Tuple<string, ProductTypes.Meta>> tupleList = new List<Tuple<string, ProductTypes.Meta>>();
+            if (dataset != null)
+            {
+                foreach (MetaData data in dataset)
+                {
+                    tupleList.Add(new Tuple<string, ProductTypes.Meta>(data.name, new ProductTypes.Meta(data.name, data.value)));
+                }
+            }
+            return new FSharpMap<string, ProductTypes.Meta>(tupleList);
+        }
+
+        public FSharpOption<T> ToOption<T>(T t)
+        {
+            if (t == null)
+            {
+                return FSharpOption<T>.None;
+            }
+            else
+            {
+                return FSharpOption<T>.Some(t);
+            }
+        }
+
+        /// <summary>
+        /// Converts a RatingData into a ProductTypes.Rating Option
+        /// </summary>
+        /// <param name="data">The RatingData object to convert</param>
+        /// <returns>The RatingData converted into a ProductTypes.Rating Option</returns>
+        public FSharpOption<ProductTypes.Rating> RatingDataToRatingTypeOption(RatingData data)
+        {
+            if(data == null) 
+            {
+                return FSharpOption<ProductTypes.Rating>.None;
+            }
+            else 
+            {
+                ProductTypes.Rating tmp = new ProductTypes.Rating(data.score, (int)data.count);
+                return FSharpOption <ProductTypes.Rating>.Some(tmp);
+            }
+        }
+
+        /// <summary>
+        /// Converts a RatingData into a ProductTypes.Rating 
+        /// </summary>
+        /// <param name="data">The RatingData object to convert</param>
+        /// <returns>The RatingData converted into a ProductTypes.Rating</returns>
+        public ProductTypes.Rating RatingDataToRatingType(RatingData data)
+        {
+            return new ProductTypes.Rating(data.score, (int)data.count);
+        }
 
         #endregion
 
