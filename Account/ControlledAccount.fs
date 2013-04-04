@@ -2,6 +2,8 @@
 
 module ControlledAccount =
 
+    open PermissionExceptions
+    open PermissionsUtil
     open AccountPermissions
 
     ///////////////////////////////////////////////////////////////////////

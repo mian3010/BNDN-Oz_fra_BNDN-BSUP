@@ -14,7 +14,6 @@ namespace Services.Controllers
     {
 
         //TODO: Make calls to ControlledProduct instead og Product
-        //TODO: Add catch for permission denied
         //TODO: Check for permissions to view unpublished products
         //TODO: Implement product search
         
@@ -48,7 +47,7 @@ namespace Services.Controllers
                 // AUTHORIZE
 
                 var invoker = h.Authorize();
-                var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
+                var accType = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth)invoker).Item.accType : "";
             
                 // RETRIEVE PRODUCTS
 
@@ -85,6 +84,7 @@ namespace Services.Controllers
                 else throw new BadRequestException(); // Never happens
             }
             catch (BadRequestException) { return h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (Exception) { return h.Failure(500); }
         }
             
@@ -99,8 +99,8 @@ namespace Services.Controllers
                 // AUTHORIZE
 
                 var invoker = h.Authorize();
-                var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
-                var user = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.user : "";
+                var accType = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth)invoker).Item.accType : "";
+                var user = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth)invoker).Item.user : "";
 
                 // RETRIEVE PRODUCT
 
@@ -116,6 +116,7 @@ namespace Services.Controllers
 
                 return j.Json(product);
             }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (BadRequestException) { return h.Failure(404); } // Only thrown if id != uint
             catch (ProductExceptions.NoSuchProduct) { return h.Failure(404); }
             catch (Exception) { return h.Failure(500); }
@@ -152,6 +153,7 @@ namespace Services.Controllers
 
                 h.Success(204);
             }
+            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); }
             catch (BadRequestException) { h.Failure(404); } // Only thrown if id != uint
             catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
             catch (ProductExceptions.TooLargeData) { h.Failure(413); }
@@ -191,6 +193,7 @@ namespace Services.Controllers
                 h.Success(204);
             }
             catch (BadRequestException) { h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); }
             catch (NotFoundException) { h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
             catch (Exception) { h.Failure(500); }
@@ -222,6 +225,7 @@ namespace Services.Controllers
                 h.Success(204);
             }
             catch (BadRequestException) { h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); }
             catch (NotFoundException) { h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
             catch (Exception) { h.Failure(500); }
@@ -253,6 +257,7 @@ namespace Services.Controllers
 
                 return j.Json(rating);
             }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (BadRequestException) { return h.Failure(404); } // Only thrown if id != uint
             catch (ProductExceptions.ArgumentException) { return h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { return h.Failure(404); }
@@ -272,8 +277,8 @@ namespace Services.Controllers
                 var invoker = h.Authorize();
 
                 string user;
-                if (invoker.IsAuth) user = ((AccountPermissions.Invoker.Auth)invoker).Item.user;
-                else throw new AccountPermissions.PermissionDenied();
+                if (invoker.IsAuth) user = ((PermissionsUtil.Invoker.Auth)invoker).Item.user;
+                else throw new PermissionExceptions.PermissionDenied();
 
                 // Rating is valid
                 if(data == null || (data.score >= -5 && data.score <= 5)) throw new BadRequestException();
@@ -287,6 +292,7 @@ namespace Services.Controllers
                 h.Success(204);
             }
             catch (BadRequestException) { h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); }
             catch (NotFoundException) { h.Failure(404); }
             catch (ProductExceptions.ArgumentException) { h.Failure(400); }
             catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
@@ -317,6 +323,7 @@ namespace Services.Controllers
                 return result.Item1;
             }
             catch (BadRequestException) { return h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (NotFoundException) { return h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { return h.Failure(404); }
             catch (ProductExceptions.NoSuchMedia) { return h.Failure(404); }
@@ -332,7 +339,7 @@ namespace Services.Controllers
                 h.Success();
                 return j.Json(Product.getListOfProductTypes(/*invoker*/));
             }
-            // catch (ProductPermissions.PermissionDenied) { return h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (Exception) { return h.Failure(500); }
         }
     }
