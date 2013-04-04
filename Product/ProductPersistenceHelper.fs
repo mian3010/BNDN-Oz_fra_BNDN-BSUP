@@ -20,8 +20,6 @@ open System
         else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Rent_price" "" Persistence.DataIn.Null
         if (prod.buyPrice.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Buy_price" (string prod.buyPrice.Value)
         else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Buy_price" "" Persistence.DataIn.Null
-        if (prod.thumbnailPath.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Thumbnail_path" (string prod.thumbnailPath.Value)
-        else dataQ := Persistence.DataIn.createDataInProc !dataQ objectName "Thumbnail_path" "" Persistence.DataIn.Null
         !dataQ
 
       //Convert metadata from persistence result to metadata type in option format
@@ -86,7 +84,6 @@ open System
           rating = getRating (int result.["Id"])
           published = (Boolean.Parse result.["Published"]);
           id = (int result.["Id"]);
-          thumbnailPath = getOptionFromValue result.["Thumbnail_path"];
           metadata = metaData;
           description = getOptionFromValue result.["Description"];
           rentPrice = getOptionFromIntValue result.["Rent_price"];

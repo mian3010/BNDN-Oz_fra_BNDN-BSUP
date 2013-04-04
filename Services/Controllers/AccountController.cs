@@ -66,7 +66,7 @@ namespace RentIt.Services.Controllers
 
                 // PRODUCE RESPONSE
 
-                AccountData[] results = h.Map(ListModule.ToArray(accounts), a => c.Convert(a, alsoAuth ? authTimes[a.user] : null));
+                AccountData[] results = h.Map(accounts, a => c.Convert(a, alsoAuth ? authTimes[a.user] : null));
 
                 h.Success();
 

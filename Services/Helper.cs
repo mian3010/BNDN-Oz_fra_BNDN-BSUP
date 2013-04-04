@@ -208,16 +208,43 @@ namespace RentIt.Services
             return resultSet;
         }
 
+        public HashSet<string> ExpandProductTypes(string types)
+        {
+            if (string.IsNullOrEmpty(types)) return new HashSet<string>();
+
+            HashSet<string> result = new HashSet<string>();
+
+            foreach (string t in types.Split('|')) {
+
+                if (t.Length == 0) continue;
+                result.Add(t);
+            }
+
+            return result;
+        }
+
         ////// Other
 
-        public B[] Map<A, B>(A[] input, Func<A, B> func)
+        public B[] Map<A, B>(IEnumerable<A> input, Func<A, B> func)
         {
-            B[] result = new B[input.Length];
-
-            for (int i = 0; i < result.Length; ++i)
+            LinkedList<B> list = new LinkedList<B>();
+            
+            int c = 0;
+            foreach (A i in input)
             {
-                result[i] = func(input[i]);
+                B temp = func(i);
+
+                if (temp != null){
+                    
+                    list.AddFirst(temp);
+                    c++;
+                }
             }
+
+            B[] result = new B[c];
+
+            c = 0;
+            foreach (B b in list) result[c++] = b;
 
             return result;
         }
@@ -228,6 +255,8 @@ namespace RentIt.Services
 
             foreach (T e in input)
             {
+                if (e == null) continue;
+
                 result += e.ToString() + delimiter;
             }
 

@@ -18,7 +18,6 @@
         result.rating.IsNone |> should equal true
         result.published |> should equal prod.published
         result.id |> should be (greaterThan 0)
-        result.thumbnailPath.IsNone |> should equal true
         result.metadata.IsNone |> should equal true
         result.description.Value |> should equal prod.description.Value
         result.rentPrice.Value |> should equal prod.rentPrice.Value

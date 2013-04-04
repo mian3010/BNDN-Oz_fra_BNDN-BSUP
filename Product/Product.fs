@@ -55,7 +55,6 @@ module Product =
       rating = None;
       published = false;
       metadata = None;
-      thumbnailPath = None;
     }
 
   /// <summary>
@@ -196,3 +195,12 @@ module Product =
     with
       | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
 
+  /// <summary>
+  /// Removes unpublished products from a list of products
+  ///</summary>
+  /// <typeparam> products </typeparam>
+  let rec filterUnpublished (products:Product list) =
+    match products with
+      | []                                    -> products
+      | p :: products when not p.published    -> filterUnpublished products
+      | p :: products                         -> [p] @ (filterUnpublished products)

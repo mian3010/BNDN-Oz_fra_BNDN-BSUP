@@ -107,3 +107,9 @@ module Product =
   /// </summary>
   /// <returns> List of products </returns>
   val getAll : unit -> Product list
+
+  /// <summary>
+  /// Removes unpublished products from a list of products
+  ///</summary>
+  /// <typeparam> products </typeparam>
+  val filterUnpublished : Product list -> Product list
