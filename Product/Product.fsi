@@ -131,11 +131,11 @@ module Product =
   val persistMediaThumbnail : ProductTypes.Product -> string -> System.IO.Stream -> unit
 
   /// <summary>
-  /// Gets a stream to the requeste media
+  /// Gets a stream to the requeste media and the media MIME type
   ///</summary>
-  val getMedia : uint32 -> System.IO.Stream
+  val getMedia : uint32 -> System.IO.Stream*string
 
   /// <summary>
-  /// Gets a stream to the requeste media thumbnail
+  /// Gets a stream to the requeste media thumbnail and the media MIME type
   ///</summary>
-  val getMediaThumbnail : uint32 -> System.IO.Stream
+  val getMediaThumbnail : uint32 -> System.IO.Stream*string
