@@ -12,6 +12,9 @@ namespace Services.Controllers
 {
     public class ProductController
     {
+
+        //TODO: Make calls to ControlledProduct instead og Product
+        //TODO: Add catch for permission denied
         
         private readonly Helper _h;
         private readonly JsonSerializer _j;
@@ -24,49 +27,66 @@ namespace Services.Controllers
             _c = converter;
         }
 
-        public Stream GetProducts(string search, string type, string unpublished)
-        {
-            // No way of getting the ID
-            OutgoingWebResponseContext response = _h.GetResponse();
-            response.StatusCode = HttpStatusCode.NotImplemented;
-            return null;
-        }
-
         public Stream GetProducts(string search, string type, string info, string unpublished)
         {
+            var invoker = _h.Authorize();
+            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
+            
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
             {
-                FSharpList<ProductTypes.Product> products = Product.getAllByType(type);
-                ProductData[] returnData = new ProductData[products.Length];
-
-                for (int i = 0; i < products.Length; i++)
+                FSharpList<ProductTypes.Product> products = string.IsNullOrEmpty(type) ? Product.getAll() : Product.getAllByType(type);
+                Stream returnStream;
+                // DEFINE RETURN CONTENT
+                string[] keep = { };
+                if (_h.DefaultString(info, "id").Equals("id"))
                 {
-                    returnData[i] = ProductTypeToProductData(products[i]);
-                }
+                    uint[] idList = new uint[products.Length];
+                    for (int i = 0; i < products.Length; i++)
+                    {
+                        idList[i] = (uint) products[i].id;
+                    }
+                    returnStream = _j.JsonArray(idList);
+                } else {
+                    if (info.ToLowerInvariant().Equals("more"))
+                    {
+                        if (accType.Equals("Customer")) keep = new string[]             { "title", "description", "type", "price", "owner"};
+                        else if (accType.Equals("Content Provider")) keep = new string[]{ "title", "description", "type", "price", "owner" };
+                        else if (accType.Equals("Admin")) keep = new string[]           { "title", "description", "type", "price", "owner", "published" };
+                    } else if (info.ToLowerInvariant().Equals("detailed"))
+                    {
+                        if (accType.Equals("Customer")) keep = new string[]             { "title", "description", "type", "price", "rating", "owner", "meta" };
+                        else if (accType.Equals("Content Provider")) keep = new string[]{ "title", "description", "type", "price", "rating", "owner", "meta" };
+                        else if (accType.Equals("Admin")) keep = new string[]           { "title", "description", "type", "price", "rating", "owner", "meta", "published" };
+                    }
 
-                response.StatusCode = HttpStatusCode.NoContent;
-                return _j.Json(returnData);
+                    ProductData[] returnData = new ProductData[products.Length];
+
+                    for (int i = 0; i < products.Length; i++)
+                    {
+                        returnData[i] = ProductTypeToProductData(products[i]);
+                    }
+
+                    _h.GetResponse().ContentType = "text/json";
+                    response.StatusCode = HttpStatusCode.NoContent;
+                    returnStream = _j.Json(returnData, keep);
+                }
+                return returnStream;
             }
-            catch (ProductExceptions.NoSuchProductType)
-            {
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (ProductExceptions.ArgumentException)
-            {
-                response.StatusCode = HttpStatusCode.BadRequest;
-            }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            catch (ProductExceptions.NoSuchProductType) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (ProductExceptions.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
 
             return null;
         }
-
+            
         public Stream GetProduct(string id)
         {
+            var invoker = _h.Authorize();
+            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
+            var user = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.user : "";
+
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
@@ -74,21 +94,24 @@ namespace Services.Controllers
                 ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 ProductData returnData = ProductTypeToProductData(product);
 
+                // DEFINE RETURN CONTENT
+                string[] keep = { };
+                if (accType.Equals("Customer")) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta"};
+                else if (accType.Equals("Admin") || Ops.compareUsernames(product.owner, user)) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta", "published" }; // Check for ownership before check for "Provider" type, due to the fact that the owner is a provider.
+                else if (accType.Equals("Content Provider")) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta"};
+
+                _h.GetResponse().ContentType = "text/json";
                 response.StatusCode = HttpStatusCode.NoContent;
-                return _j.Json(returnData);
-            } catch (ProductExceptions.NoSuchProduct)
-            {
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+                return _j.Json(returnData, keep);
+            } 
+            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
             return null;
         }
 
         public void UpdateProduct(string id, ProductData data)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
@@ -119,6 +142,7 @@ namespace Services.Controllers
 
         public void UpdateProductMedia(string id, Stream media)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -129,12 +153,12 @@ namespace Services.Controllers
                  * It is therefore of most importance that the part after the slash is a valid file extension
                  * */
                 string contentType = WebOperationContext.Current.IncomingRequest.ContentType;
-                contentType = "." + contentType.Substring(contentType.IndexOf("/") + 1);
+                contentType = contentType.Replace(@"/", "_");
 
                 // Set the upload path to be "WCF-folder/Owner/ID.extension"
                 string filePath = string.Format("{0}Uploads\\{1}\\{2}",
                                                     AppDomain.CurrentDomain.BaseDirectory,
-                                                    product.owner, id + "_" + product.name + contentType);
+                                                    product.owner, id + "." + contentType);
                 using (FileStream fs = new FileStream(filePath, FileMode.Create))
                 {
                     media.CopyTo(fs);
@@ -150,6 +174,7 @@ namespace Services.Controllers
 
         public void UpdateProductThumbnail(string id, Stream media)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -160,21 +185,21 @@ namespace Services.Controllers
                  * It is therefore of most importance that the part after the slash is a valid file extension
                  * */
                 string contentType = WebOperationContext.Current.IncomingRequest.ContentType;
-                contentType = contentType.Substring(contentType.IndexOf("/") + 1);
 
+                string fileType = contentType.Substring(contentType.IndexOf(@"/") + 1).ToLower();
                 HashSet<string> allowedTypes = new HashSet<string> { "jpeg", "jpg", "gif", "png" };
-                if (allowedTypes.Contains(contentType))
+                if (allowedTypes.Contains(fileType))
                 {
                     response.StatusCode = HttpStatusCode.PreconditionFailed;
                     return;
                 }
 
-                contentType = "." + contentType;
+                contentType = contentType.Replace(@"/", "_");
 
                 // Set the upload path to be "WCF-folder/Owner/ID.extension"
                 string filePath = string.Format("{0}Uploads\\{1}\\thumbnails\\{2}",
                                                     AppDomain.CurrentDomain.BaseDirectory,
-                                                    product.owner, id + "_" + product.name + contentType);
+                                                    product.owner, id + "." + contentType);
                 using (FileStream fs = new FileStream(filePath, FileMode.Create))
                 {
                     media.CopyTo(fs);
@@ -189,6 +214,7 @@ namespace Services.Controllers
 
         public void DeleteProduct(string id)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -208,26 +234,32 @@ namespace Services.Controllers
 
         public Stream GetProductRating(string id)
         {
+            var invoker = _h.Authorize();
+            
             OutgoingWebResponseContext response = _h.GetResponse();
+            _h.GetResponse().ContentType = "text/json";
             response.StatusCode = HttpStatusCode.NotImplemented;
             return null;
         }
 
         public void UpdateProductRating(string id, RatingData data)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             response.StatusCode = HttpStatusCode.NotImplemented;
         }
 
         public Stream GetPurchasedMedia(string customer, string id)
         {
+            var invoker = _h.Authorize();
+
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
                 ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 FileInfo fileInfo = GetLocalProductFile(id, product.owner);
-
-                _h.GetResponse().ContentType = "application/octet-stream";
+                string contentType = fileInfo.Extension.Substring(1);
+                _h.GetResponse().ContentType = contentType.Replace("-", @"/");
                 response.StatusCode = HttpStatusCode.OK;
 
                 return File.OpenRead(fileInfo.FullName);
@@ -241,13 +273,15 @@ namespace Services.Controllers
 
         public Stream GetProductThumbnail(string id)
         {
+            var invoker = _h.Authorize();
+
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
                 ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 FileInfo fileInfo = GetLocalThumbnailFile(id, product.owner);
-
-                _h.GetResponse().ContentType = "application/octet-stream";
+                string contentType = fileInfo.Extension.Substring(1);
+                _h.GetResponse().ContentType = contentType.Replace("-", @"/");
                 response.StatusCode = HttpStatusCode.OK;
 
                 return File.OpenRead(fileInfo.FullName);
@@ -259,16 +293,17 @@ namespace Services.Controllers
             return null;
         }
 
-        public Stream GetListOfProductTypes()
+        public Stream GetSupportedProductTypes()
         {
-          OutgoingWebResponseContext response = _h.GetResponse();
+            try
+            {
+                var invoker = _h.Authorize();
 
-          try {
-            return _j.StrArray(Product.getListOfProductTypes());
-          } catch (Exception) {
-            response.StatusCode = HttpStatusCode.InternalServerError;
-          }
-          return null;
+                _h.Success();
+                return _j.Json(Product.getListOfProductTypes(/*invoker*/));
+            }
+           // catch (ProductPermissions.PermissionDenied) { return _h.Failure(403); }
+            catch (Exception) { return _h.Failure(500); }
         }
 
         /// <summary>

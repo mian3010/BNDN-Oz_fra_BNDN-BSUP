@@ -164,7 +164,7 @@ namespace RentIt.Services
         public string DefaultString(string value, string def)
         {
 
-            if (value == null || value.Length == 0) return def;
+            if (string.IsNullOrEmpty(value)) return def;
             else return value;
         }
 

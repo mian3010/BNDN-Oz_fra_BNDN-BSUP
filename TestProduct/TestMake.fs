@@ -1,10 +1,11 @@
-﻿namespace RentIt
+﻿namespace RentIt.Test
 
 module ProductTest = 
   open Xunit
   open FsUnit.Xunit
-  open ProductExceptions
-  open ProductTypes
+  open RentIt.ProductExceptions
+  open RentIt.ProductTypes
+  open RentIt
 
   let userName = "Lynette"
   let name = "test product"
@@ -20,38 +21,50 @@ module ProductTest =
   [<Fact>]
   let ``buyPrice should work``() =
     let p = Product.make userName "test make b" productType description buyPrice rentPrice
-    p.buyPrice.Value |> should equal buyPrice.Value
-    removeProduct "test make b"
+    try
+      p.buyPrice.Value |> should equal buyPrice.Value
+    finally
+      removeProduct "test make b"
 
   [<Fact>]
   let ``rentPrice should work``() =
     let p = Product.make userName "test make r" productType description buyPrice rentPrice
-    p.rentPrice.Value |> should equal rentPrice.Value
-    removeProduct "test make r"
+    try
+      p.rentPrice.Value |> should equal rentPrice.Value
+    finally
+      removeProduct "test make r"
 
   [<Fact>]
   let ``owner should work``() =
     let p = Product.make userName "test make own" productType description buyPrice rentPrice
-    p.owner |> should equal userName
-    removeProduct "test make own"
+    try
+      p.owner |> should equal userName
+    finally
+      removeProduct "test make own"
 
   [<Fact>]
   let ``name should work``() =
     let p = Product.make userName "test make n" productType description buyPrice rentPrice
-    p.name |> should equal "test make n"
-    removeProduct "test make n"
+    try
+      p.name |> should equal "test make n"
+    finally
+      removeProduct "test make n"
 
   [<Fact>]
   let ``desc should work``() =
     let p = Product.make userName "test make d" productType description buyPrice rentPrice
-    p.description.Value |> should equal description.Value
-    removeProduct "test make d"
+    try
+      p.description.Value |> should equal description.Value
+    finally
+      removeProduct "test make d"
 
   [<Fact>]
   let ``type should work``() =
     let p = Product.make userName "test make t" productType description buyPrice rentPrice
-    p.productType |> should equal productType
-    removeProduct "test make t"
+    try
+      p.productType |> should equal productType
+    finally
+      removeProduct "test make t"
 
   [<Fact>]
   let ``owner should throw arg``() =

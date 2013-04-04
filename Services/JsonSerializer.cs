@@ -100,15 +100,14 @@ namespace RentIt.Services
             return asStream("[" + h.Join(values, ",") + "]");
         }
 
-        public Stream StrArray(string[] stra) 
+        public Stream Json(string[] strings) 
         {
-          string str = "[";
-          foreach (var s in stra) {
-            str += "\"" + s + "\",";
-          }
-          str += "]";
+            return asStream("[" + h.Join(h.Map(strings, s => escape(s)), ",") + "]");
+        }
 
-          return asStream(str);
+        public Stream JsonArray(uint[] intArray)
+        {
+            return asStream("[" + h.Join(intArray, ",") + "]");
         }
 
         // Causes any property but those specified by keep to be set to null
