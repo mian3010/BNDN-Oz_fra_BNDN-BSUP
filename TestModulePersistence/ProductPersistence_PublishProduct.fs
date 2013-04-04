@@ -1,4 +1,4 @@
-﻿namespace RentIt.Test.ModulePersistence.ProductPersistence
+﻿namespace RentIt.Test
   open Xunit
   open FsUnit.Xunit
   open RentIt.ProductTypes
@@ -8,18 +8,20 @@
     [<Fact>]
     let ``Test publish product``() =
       let test = "TestPublishProduct"
-      //Create test data
-      let testProd = ref (Helper.createTestProduct test)
-      //Unpublish product
-      testProd := publishProduct (!testProd).id false
-      //Test that product has been unpublished
-      (!testProd).published |> should equal false
-      //Set published again
-      testProd := publishProduct (!testProd).id true
-      //Test that product has been published
-      (!testProd).published |> should equal true
-      //Clean up after ourselves
-      Helper.removeTestProduct test
+      try
+        //Create test data
+        let testProd = ref (Helper.createTestProduct test)
+        //Unpublish product
+        testProd := publishProduct (!testProd).id false
+        //Test that product has been unpublished
+        (!testProd).published |> should equal false
+        //Set published again
+        testProd := publishProduct (!testProd).id true
+        //Test that product has been published
+        (!testProd).published |> should equal true
+      finally
+        //Clean up after ourselves
+        Helper.removeTestProduct test
 
     [<Fact>]
     let ``Test publish product that does not exist``() =

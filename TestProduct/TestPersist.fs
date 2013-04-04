@@ -1,11 +1,12 @@
-﻿namespace RentIt
+﻿namespace RentIt.Test
 
 module TestPersist = 
 
   open Xunit
   open FsUnit.Xunit
-  open ProductExceptions
-  open ProductTypes
+  open RentIt.ProductExceptions
+  open RentIt.ProductTypes
+  open RentIt
 
   [<Fact>]
   let ``something with persist``() =
@@ -13,5 +14,7 @@ module TestPersist =
     let typ = Helper.createTestType "test persist"
     let tp = Product.persist (Helper.getTestProduct "test persist")
     let p = (Product.getProductByName tp.name).Head
-    p |> should equal tp
-    Helper.removeTestProduct "test persist"
+    try
+      p |> should equal tp
+    finally
+      Helper.removeTestProduct "test persist"
