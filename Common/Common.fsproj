@@ -42,6 +42,7 @@
     <Compile Include="ProductTypes.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="CreditsTypes.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.CustomMatchers">
