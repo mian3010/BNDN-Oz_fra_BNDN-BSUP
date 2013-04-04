@@ -306,26 +306,12 @@ namespace RentIt.Services
 
         public FSharpOption<T> ToOption<T>(T t)
         {
-            if (t == null)
-            {
-                return FSharpOption<T>.None;
-            }
-            else
-            {
-                return FSharpOption<T>.Some(t);
-            }
+            return t == null ? FSharpOption<T>.None : FSharpOption<T>.Some(t);
         }
 
-        public FSharpOption<T> ToOption<T>(T? t)
+        public FSharpOption<T> ToOption<T>(T? t) where T:struct
         {
-            if (t == null)
-            {
-                return FSharpOption<T>.None;
-            }
-            else
-            {
-                return FSharpOption<T>.Some(t.Value);
-            }
+            return t == null ? FSharpOption<T>.None : FSharpOption<T>.Some(t.Value);
         }
 
         #endregion
