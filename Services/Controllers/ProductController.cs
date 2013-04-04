@@ -85,7 +85,6 @@ namespace Services.Controllers
                 else throw new BadRequestException(); // Never happens
             }
             catch (BadRequestException) { return h.Failure(400); }
-            catch (ProductExceptions.ArgumentException) { return h.Failure(400); }
             catch (Exception) { return h.Failure(500); }
         }
             
@@ -118,7 +117,6 @@ namespace Services.Controllers
                 return j.Json(product);
             }
             catch (BadRequestException) { return h.Failure(404); } // Only thrown if id != uint
-            catch (ProductExceptions.ArgumentException) { return h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { return h.Failure(404); }
             catch (Exception) { return h.Failure(500); }
         }
@@ -155,7 +153,6 @@ namespace Services.Controllers
                 h.Success(204);
             }
             catch (BadRequestException) { h.Failure(404); } // Only thrown if id != uint
-            catch (ProductExceptions.ArgumentException) { h.Failure(400); }
             catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
             catch (ProductExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
@@ -163,7 +160,33 @@ namespace Services.Controllers
 
         public void UpdateProductMedia(string id, Stream data)
         {
+            try
+            {
+                // VERIFY
 
+                int pId;
+                try { pId = (int)h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                string mime = h.Header("Content-Type");
+                if (string.IsNullOrEmpty(mime)) throw new BadRequestException();
+
+                if (data == null) throw new BadRequestException();
+
+                var invoker = h.Authorize();
+
+                // PERSIST
+
+                Product.persistMediaThumbnail(pId, mime, data);
+
+                // SIGNAL SUCCESS
+
+                h.Success(204);
+            }
+            catch (BadRequestException) { h.Failure(400); }
+            catch (NotFoundException) { h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
+            catch (Exception) { h.Failure(500); }
         }
 
         public void UpdateProductThumbnail(string id, Stream data)
@@ -176,14 +199,16 @@ namespace Services.Controllers
                 try { pId = (int)h.Uint(id); }
                 catch (BadRequestException) { throw new NotFoundException(); }
 
-                var invoker = h.Authorize();
+                string mime = h.Header("Content-Type");
+                if (mime == null || !(mime.Equals("image/png") || mime.Equals("image/gif") || mime.Equals("image/jpeg"))) throw new BadRequestException();
 
-                // Rating is valid
                 if (data == null) throw new BadRequestException();
 
-                // ADD RATING
+                var invoker = h.Authorize();
 
-                Product.rateProduct(pId, user, data.score);
+                // PERSIST
+
+                Product.persistMediaThumbnail(pId, mime, data);
 
                 // SIGNAL SUCCESS
 
@@ -191,7 +216,6 @@ namespace Services.Controllers
             }
             catch (BadRequestException) { h.Failure(400); }
             catch (NotFoundException) { h.Failure(404); }
-            catch (ProductExceptions.ArgumentException) { h.Failure(400); }
             catch (ProductExceptions.NoSuchProduct) { h.Failure(404); }
             catch (Exception) { h.Failure(500); }
         }

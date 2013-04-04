@@ -88,6 +88,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="JsonSerializer.cs" />
     <Compile Include="JsonUtility.cs" />
+    <Compile Include="NotFoundException.cs" />
     <Compile Include="RentItService.svc.cs">
       <DependentUpon>RentItService.svc</DependentUpon>
     </Compile>
