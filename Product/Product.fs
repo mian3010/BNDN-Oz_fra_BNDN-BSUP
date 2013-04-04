@@ -10,7 +10,7 @@ module Product =
       try
         dir.GetFiles(id.ToString() + ".*").[0]
       with
-        | :? System.IO.DirectoryNotFoundException -> raise ProductExceptions.MediaNotFound
+        | :? System.IO.DirectoryNotFoundException -> raise ProductExceptions.NoSuchMedia
 
   let internal getLocalThumbnailFile (id:int) owner =
       let path = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + owner + "\\Thumbnails"
@@ -265,7 +265,7 @@ module Product =
     try
       System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
     with
-      | :? System.IO.FileNotFoundException -> raise ProductExceptions.MediaNotFound
+      | :? System.IO.FileNotFoundException -> raise ProductExceptions.NoSuchMedia
 
   /// <summary>
   /// Gets a stream to the requeste media thumbnail and the media MIME type
@@ -277,4 +277,4 @@ module Product =
     try
       System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
     with
-      | :? System.IO.FileNotFoundException -> raise ProductExceptions.MediaNotFound
+      | :? System.IO.FileNotFoundException -> raise ProductExceptions.NoSuchMedia
