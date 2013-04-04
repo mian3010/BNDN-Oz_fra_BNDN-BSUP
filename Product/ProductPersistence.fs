@@ -188,7 +188,8 @@ module ProductPersistence =
     let objectName = "Product"
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
     let joinsQ = Persistence.ObjectJoin.createObjectJoin [] "Product" "Id" "MetaData" "Product_Id"
-    let filtersQ = ref (Persistence.FilterGroup.createFilterGroupProcProc [] objectName "Name" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition)
-    filtersQ := Persistence.FilterGroup.createFilterGroupProcProc !filtersQ objectName "Description" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition
-    filtersQ := Persistence.FilterGroup.createFilterGroupProcProc !filtersQ "MetaData" "Content" search Persistence.Filter.anyBeforeAndAfter Persistence.FilterGroup.orCondition
-    convertFromResults (Persistence.Api.read fieldsQ objectName joinsQ !filtersQ)
+    let filtersQ = ref (Persistence.Filter.createFilterProc [] objectName "Name" search Persistence.Filter.anyBeforeAndAfter)
+    filtersQ := Persistence.Filter.createFilterProc !filtersQ objectName "Description" search Persistence.Filter.anyBeforeAndAfter
+    filtersQ := Persistence.Filter.createFilterProc !filtersQ "MetaData" "Content" search Persistence.Filter.anyBeforeAndAfter
+    let filterGroup = Persistence.FilterGroup.createFilterGroupFiltersProc [] !filtersQ Persistence.FilterGroup.orCondition
+    convertFromResults (Persistence.Api.read fieldsQ objectName joinsQ filterGroup)

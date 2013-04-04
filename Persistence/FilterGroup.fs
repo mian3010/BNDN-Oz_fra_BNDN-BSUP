@@ -33,3 +33,6 @@
 
     let createSingleFilterGroupProc (list:Types.Filter list) objectName field value processor =
       createFilterGroup [{filters=list;processor=processor}] objectName field value
+
+    let createFilterGroupFiltersProc (list:Types.FilterGroup List) (filters:Types.Filter List) processor =
+      list@[({filters=filters;processor=processor;}:Types.FilterGroup)]

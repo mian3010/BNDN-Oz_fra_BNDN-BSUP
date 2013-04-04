@@ -141,3 +141,5 @@ module Product =
   ///</summary>
   /// <exception> MediaNotFound </exception>
   val getMediaThumbnail : uint32 -> System.IO.FileStream*string
+
+  val searchProducts : string -> Product list
