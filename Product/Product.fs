@@ -174,6 +174,7 @@ module Product =
   let rateProduct (pId:int) (user:string) (rating:int) = 
     // Defens
     if (pId < 1) then raise (ArgumentException "ProductId invalid")
+    if (user = null || user.Trim().Length = 0) then raise (ArgumentException "User invalid")
     if (-5 > rating || rating > 5) then raise (ArgumentException "Rating must be between -5 and 5")
 
     try

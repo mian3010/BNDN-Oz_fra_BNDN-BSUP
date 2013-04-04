@@ -2,6 +2,7 @@
 open RentIt.ProductPersistence
 open RentIt.AccountPersistence
 open RentIt
+open RentIt.CreditsPersistence
 
   module Helper =
     //Get testproduct
@@ -26,11 +27,11 @@ open RentIt
       "TESTTYPE_"+test
     //Remove test product type
     let removeTestType test =
-      let filtersQ = Persistence.Filter.createFilter [] "ProductType" "Name" ("TESTTYPE_"+test)
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "ProductType" "Name" ("TESTTYPE_"+test)
       Persistence.Api.delete "ProductType" filtersQ |> ignore
     //Get product type
     let getProductType test =
-      let filtersQ = Persistence.Filter.createFilter [] "ProductType" "Name" ("TESTTYPE_"+test)
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "ProductType" "Name" ("TESTTYPE_"+test)
       let readQ = Persistence.ReadField.createReadField [] "ProductType" "Name"
       (Persistence.Api.read readQ "ProductType" [] filtersQ).Head.["Name"]
 
@@ -61,13 +62,13 @@ open RentIt
 
     //Remove ratings
     let removeUserRatings test =
-      let filtersQ = Persistence.Filter.createFilter [] "ProductRating" "User_Username" ("TESTUSER_"+test)
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "ProductRating" "User_Username" ("TESTUSER_"+test)
       Persistence.Api.delete "ProductRating" filtersQ |> ignore
 
     let removeProductRatings test =
       try
         let prod = getProductByName ("TESTPRODUCT_"+test)
-        let filtersQ = Persistence.Filter.createFilter [] "ProductRating" "Product_Id" (string prod.Head.id)
+        let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "ProductRating" "Product_Id" (string prod.Head.id)
         Persistence.Api.delete "ProductRating" filtersQ |> ignore
       with
         | _ -> ()
@@ -75,7 +76,7 @@ open RentIt
     //Remove test account
     let removeTestUser test =
       removeUserRatings test
-      let filtersQ = Persistence.Filter.createFilter [] "User" "Username" ("TESTUSER_"+test)
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "User" "Username" ("TESTUSER_"+test)
       Persistence.Api.delete "User" filtersQ |> ignore
 
     //Create test product
@@ -85,13 +86,33 @@ open RentIt
       let prod = getTestProduct test
       createProduct prod
 
+    let removeTestTransactions test =
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "Transactions" "User_Username" ("TESTUSER_"+test)
+      Persistence.Api.delete "Transactions" filtersQ |> ignore
+      ()
+
     //Remove test product
     let removeTestProduct test =
       removeProductRatings test
-      let filtersQ = Persistence.Filter.createFilter [] "Product" "Name" ("TESTPRODUCT_"+test)
+      removeTestTransactions test
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "Product" "Name" ("TESTPRODUCT_"+test)
       Persistence.Api.delete "Product" filtersQ |> ignore
       let removeType = removeTestType test
       let removeUser = removeTestUser test
       ()
 
-    
+    //Create test buy transaction
+    let createTestBuyTransaction test =
+      let payDate = System.DateTime.Parse "2012-01-01 01:01:01"
+      (match (createBuyTransaction ("TESTUSER_"+test) payDate (getProductByName ("TESTPRODUCT_"+test)).Head.id) with
+        | CreditsTypes.RentOrBuy.Rent b -> Some b
+        | _ -> None).Value
+
+    //Create test rent transaction
+    let createTestRentTransaction test =
+      let payDate = System.DateTime.Parse "2012-01-01 01:01:01"
+      let expireDate = System.DateTime.Parse "2012-01-02 01:01:01"
+      (match (createRentTransaction ("TESTUSER_"+test) payDate (getProductByName ("TESTPRODUCT_"+test)).Head.id expireDate) with
+        | CreditsTypes.RentOrBuy.Rent b -> Some b
+        | _ -> None).Value
+

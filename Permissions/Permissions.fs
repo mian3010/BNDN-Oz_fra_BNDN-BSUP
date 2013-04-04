@@ -39,8 +39,8 @@ open RentIt
       // WHERE AllowedAction = permission
       let objectName = "Product_has_AllowedAction"
       let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-      let filtersQ = ref (Persistence.Filter.createFilter [] objectName "Product_Id" (string id))
-      filtersQ := Persistence.Filter.createFilter !filtersQ objectName "AllowedAction" permission
+      let filtersQ = ref (Persistence.FilterGroup.createSingleFilterGroup [] objectName "Product_Id" (string id))
+      filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "AllowedAction" permission
       let permissions = Persistence.Api.read fieldsQ objectName [] !filtersQ
 
       // Check if any results
@@ -61,8 +61,8 @@ open RentIt
     // Takes ActionGroup Name and Permission. Both as strings
     let unassignPermissionFromActionGroup (name:string) (permission:string) = 
       let objectName = "ActionGroup_has_AllowedAction"
-      let filtersQ = Persistence.Filter.createFilter [] "ActionGroup_has_AllowedAction" "ActionGroup_name" name
-      let filtersQ = Persistence.Filter.createFilter filtersQ "ActionGroup_has_AllowedAction" "AllowedAction_name" permission
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "ActionGroup_has_AllowedAction" "ActionGroup_name" name
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup filtersQ.Head.filters "ActionGroup_has_AllowedAction" "AllowedAction_name" permission
       
       Persistence.Api.delete objectName filtersQ
 
@@ -79,7 +79,7 @@ open RentIt
     // Takes Allowed Action Name
     let deleteAllowedAction (name:string) =
       let objectName = "AllowedAction"
-      let filtersQ = Persistence.Filter.createFilter [] objectName "Name" name
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Name" name
 
       Persistence.Api.delete objectName filtersQ
 
@@ -96,7 +96,7 @@ open RentIt
     // Takes Action Group Name
     let deleteActionGroup (name:string) =
       let objectName = "ActionGroup"
-      let filtersQ = Persistence.Filter.createFilter [] objectName "Name" name
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Name" name
 
       Persistence.Api.delete objectName filtersQ
 
@@ -113,8 +113,8 @@ open RentIt
     // Takes User Type Name and Action Group Name
     let unassignActionGroupToUserType (userType:string) (actionGroup:string) = 
       let objectName = "UserType_has_ActionGroup"
-      let filtersQ = Persistence.Filter.createFilter []       objectName "UserType_name" userType
-      let filtersQ = Persistence.Filter.createFilter filtersQ objectName "ActionGroup_name" actionGroup
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup []       objectName "UserType_name" userType
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup filtersQ.Head.filters objectName "ActionGroup_name" actionGroup
 
       Persistence.Api.delete objectName filtersQ
 
@@ -133,13 +133,13 @@ open RentIt
       let objectName = "User"
       let fieldsQ = Persistence.ReadField.createReadField [] objectName "Type_name" 
       let joinsQ = []
-      let filtersQ = Persistence.Filter.createFilter [] objectName "Type_name" name
+      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Type_name" name
       let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
       
       if not readR.IsEmpty then false
       else
         let objectName = "UserType"
-        let filtersQ = Persistence.Filter.createFilter [] objectName "Name" name
+        let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Name" name
         Persistence.Api.delete objectName filtersQ |> ignore
         true //TODO Add check
       

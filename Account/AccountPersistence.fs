@@ -12,14 +12,14 @@ open AccountExceptions
 
             let getCountry (name:string) =
               let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-              let filtersQ = Persistence.Filter.createFilter [] "Country" "Name" name
+              let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "Country" "Name" name
               let res = Persistence.Api.read fieldsQ "Country" [] filtersQ
               if res.Length < 1 then raise NoSuchCountry
               res.Head.["Name"]
 
             let getUserType (name:string) =
               let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-              let filtersQ = Persistence.Filter.createFilter [] "UserType" "Name" name
+              let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "UserType" "Name" name
               let res = Persistence.Api.read fieldsQ "UserType" [] filtersQ
               if res.Length < 1 then raise UnknownAccType
               res.Head.["Name"]
@@ -57,7 +57,7 @@ open AccountExceptions
                 
                     let fieldsQ         = Persistence.ReadField.createReadFieldProc [] "User" "Username" Persistence.ReadField.All
                     let baseObjectNameQ = "User"
-                    let filtersQ        = Persistence.Filter.createFilter [] "User" "Username" userName
+                    let filtersQ        = Persistence.FilterGroup.createSingleFilterGroup [] "User" "Username" userName
                     let read = Persistence.Api.read fieldsQ baseObjectNameQ [] filtersQ
     
                     // Oooops, no user with that username. Hmm, u stupid or some?
@@ -103,11 +103,19 @@ open AccountExceptions
               
             lock Internal.cache (fun() -> internalFun)
 
+        let updateUserInCache userName =
+          if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache) then
+            let version = Internal.cache.[userName].version
+            let remove () = Internal.cache.Remove userName
+            Internal.cache <- lock Internal.cache remove
+            getUserByName userName |> ignore
+            Internal.cache <- Internal.cache.Add (userName, {Internal.cache.[userName] with version = version})
+        
         /// Retrieves all accounts of a specific type
         let getAllUsersByType accType :AccountTypes.Account list =
             let internalFun =
                 let fieldsQ = Persistence.ReadField.createReadFieldProc [] "user" "Username" Persistence.ReadField.All
-                let filterQ = Persistence.Filter.createFilter [] "user" "Type_name" accType
+                let filterQ = Persistence.FilterGroup.createSingleFilterGroup [] "user" "Type_name" accType
                 let reader  = Persistence.Api.read fieldsQ "user" [] filterQ
                 let result = [
                     for map in reader do
@@ -180,7 +188,7 @@ open AccountExceptions
                 if (acc.info.credits.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Balance" (string acc.info.credits.Value)
                 if (acc.info.address.postal.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Zipcode" (string acc.info.address.postal.Value)
                 if (acc.info.address.country.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Country_Name" (string acc.info.address.country.Value)
-                let filtersQ   = Persistence.Filter.createFilter [] tableName "Username" acc.user
+                let filtersQ   = Persistence.FilterGroup.createSingleFilterGroup [] tableName "Username" acc.user
                 let updateR = Persistence.Api.update tableName filtersQ !dataQ
 
 

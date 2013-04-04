@@ -31,3 +31,7 @@ module AccountPersistenceExceptions =
   exception IllegalAccountVersion
   exception NoSuchAccountType
   exception NoSuchCountry
+
+module CreditsExceptions =
+  exception NotEnoughCredits
+  exception NoSuchTransaction
