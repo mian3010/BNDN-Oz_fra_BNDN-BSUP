@@ -119,3 +119,23 @@ module Product =
   ///</summary>
   /// <typeparam> product type </typeparam>
   val getMimesForProductType : string -> string list
+
+  /// <summary>
+  /// Persist a new media
+  ///</summary>
+  val persistMedia : ProductTypes.Product -> string -> System.IO.Stream -> unit
+
+  /// <summary>
+  /// Persist a new media thumbnail
+  ///</summary>
+  val persistMediaThumbnail : ProductTypes.Product -> string -> System.IO.Stream -> unit
+
+  /// <summary>
+  /// Gets a stream to the requeste media
+  ///</summary>
+  val getMedia : uint32 -> System.IO.Stream
+
+  /// <summary>
+  /// Gets a stream to the requeste media thumbnail
+  ///</summary>
+  val getMediaThumbnail : uint32 -> System.IO.Stream
