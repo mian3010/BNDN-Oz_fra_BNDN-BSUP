@@ -10,7 +10,7 @@ module ProductExceptions =
   exception UpdateNotAllowed of string
   exception OutdatedData      // If a call to 'update' cannot succeed, because the changes conflict with more recent changes
   exception TooLargeData      // If an product could not be persisted, because its fields were too large
-  exception MIMETypeNotAllowed
+  exception MimeTypeNotAllowed
   exception NoSuchMedia       // The product or thumbnail was not found
 
 module PersistenceExceptions =
@@ -37,3 +37,8 @@ module AccountPersistenceExceptions =
 module CreditsExceptions =
   exception NotEnoughCredits
   exception NoSuchTransaction
+  exception TooLargeData      // If credits could not be bought, because the account cannot have any more credits
+
+module PermissionExceptions =
+  exception AccountBanned              // Raised when a banned invoker attempts to perform an action
+  exception PermissionDenied of string // Raised when an invoker attempts to perform an inaccessible action

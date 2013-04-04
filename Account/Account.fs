@@ -81,32 +81,6 @@ module Account =
             version = uint32(0);  
         }
 
-        // WHAT IS THIS? (~ Philip)
-
-        (*
-        if accType = null then raise BrokenInvariant
-        if user = null then raise BrokenInvariant
-        if email = null then raise BrokenInvariant
-        if password = null then raise BrokenInvariant
-        let acinfo:ExtraAccInfo = {
-                        name = info.name
-                        address = info.address
-                        birth = info.birth
-                        about = info.about
-                        credits = Some 0
-                     }
-        {
-            user = user;
-            email = email;
-            password = Password.create password;
-            created = System.DateTime.Now;
-            banned = false;
-            info = acinfo;
-            accType = accType;
-            version = uint32(0);    
-        }
-        *)
-
     ////// CREDO FUNCTIONS
 
     /// Persists a new Account, making the account visible to the outside world

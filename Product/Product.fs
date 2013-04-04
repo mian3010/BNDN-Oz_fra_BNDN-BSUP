@@ -245,7 +245,7 @@ module Product =
     let p = getProductById (int id)
     let fileType = mime.Substring(mime.IndexOf(@"/") + 1).ToLower();
     let allowedTypes = Set.ofList ["jpeg"; "jpg"; "gif"; "png"]
-    if not (allowedTypes.Contains fileType) then raise ProductExceptions.MIMETypeNotAllowed
+    if not (allowedTypes.Contains fileType) then raise ProductExceptions.MimeTypeNotAllowed
     
     let fileName = p.id.ToString() + "." + mime.Replace(@"/", "_");
     let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\Thumbnails\\" + fileName

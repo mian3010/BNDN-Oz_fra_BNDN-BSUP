@@ -63,11 +63,17 @@
   <ItemGroup>
     <Compile Include="PermissionsHelper.fs" />
     <Compile Include="Permissions.fs" />
+    <Compile Include="PermissionsUtil.fs" />
     <Compile Include="PermissionsTester.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.fsproj">
+      <Name>Common</Name>
+      <Project>{1a2ef8ab-e695-43ca-a3db-e9c0d71ee5be}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Persistence\Persistence.fsproj">
       <Name>Persistence</Name>
       <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
