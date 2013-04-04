@@ -24,11 +24,6 @@ namespace Services.Controllers
             _c = converter;
         }
 
-        public Stream DefaultGetProviderProducts(string provider)
-        {
-            return GetProviderProducts(provider, null, null, null, null);
-        }
-
         public Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished)
         {
             var invoker = _h.Authorize();
