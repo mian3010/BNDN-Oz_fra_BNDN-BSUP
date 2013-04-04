@@ -39,6 +39,7 @@
     <Compile Include="Types.fs" />
     <Compile Include="Field.fs" />
     <Compile Include="Filter.fs" />
+    <Compile Include="FilterGroup.fs" />
     <Compile Include="ReadField.fs" />
     <Compile Include="ObjectJoin.fs" />
     <Compile Include="DataIn.fs" />
