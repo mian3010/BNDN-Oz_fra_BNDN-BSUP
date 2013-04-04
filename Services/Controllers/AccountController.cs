@@ -189,6 +189,8 @@ namespace RentIt.Services.Controllers
             try
             {
                 var invoker = h.Authorize();
+
+                h.Success();
                 return j.Json(ControlledAccount.getAcceptedCountries(invoker));
             }
             catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }

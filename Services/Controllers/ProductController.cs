@@ -24,21 +24,14 @@ namespace Services.Controllers
             _c = converter;
         }
 
-        public Stream GetProducts(string search, string type, string unpublished)
-        {
-            // No way of getting the ID
-            OutgoingWebResponseContext response = _h.GetResponse();
-            response.StatusCode = HttpStatusCode.NotImplemented;
-            return null;
-        }
-
         public Stream GetProducts(string search, string type, string info, string unpublished)
         {
             OutgoingWebResponseContext response = _h.GetResponse();
 
             try
             {
-                FSharpList<ProductTypes.Product> products = Product.getAllByType(type);
+                FSharpList<ProductTypes.Product> products = string.IsNullOrEmpty(type) ? Product.getAll() : Product.getAllByType(type);
+
                 ProductData[] returnData = new ProductData[products.Length];
 
                 for (int i = 0; i < products.Length; i++)
@@ -46,25 +39,17 @@ namespace Services.Controllers
                     returnData[i] = ProductTypeToProductData(products[i]);
                 }
 
+                _h.GetResponse().ContentType = "text/json";
                 response.StatusCode = HttpStatusCode.NoContent;
                 return _j.Json(returnData);
             }
-            catch (ProductExceptions.NoSuchProductType)
-            {
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (ProductExceptions.ArgumentException)
-            {
-                response.StatusCode = HttpStatusCode.BadRequest;
-            }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            catch (ProductExceptions.NoSuchProductType) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (ProductExceptions.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
 
             return null;
         }
-
+            
         public Stream GetProduct(string id)
         {
             OutgoingWebResponseContext response = _h.GetResponse();
@@ -74,16 +59,12 @@ namespace Services.Controllers
                 ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 ProductData returnData = ProductTypeToProductData(product);
 
+                _h.GetResponse().ContentType = "text/json";
                 response.StatusCode = HttpStatusCode.NoContent;
                 return _j.Json(returnData);
-            } catch (ProductExceptions.NoSuchProduct)
-            {
-                response.StatusCode = HttpStatusCode.NotFound;
-            }
-            catch (Exception)
-            {
-                response.StatusCode = HttpStatusCode.InternalServerError;
-            }
+            } 
+            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
+            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
             return null;
         }
 
@@ -129,12 +110,12 @@ namespace Services.Controllers
                  * It is therefore of most importance that the part after the slash is a valid file extension
                  * */
                 string contentType = WebOperationContext.Current.IncomingRequest.ContentType;
-                contentType = "." + contentType.Substring(contentType.IndexOf("/") + 1);
+                contentType = contentType.Replace(@"/", "_");
 
                 // Set the upload path to be "WCF-folder/Owner/ID.extension"
                 string filePath = string.Format("{0}Uploads\\{1}\\{2}",
                                                     AppDomain.CurrentDomain.BaseDirectory,
-                                                    product.owner, id + "_" + product.name + contentType);
+                                                    product.owner, id + "." + contentType);
                 using (FileStream fs = new FileStream(filePath, FileMode.Create))
                 {
                     media.CopyTo(fs);
@@ -160,21 +141,21 @@ namespace Services.Controllers
                  * It is therefore of most importance that the part after the slash is a valid file extension
                  * */
                 string contentType = WebOperationContext.Current.IncomingRequest.ContentType;
-                contentType = contentType.Substring(contentType.IndexOf("/") + 1);
 
+                string fileType = contentType.Substring(contentType.IndexOf(@"/") + 1).ToLower();
                 HashSet<string> allowedTypes = new HashSet<string> { "jpeg", "jpg", "gif", "png" };
-                if (allowedTypes.Contains(contentType))
+                if (allowedTypes.Contains(fileType))
                 {
                     response.StatusCode = HttpStatusCode.PreconditionFailed;
                     return;
                 }
 
-                contentType = "." + contentType;
+                contentType = contentType.Replace(@"/", "_");
 
                 // Set the upload path to be "WCF-folder/Owner/ID.extension"
                 string filePath = string.Format("{0}Uploads\\{1}\\thumbnails\\{2}",
                                                     AppDomain.CurrentDomain.BaseDirectory,
-                                                    product.owner, id + "_" + product.name + contentType);
+                                                    product.owner, id + "." + contentType);
                 using (FileStream fs = new FileStream(filePath, FileMode.Create))
                 {
                     media.CopyTo(fs);
@@ -209,6 +190,7 @@ namespace Services.Controllers
         public Stream GetProductRating(string id)
         {
             OutgoingWebResponseContext response = _h.GetResponse();
+            _h.GetResponse().ContentType = "text/json";
             response.StatusCode = HttpStatusCode.NotImplemented;
             return null;
         }
@@ -226,8 +208,8 @@ namespace Services.Controllers
             {
                 ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 FileInfo fileInfo = GetLocalProductFile(id, product.owner);
-
-                _h.GetResponse().ContentType = "application/octet-stream";
+                string contentType = fileInfo.Extension.Substring(1);
+                _h.GetResponse().ContentType = contentType.Replace("-", @"/");
                 response.StatusCode = HttpStatusCode.OK;
 
                 return File.OpenRead(fileInfo.FullName);
@@ -246,8 +228,8 @@ namespace Services.Controllers
             {
                 ProductTypes.Product product = Product.getProductById(int.Parse(id));
                 FileInfo fileInfo = GetLocalThumbnailFile(id, product.owner);
-
-                _h.GetResponse().ContentType = "application/octet-stream";
+                string contentType = fileInfo.Extension.Substring(1);
+                _h.GetResponse().ContentType = contentType.Replace("-", @"/");
                 response.StatusCode = HttpStatusCode.OK;
 
                 return File.OpenRead(fileInfo.FullName);
@@ -264,6 +246,8 @@ namespace Services.Controllers
             try
             {
                 var invoker = _h.Authorize();
+
+                _h.Success();
                 return _j.Json(Product.getListOfProductTypes(/*invoker*/));
             }
            // catch (ProductPermissions.PermissionDenied) { return _h.Failure(403); }
