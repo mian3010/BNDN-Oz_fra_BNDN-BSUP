@@ -95,10 +95,10 @@ namespace Services.Controllers
                 ProductData returnData = ProductTypeToProductData(product);
 
                 // DEFINE RETURN CONTENT
-            string[] keep = { };
-            if (accType.Equals("Customer")) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta"};
-            else if (accType.Equals("Admin") || Ops.compareUsernames(product.owner, user)) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta", "published" }; // Check for ownership before check for "Provider" type, due to the fact that the owner is a provider.
-            else if (accType.Equals("Content Provider")) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta"};
+                string[] keep = { };
+                if (accType.Equals("Customer")) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta"};
+                else if (accType.Equals("Admin") || Ops.compareUsernames(product.owner, user)) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta", "published" }; // Check for ownership before check for "Provider" type, due to the fact that the owner is a provider.
+                else if (accType.Equals("Content Provider")) keep = new string[] { "title", "description", "type", "price", "rating", "owner", "meta"};
 
                 _h.GetResponse().ContentType = "text/json";
                 response.StatusCode = HttpStatusCode.NoContent;
