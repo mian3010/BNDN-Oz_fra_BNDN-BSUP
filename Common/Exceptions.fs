@@ -28,3 +28,7 @@ module AccountPersistenceExceptions =
   exception NewerVersionExist
   exception IllegalAccountVersion
   exception NoSuchAccountType
+
+module CreditsExceptions =
+  exception NotEnoughCredits
+  exception NoSuchTransaction

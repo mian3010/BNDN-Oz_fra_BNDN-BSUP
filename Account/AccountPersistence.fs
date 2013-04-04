@@ -94,6 +94,14 @@ open System.Security
               
             lock Internal.cache (fun() -> internalFun)
 
+        let updateUserInCache userName =
+          if (Map.containsKey<string, AccountTypes.Account> userName Internal.cache) then
+            let version = Internal.cache.[userName].version
+            let remove () = Internal.cache.Remove userName
+            Internal.cache <- lock Internal.cache remove
+            getUserByName userName |> ignore
+            Internal.cache <- Internal.cache.Add (userName, {Internal.cache.[userName] with version = version})
+        
         /// Retrieves all accounts of a specific type
         let getAllUsersByType accType :AccountTypes.Account list =
             let internalFun =

@@ -11,9 +11,25 @@
     /// <typeparam> Amount to modify by </typeparam>
     /// <returns> Whether or not modify was successfull </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
-    /// <exception> RentIt.AccountExceptions.InvalidCredits </exception>
+    /// <exception> RentIt.CreditsException.NotEnoughCredits </exception>
     let updateCredits (username:string) (amount:int) :bool =
-      raise (new System.NotImplementedException())
+      let transactionQ = ref (Persistence.Transaction.createTransaction)
+
+      let objectName = "User"
+      let filtersQ = ref (Persistence.Filter.createFilter [] objectName "Username" "=" username)
+      filtersQ := Persistence.Filter.createFilter !filtersQ objectName "Balance" ">=" (string (amount*(-1)))
+      let fieldValQ = Persistence.Field.createField [] objectName "Balance"
+      let dataQ = Persistence.DataIn.createDataInFieldValueWithMod [] objectName "Balance" fieldValQ.Head ("+"+(string amount))
+      try
+        let updateR = Persistence.Api.update objectName !filtersQ dataQ
+        let user = Account.getByUsername username
+        if (updateR.Length.Equals 0) then raise CreditsExceptions.NotEnoughCredits
+        AccountPersistence.updateUserInCache username
+        true
+      with
+        | AccountExceptions.NoSuchUser|CreditsExceptions.NotEnoughCredits as e -> raise e
+        | _ -> false
+
 
     /// <summary>
     /// Create a buy transaction
@@ -80,5 +96,5 @@
     /// </summary>
     /// <typeparam> Username of the account to get by </typeparam>
     /// <returns> The transactions </returns>
-    let getTransactionByAccountAccess  (username:string) :RentOrBuy =
+    let getTransactionByAccountAccess  (username:string) :RentOrBuy List =
       raise (new System.NotImplementedException())

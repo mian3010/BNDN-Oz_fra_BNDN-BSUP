@@ -2,15 +2,13 @@
 open ProductTypes
 
 module CreditsTypes = 
-
+  
   type Transaction = {
     id : int;
     purchased : System.DateTime;
     paid : int;
     product : Product;
   }
-
-  type RentOrBuy = Rent | Buy
 
   type Rent = {
     item : Transaction;
@@ -20,3 +18,5 @@ module CreditsTypes =
   type Buy = {
     item : Transaction;
   }
+
+  type RentOrBuy = Rent of Rent | Buy of Buy
