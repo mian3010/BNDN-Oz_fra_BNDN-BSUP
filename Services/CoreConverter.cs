@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Microsoft.FSharp.Core;
+using Microsoft.FSharp.Collections;
 
 namespace RentIt.Services
 {
@@ -151,63 +152,176 @@ namespace RentIt.Services
 
         #region ProductData
 
-        //public ProductData Convert(ProductTypes.Product p)
-        //{
-        //    var metadata = h.OrNull(p.metadata);
-        //    MetaData[] meta = null;
+        public ProductData Convert(ProductTypes.Product p)
+        {
+            return new ProductData
+            {
 
-        //    if(metadata != null)
-        //    {
-        //        meta = new MetaData[metadata.Count];
+                title = p.name,
+                description = h.OrNull(p.description),
+                type = p.productType,
+                price = ConvertToPrice(p),
+                rating = Convert(h.OrNull(p.rating)),
+                owner = p.owner,
+                meta = Convert(h.OrNull(p.metadata)),
+                published = p.published
+            };
+        }
 
-        //        int c = 0;
-        //        foreach (var m in metadata)
-        //        {
-        //            meta[c++] = Convert(m.Value);
-        //        }
-                
-        //    }
+        public ProductTypes.Product Convert(ProductData p)
+        {
+            if (p == null) return null;
 
-        //    return new ProductData {
-            
-        //        title = p.name,
-        //        description = h.OrNull(p.description),
-        //        type = p.productType,
-        //        price = ConvertToPrice(p),
-        //        rating = Convert(p.rating),
-        //        owner = p.owner,
-        //        meta = meta,
-        //        published = p.published
-        //    };
-        //}
+            // Make a dummy product with all hidden values having their default values, and all required fields nulled out
+            var dummy = Product.make("dummy", "dummy", "dummy", FSharpOption<string>.None, FSharpOption<int>.None, FSharpOption<int>.None);
+            dummy = new ProductTypes.Product(null, dummy.createDate, null, null, dummy.rating, dummy.published, dummy.id, dummy.metadata, dummy.description, dummy.rentPrice, dummy.buyPrice);
 
-        //public PriceData ConvertToPrice(ProductTypes.Product p)
-        //{
+            return Merge(dummy, p);
+        }
 
-        //    return new PriceData {
-            
-        //        buy = (uint) p.buyPrice,
-        //        rent = h.OrNulled(p.rentPrice, price => (uint) price)
-        //    };
-        //}
+        public ProductTypes.Product Merge(ProductTypes.Product src, ProductData update)
+        {
+            if (update == null) return src;
+            if (src == null) return Convert(update);
 
-        //public RatingData Convert(ProductTypes.Rating r)
-        //{
-        //    return new RatingData {
-            
-        //        score = r.rating,
-        //        count = (uint) r.votes
-        //    };
-        //}
+            return new ProductTypes.Product
+            (
+                update.title == null ? src.name : update.title,
+                src.createDate,
+                update.type == null ? src.productType : update.type,
+                update.owner == null ? src.owner : update.owner,
+                new FSharpOption<ProductTypes.Rating>(Merge(h.OrNull(src.rating), update.rating)),
+                update.published == null ? src.published : (bool) update.published,
+                src.id,
+                new FSharpOption<FSharpMap<string, ProductTypes.Meta>>(Merge(h.OrNull(src.metadata), update.meta)),
+                update.description == null ? src.description : new FSharpOption<string>(update.description),
+                update.price == null || update.price.rent == null ? src.rentPrice : FSharpOption<int>.Some((int) update.price.rent),
+                update.price == null || update.price.buy == null ? src.buyPrice : FSharpOption<int>.Some((int) update.price.buy)
+            );
+        }
 
-        //public MetaData Convert(ProductTypes.Meta m)
-        //{
-        //    return new MetaData {
-            
-        //        name = m.key,
-        //        value = m.value
-        //    };
-        //}
+        public PriceData ConvertToPrice(ProductTypes.Product p)
+        {
+            if (p == null) return null;
+
+            return new PriceData
+            {
+
+                buy = h.OrNulled(p.buyPrice, price => (uint)price),
+                rent = h.OrNulled(p.rentPrice, price => (uint)price)
+            };
+        }
+
+        public RatingData Convert(ProductTypes.Rating r)
+        {
+            if (r == null) return new RatingData
+            {
+                score = 0,
+                count = 0
+            };
+
+            return new RatingData
+            {
+                score = r.rating,
+                count = (uint)r.votes
+            };
+        }
+
+        public ProductTypes.Rating Convert(RatingData r)
+        {
+            if (r == null) return new ProductTypes.Rating
+            (
+                0,
+                0
+            );
+
+            return new ProductTypes.Rating
+            (
+                r.score,
+                (int)r.count
+            );
+        }
+
+        public ProductTypes.Rating Merge(ProductTypes.Rating src, RatingData update)
+        {
+            if (update == null) return src;
+            else return Convert(update);
+        }
+
+        public MetaData Convert(ProductTypes.Meta m)
+        {
+            if (m == null) return null;
+
+            return new MetaData
+            {
+                name = m.key,
+                value = m.value
+            };
+        }
+
+        public ProductTypes.Meta Convert(MetaData m)
+        {
+            if (m == null) return null;
+
+            return new ProductTypes.Meta
+            (
+                m.name,
+                m.value
+            );
+        }
+
+        public ProductTypes.Meta Merge(ProductTypes.Meta src, MetaData update)
+        {
+            if (update == null) return src;
+            if (src == null) return Convert(update);
+
+            return new ProductTypes.Meta
+            (
+                update.name == null ? src.key : update.name,
+                update.value == null ? src.value : update.value
+            );
+        }
+
+        public FSharpMap<string, ProductTypes.Meta> Convert(MetaData[] meta)
+        {
+            if (meta == null || meta.Length == 0) return null;
+
+            var result = MapModule.Empty<string, ProductTypes.Meta>();
+
+            foreach (var m in h.Map(meta, m => Convert(m)))
+            {
+                result = result.Add(m.key, m);
+            }
+
+            return result;
+        }
+
+        public MetaData[] Convert(FSharpMap<string, ProductTypes.Meta> meta)
+        {
+            if (meta == null || meta.Count == null) return null;
+
+            return h.Map(meta, pair => Convert(pair.Value));
+        }
+
+        public FSharpMap<string, ProductTypes.Meta> Merge(FSharpMap<string, ProductTypes.Meta> src, MetaData[] update)
+        {
+            if (src == null) return Convert(update);
+            if (update == null) return src;
+
+            foreach (MetaData m in update)
+            {
+                if(m == null) continue;
+                if (src.ContainsKey(m.name))
+                {
+
+                    var converted = Merge(src[m.name], m);
+                    src = src.Add(converted.key, converted);
+                }
+                else src = src.Add(m.name, Convert(m));
+            }
+
+            return src;
+        }
 
         #endregion
 

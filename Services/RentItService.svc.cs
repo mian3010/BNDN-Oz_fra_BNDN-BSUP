@@ -78,9 +78,9 @@ namespace RentIt
             account.CreateAccount(user, data);
         }
 
-        public Stream GetListOfCountries() 
+        public Stream GetAcceptedCountries() 
         {
-            return account.GetListOfCountries();
+            return account.GetAcceptedCountries();
         }
 
         #endregion
@@ -146,9 +146,9 @@ namespace RentIt
             product.UpdateProductThumbnail(id, media);
         }
 
-        public Stream GetListOfProductTypes() 
+        public Stream GetSupportedProductTypes() 
         {
-            return product.GetListOfProductTypes();
+            return product.GetSupportedProductTypes();
         }
 
         #endregion

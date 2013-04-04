@@ -5,25 +5,25 @@ using System.Net;
 using System.ServiceModel.Web;
 using System.Web;
 using Microsoft.FSharp.Core;
+using Microsoft.FSharp.Collections;
 using System.IO;
 
 namespace RentIt.Services
 {
     public class Helper
     {
-        ////// HTTP Helpers
 
+        #region HTTP Helpers
         public OutgoingWebResponseContext GetResponse()
         {
-
             return WebOperationContext.Current.OutgoingResponse;
         }
 
         public HttpStatusCode Status(uint code)
         {
-
             OutgoingWebResponseContext response = GetResponse();
 
+            #region switch over HTTP Status code
             switch (code)
             {
 
@@ -110,6 +110,7 @@ namespace RentIt.Services
                 default:
                     throw new Exception("Illegal HTTP status code");
             }
+            #endregion
         }
 
         public void SetStatus(uint code)
@@ -139,8 +140,9 @@ namespace RentIt.Services
 
             return null;
         }
+        #endregion
 
-        ////// API Helpers
+        #region API Helpers
 
         public AccountPermissions.Invoker Authorize()
         {
@@ -159,7 +161,9 @@ namespace RentIt.Services
             catch (Auth.Token.TokenExpired) { throw new AccountPermissions.PermissionDenied("Token is expired"); }
         }
 
-        ////// Validation
+        #endregion
+
+        #region Validation
 
         public string DefaultString(string value, string def)
         {
@@ -208,16 +212,45 @@ namespace RentIt.Services
             return resultSet;
         }
 
-        ////// Other
-
-        public B[] Map<A, B>(A[] input, Func<A, B> func)
+        public HashSet<string> ExpandProductTypes(string types)
         {
-            B[] result = new B[input.Length];
+            if (string.IsNullOrEmpty(types)) return new HashSet<string>();
 
-            for (int i = 0; i < result.Length; ++i)
-            {
-                result[i] = func(input[i]);
+            HashSet<string> result = new HashSet<string>();
+
+            foreach (string t in types.Split('|')) {
+
+                if (t.Length == 0) continue;
+                result.Add(t);
             }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Other
+
+        public B[] Map<A, B>(IEnumerable<A> input, Func<A, B> func)
+        {
+            LinkedList<B> list = new LinkedList<B>();
+            
+            int c = 0;
+            foreach (A i in input)
+            {
+                B temp = func(i);
+
+                if (temp != null){
+                    
+                    list.AddFirst(temp);
+                    c++;
+                }
+            }
+
+            B[] result = new B[c];
+
+            c = 0;
+            foreach (B b in list) result[c++] = b;
 
             return result;
         }
@@ -228,15 +261,17 @@ namespace RentIt.Services
 
             foreach (T e in input)
             {
+                if (e == null) continue;
+
                 result += e.ToString() + delimiter;
             }
 
             return result.Substring(0, result.Length-delimiter.Length);
         }
 
-        /////// Null handlers
+        #endregion
 
-        #region Null Converters
+        #region Null Handlers
 
         public T OrNull<T>(FSharpOption<T> option) where T : class
         {
@@ -267,6 +302,16 @@ namespace RentIt.Services
         {
             try { return func(option.Value); }
             catch (NullReferenceException) { return null; }
+        }
+
+        public FSharpOption<T> ToOption<T>(T t)
+        {
+            return t == null ? FSharpOption<T>.None : FSharpOption<T>.Some(t);
+        }
+
+        public FSharpOption<T> ToOption<T>(T? t) where T:struct
+        {
+            return t == null ? FSharpOption<T>.None : FSharpOption<T>.Some(t.Value);
         }
 
         #endregion

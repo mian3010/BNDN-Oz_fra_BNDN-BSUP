@@ -12,6 +12,11 @@ namespace Services.Controllers
 {
     public class ProductController
     {
+
+        //TODO: Make calls to ControlledProduct instead og Product
+        //TODO: Add catch for permission denied
+        //TODO: Check for permissions to view unpublished products
+        //TODO: Implement product search
         
         private readonly Helper _h;
         private readonly JsonSerializer _j;
@@ -24,82 +29,135 @@ namespace Services.Controllers
             _c = converter;
         }
 
-        public Stream GetProducts(string search, string type, string info, string unpublished)
+        public Stream GetProducts(string search, string types, string info, string unpublished)
         {
-            OutgoingWebResponseContext response = _h.GetResponse();
-
             try
             {
-                FSharpList<ProductTypes.Product> products = string.IsNullOrEmpty(type) ? Product.getAll() : Product.getAllByType(type);
+                // VALIDATE PARAMETERS
 
-                ProductData[] returnData = new ProductData[products.Length];
+                search = _h.DefaultString(search, ""); // Default
+                types = _h.DefaultString(types, ""); // Default
+                HashSet<string> fullTypes = _h.ExpandProductTypes(types);
 
-                for (int i = 0; i < products.Length; i++)
+                info = _h.DefaultString(info, "id");
+                info = _h.OneOf(info, "id", "more", "detailed");
+
+                unpublished = _h.DefaultString(unpublished, "false");
+                bool also_unpublished = _h.Boolean(unpublished);
+
+                // AUTHORIZE
+
+                var invoker = _h.Authorize();
+                var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
+            
+                // RETRIEVE PRODUCTS
+
+                FSharpList<ProductTypes.Product> products = ListModule.Empty<ProductTypes.Product>();
+                
+                if(fullTypes.Count == 0) products = Product.getAll();
+                else foreach (string type in fullTypes)
                 {
-                    returnData[i] = ProductTypeToProductData(products[i]);
+                    products = ListModule.Append(products, Product.getAllByType(type));
                 }
 
-                _h.GetResponse().ContentType = "text/json";
-                response.StatusCode = HttpStatusCode.NoContent;
-                return _j.Json(returnData);
-            }
-            catch (ProductExceptions.NoSuchProductType) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (ProductExceptions.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+                // Remove unpublished products
+                if (!(also_unpublished /* && HAS_PERMISSION_TO_GET_UNPUBLISHED */)) products = Product.filterUnpublished(products);
 
-            return null;
+                // PRODUCE RESPONSE
+
+                string[] keep = null;
+                if (info.Equals("more")) {
+
+                    if (!accType.Equals("Admin")) keep = new string[]{ "title", "description", "type", "price", "owner" };
+                    else keep =                          new string[]{ "title", "description", "type", "price", "owner", "published" };
+                }
+                else if (info.Equals("detailed")) {
+
+                    if (!accType.Equals("Admin")) keep = new string[]{ "title", "description", "type", "price", "rating", "owner", "meta" };
+                    else keep =                          new string[]{ "title", "description", "type", "price", "rating", "owner", "meta", "published" };
+                }
+
+                _h.Success();
+
+                if (info.Equals("detailed")) return _j.Json(_h.Map(products, p => _c.Convert(p)), keep);
+                if (info.Equals("more")) return _j.Json(_h.Map(products, p => _c.Convert(p)), keep);
+                if (info.Equals("id")) return _j.Json(_h.Map(products, p => (uint)p.id));  // Only ids are returned
+                else throw new BadRequestException(); // Never happens
+            }
+            catch (BadRequestException) { return _h.Failure(400); }
+            catch (ProductExceptions.ArgumentException) { return _h.Failure(400); }
+            catch (Exception) { return _h.Failure(500); }
         }
             
         public Stream GetProduct(string id)
         {
-            OutgoingWebResponseContext response = _h.GetResponse();
-
             try
             {
-                ProductTypes.Product product = Product.getProductById(int.Parse(id));
-                ProductData returnData = ProductTypeToProductData(product);
+                // AUTHORIZE
 
-                _h.GetResponse().ContentType = "text/json";
-                response.StatusCode = HttpStatusCode.NoContent;
-                return _j.Json(returnData);
-            } 
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
-            return null;
+                var invoker = _h.Authorize();
+                var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
+                var user = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.user : "";
+
+                // RETRIEVE PRODUCT
+
+                // NB: MUST THROW EXCEPTION IF WE ARE NOT ALLOWED TO VIEW PRODUCT, BECAUSE IT IS UNPUBLISHED!
+                ProductData product = _c.Convert(Product.getProductById((int) _h.Uint(id)));
+
+                // PRODUCE RESPONSE
+
+                // Normal users do not get the publish status of products
+                if (!Ops.compareUsernames(user, product.owner) && !accType.Equals("Admin")) product.published = null;
+
+                _h.Success();
+
+                return _j.Json(product);
+            }
+            catch (BadRequestException) { return _h.Failure(400); }
+            catch (ProductExceptions.ArgumentException) { return _h.Failure(400); }
+            catch (ProductExceptions.NoSuchProduct) { return _h.Failure(404); }
+            catch (Exception) { return _h.Failure(500); }
         }
 
         public void UpdateProduct(string id, ProductData data)
         {
-            OutgoingWebResponseContext response = _h.GetResponse();
-
             try
             {
-                ProductTypes.Product oldProduct = Product.getProductById(int.Parse(id));
-                ProductTypes.Product newProduct = 
-                    new ProductTypes.Product( 
-                        data.title,
-                        oldProduct.createDate,
-                        data.type,
-                        data.owner,
-                        data.rating == null ? FSharpOption<ProductTypes.Rating>.None : FSharpOption < ProductTypes.Rating >.Some(RatingDataToMetaTypeMap(data.rating)),
-                        data.published == null || (bool) data.published,
-                        int.Parse(id),
-                        FSharpOption<string>.None, // Use the API to get the thumbnail
-                        data.meta == null ? FSharpOption<FSharpMap<string, ProductTypes.Meta>>.None : FSharpOption<FSharpMap<string, ProductTypes.Meta>>.Some(MetaDataToMetaTypeMap(data.meta)),
-                        FSharpOption<string>.Some(data.description),
-                        data.price.rent == null ? FSharpOption<int>.None : FSharpOption<int>.Some((int)data.price.rent),
-                        FSharpOption<int>.Some((int)data.price.buy));
-                Product.update(newProduct);
-                response.StatusCode = HttpStatusCode.NoContent;
+                // VERIFY
+
+                var invoker = _h.Authorize();
+
+                // UPDATE DATA
+
+                bool outdated = true;
+                while (outdated)
+                {
+                    try
+                    {
+                        var product = Product.getProductById((int) _h.Uint(id));
+                        var updated = _c.Merge(product, data);
+                        Product.update(updated);
+
+                        // If we get so far, the update went as planned, so we can quit the loop
+                        outdated = false;
+                    }
+                    catch (ProductExceptions.OutdatedData) { /* Exception = load latest data and update based on it */ }
+                }
+
+                // SIGNAL SUCCESS
+
+                _h.Success(204);
             }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (ProductExceptions.UpdateNotAllowed) { response.StatusCode = HttpStatusCode.Forbidden; }
-            catch (ProductExceptions.ArgumentException) { response.StatusCode = HttpStatusCode.BadRequest; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+            catch (BadRequestException) { _h.Failure(400); }
+            catch (ProductExceptions.ArgumentException) { _h.Failure(400); }
+            catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
+            catch (ProductExceptions.TooLargeData) { _h.Failure(413); }
+            catch (Exception) { _h.Failure(500); }
         }
 
         public void UpdateProductMedia(string id, Stream media)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -131,6 +189,7 @@ namespace Services.Controllers
 
         public void UpdateProductThumbnail(string id, Stream media)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -170,25 +229,14 @@ namespace Services.Controllers
 
         public void DeleteProduct(string id)
         {
-            OutgoingWebResponseContext response = _h.GetResponse();
-            try
-            {
-                ProductTypes.Product product = Product.getProductById(int.Parse(id));
-                FileInfo productFileInfo = GetLocalProductFile(id, product.owner);
-                FileInfo thumbnailFileInfo = GetLocalProductFile(id, product.owner);
-                File.Delete(productFileInfo.FullName);
-                File.Delete(thumbnailFileInfo.FullName);
-
-                //TODO: No way of telling the persistence that a product has been removed
-
-                response.StatusCode = HttpStatusCode.NoContent;
-            }
-            catch (ProductExceptions.NoSuchProduct) { response.StatusCode = HttpStatusCode.NotFound; }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+            _h.Failure(401);
+            return;
         }
 
         public Stream GetProductRating(string id)
         {
+            var invoker = _h.Authorize();
+            
             OutgoingWebResponseContext response = _h.GetResponse();
             _h.GetResponse().ContentType = "text/json";
             response.StatusCode = HttpStatusCode.NotImplemented;
@@ -197,12 +245,15 @@ namespace Services.Controllers
 
         public void UpdateProductRating(string id, RatingData data)
         {
+            var invoker = _h.Authorize();
             OutgoingWebResponseContext response = _h.GetResponse();
             response.StatusCode = HttpStatusCode.NotImplemented;
         }
 
         public Stream GetPurchasedMedia(string customer, string id)
         {
+            var invoker = _h.Authorize();
+
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -223,6 +274,8 @@ namespace Services.Controllers
 
         public Stream GetProductThumbnail(string id)
         {
+            var invoker = _h.Authorize();
+
             OutgoingWebResponseContext response = _h.GetResponse();
             try
             {
@@ -241,63 +294,17 @@ namespace Services.Controllers
             return null;
         }
 
-        public Stream GetListOfProductTypes()
+        public Stream GetSupportedProductTypes()
         {
-          OutgoingWebResponseContext response = _h.GetResponse();
-          _h.GetResponse().ContentType = "text/json";
-          try {
-            return _j.StrArray(Product.getListOfProductTypes());
-          } catch (Exception) {
-            response.StatusCode = HttpStatusCode.InternalServerError;
-          }
-          return null;
-        }
-
-        /// <summary>
-        /// Converts a ProductTypes.Product into a ProductData
-        /// </summary>
-        /// <param name="product">The ProductTypes.Product to convert</param>
-        /// <returns>The ProductTypes.Product converted into a ProductData object</returns>
-        private static ProductData ProductTypeToProductData(ProductTypes.Product product)
-        {
-            return new ProductData
-                {
-                title = product.name,
-                type = product.productType,
-                owner = product.owner,
-                description = product.description.Equals(FSharpOption<string>.None) ? null : product.description.ToString(),
-                price = new PriceData
-                {
-                    buy = product.buyPrice.Equals(FSharpOption<int>.None) ? 0 : uint.Parse(product.buyPrice.Value.ToString()),
-                    rent = product.rentPrice.Equals(FSharpOption<int>.None) ? 0 : uint.Parse(product.rentPrice.Value.ToString())
-                }
-            };
-        }
-
-        /// <summary>
-        /// Converts a RatingData into a ProductTypes.Rating 
-        /// </summary>
-        /// <param name="data">The RatingData object to convert</param>
-        /// <returns>The RatingData converted into a ProductTypes.Rating</returns>
-        private static ProductTypes.Rating RatingDataToMetaTypeMap(RatingData data)
-        {
-            return new ProductTypes.Rating(data.score, (int)data.count);
-        }
-
-        /// <summary>
-        /// Converts an array of MetaData objects into an F# map,
-        /// with name as the key and value as the value.
-        /// </summary>
-        /// <param name="dataset">The collection of MetaData to convert</param>
-        /// <returns>A new FSharpMap</returns>
-        private static FSharpMap<string, ProductTypes.Meta> MetaDataToMetaTypeMap(params MetaData[] dataset)
-        {
-            List<Tuple<string, ProductTypes.Meta>> tupleList = new List<Tuple<string, ProductTypes.Meta>>();
-            foreach(MetaData data in dataset)
+            try
             {
-                tupleList.Add(new Tuple<string, ProductTypes.Meta>(data.name, new ProductTypes.Meta(data.name, data.value)));
+                var invoker = _h.Authorize();
+
+                _h.Success();
+                return _j.Json(Product.getListOfProductTypes(/*invoker*/));
             }
-            return new FSharpMap<string,ProductTypes.Meta>(tupleList);
+           // catch (ProductPermissions.PermissionDenied) { return _h.Failure(403); }
+            catch (Exception) { return _h.Failure(500); }
         }
 
         /// <summary>

@@ -1,6 +1,8 @@
 ﻿namespace RentIt
 open AccountExceptions
 open AccountTypes
+open AccountPersistenceExceptions
+open PersistenceExceptions
 
 module Account =
     
@@ -115,10 +117,10 @@ module Account =
         try
             AccountPersistence.createUser acc
         with
-            | UsernameAlreadyInUse                   -> raise UserAlreadyExists
-            | IllegalAccountVersion                  -> raise BrokenInvariant
-            | NoSuchAccountType                      -> raise UnknownAccType
-            | PersistenceException    -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
+            | UsernameAlreadyInUse  -> raise UserAlreadyExists
+            | IllegalAccountVersion -> raise BrokenInvariant
+            | NoSuchAccountType     -> raise UnknownAccType
+            | PersistenceException  -> raise TooLargeData       // May also be thrown for other reasons - I do not know for sure =/
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -182,9 +184,6 @@ module Account =
             | acc :: accs when acc.banned   -> filterBanned accs
             | acc :: accs                   -> [acc] @ (filterBanned accs)
 
-    /// <summary>
-    /// Get a list of countries 
-    /// </summary>
-    /// <returns> String list of countries </returns>
-    let getListOfCountries () =
-      AccountPersistence.getListOfCountries ()
+    /// Returns a list of every accepted country name of the system
+    let getAcceptedCountries () =
+        AccountPersistence.getListOfCountries ()

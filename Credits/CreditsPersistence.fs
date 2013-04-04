@@ -16,8 +16,8 @@
       let transactionQ = ref (Persistence.Transaction.createTransaction)
 
       let objectName = "User"
-      let filtersQ = ref (Persistence.Filter.createFilter [] objectName "Username" "=" username)
-      filtersQ := Persistence.Filter.createFilter !filtersQ objectName "Balance" ">=" (string (amount*(-1)))
+      let filtersQ = ref (Persistence.Filter.createFilter [] objectName "Username" username)
+      filtersQ := Persistence.Filter.createFilter !filtersQ objectName "Balance" (string (amount*(-1))) //TODO TODO MAJOR TODO
       let fieldValQ = Persistence.Field.createField [] objectName "Balance"
       let dataQ = Persistence.DataIn.createDataInFieldValueWithMod [] objectName "Balance" fieldValQ.Head ("+"+(string amount))
       try

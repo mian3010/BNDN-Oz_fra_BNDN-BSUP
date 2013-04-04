@@ -83,6 +83,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AuthenticationController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
+    <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="CoreConverter.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="JsonSerializer.cs" />

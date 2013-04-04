@@ -13,8 +13,8 @@
         let testTrans = Helper.createTestBuyTransaction test
 
         let transRes = match (getTransactionsByType false).Head with
-          | CreditsTypes.RentOrBuy.Buy b -> Some b
-          | _ -> None
+                        | CreditsTypes.RentOrBuy.Buy b -> Some b
+                        | _ -> None
 
         testTrans.item.paid |> should equal transRes.Value.item.paid
         testTrans.item.product |> should equal transRes.Value.item.product
@@ -31,8 +31,8 @@
         let testTrans = Helper.createTestRentTransaction test
 
         let transRes = match (getTransactionsByType true).Head with
-          | CreditsTypes.RentOrBuy.Rent b -> Some b
-          | _ -> None
+                        | CreditsTypes.RentOrBuy.Rent b -> Some b
+                        | _ -> None
 
         testTrans.item.paid |> should equal transRes.Value.item.paid
         testTrans.item.product |> should equal transRes.Value.item.product
