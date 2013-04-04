@@ -11,19 +11,18 @@ namespace RentIt.Services
 {
     public class Helper
     {
-        ////// HTTP Helpers
 
+        #region HTTP Helpers
         public OutgoingWebResponseContext GetResponse()
         {
-
             return WebOperationContext.Current.OutgoingResponse;
         }
 
         public HttpStatusCode Status(uint code)
         {
-
             OutgoingWebResponseContext response = GetResponse();
 
+            #region switch over HTTP Status code
             switch (code)
             {
 
@@ -110,6 +109,7 @@ namespace RentIt.Services
                 default:
                     throw new Exception("Illegal HTTP status code");
             }
+            #endregion
         }
 
         public void SetStatus(uint code)
@@ -139,8 +139,9 @@ namespace RentIt.Services
 
             return null;
         }
+        #endregion
 
-        ////// API Helpers
+        #region API Helpers
 
         public AccountPermissions.Invoker Authorize()
         {
@@ -159,7 +160,9 @@ namespace RentIt.Services
             catch (Auth.Token.TokenExpired) { throw new AccountPermissions.PermissionDenied("Token is expired"); }
         }
 
-        ////// Validation
+        #endregion
+
+        #region Validation
 
         public string DefaultString(string value, string def)
         {
@@ -208,7 +211,13 @@ namespace RentIt.Services
             return resultSet;
         }
 
-        ////// Other
+        #endregion
+
+        #region converters
+
+        #endregion
+
+        #region Other
 
         public B[] Map<A, B>(A[] input, Func<A, B> func)
         {
@@ -234,7 +243,9 @@ namespace RentIt.Services
             return result.Substring(0, result.Length-delimiter.Length);
         }
 
-        /////// Null handlers
+        #endregion
+
+        #region Null handlers
 
         #region Null Converters
 
@@ -268,6 +279,8 @@ namespace RentIt.Services
             try { return func(option.Value); }
             catch (NullReferenceException) { return null; }
         }
+
+        #endregion
 
         #endregion
     }
