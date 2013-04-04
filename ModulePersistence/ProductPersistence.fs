@@ -75,7 +75,7 @@ module ProductPersistence =
           let prod = getProductById p.id
           raise NoSuchProductType
         with 
-          | AccountExceptions.NoSuchUser|AccountPersistence.NoUserWithSuchName -> raise NoSuchUser
+          | AccountExceptions.NoSuchUser|AccountPersistenceExceptions.NoUserWithSuchName -> raise NoSuchUser
           | _ as e -> raise e
       | _ as e -> raise e
 

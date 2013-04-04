@@ -3,17 +3,26 @@
 open System
 open System.Data
 open System.Security
+open AccountPersistenceExceptions
+open AccountExceptions
 
     module AccountPersistence =
 
-        // Exceptions
-        exception NoUserWithSuchName
-        exception UsernameAlreadyInUse
-        exception NewerVersionExist
-        exception IllegalAccountVersion
-        exception NoSuchAccountType
-
         module internal Internal =
+
+            let getCountry (name:string) =
+              let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+              let filtersQ = Persistence.Filter.createFilter [] "Country" "Name" "=" name
+              let res = Persistence.Api.read fieldsQ "Country" [] filtersQ
+              if res.Length < 1 then raise NoSuchCountry
+              res.Head.["Name"]
+
+            let getUserType (name:string) =
+              let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+              let filtersQ = Persistence.Filter.createFilter [] "UserType" "Name" "=" name
+              let res = Persistence.Api.read fieldsQ "UserType" [] filtersQ
+              if res.Length < 1 then raise UnknownAccType
+              res.Head.["Name"]
 
             // Cache elements
             let mutable cache = Map.empty : Map<string, AccountTypes.Account>
@@ -219,11 +228,19 @@ open System.Security
                 if (acc.info.credits.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Balance" (string acc.info.credits.Value)
                 if (acc.info.address.postal.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Zipcode" (string acc.info.address.postal.Value)
                 if (acc.info.address.country.IsSome) then dataQ := Persistence.DataIn.createDataIn !dataQ tableName "Country_Name" (string acc.info.address.country.Value)
-                let createUserQ = Persistence.Create.createCreate tableName !dataQ
-                let transactionQ = Persistence.Transaction.addCreate transactionQ createUserQ
-
-                let transactionR = Persistence.Api.transactionQ transactionQ
-                
+                try 
+                  Persistence.Api.create tableName !dataQ |> ignore
+                with
+                  | PersistenceExceptions.AlreadyExists -> raise NoUserWithSuchName
+                  | PersistenceExceptions.ReferenceDoesNotExist ->
+                      try
+                      // Check each param to dertimin exception
+                      if acc.info.address.country.IsSome then
+                        Internal.getCountry acc.info.address.country.Value |> ignore
+                      Internal.getUserType acc.accType |> ignore
+                      with
+                        | _ as e -> raise e
+                                      
                 Internal.cache <- Internal.cache.Add(acc.user, acc)
             lock Internal.cache (fun() -> internalFun)
 

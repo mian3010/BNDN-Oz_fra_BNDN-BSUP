@@ -33,6 +33,8 @@ open RentIt
         | Auth x -> PermissionsHelper.checkUserPermission x perm
       else result
 
+    let checkProductPermission (id:int) (permission:string) : bool =
+      raise (System.NotImplementedException())
 
     // Assign a Permission to an ActionGroup
     // Takes ActionGroup Name and Permission. Both as strings

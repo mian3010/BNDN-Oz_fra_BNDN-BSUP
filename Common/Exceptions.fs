@@ -28,3 +28,4 @@ module AccountPersistenceExceptions =
   exception NewerVersionExist
   exception IllegalAccountVersion
   exception NoSuchAccountType
+  exception NoSuchCountry

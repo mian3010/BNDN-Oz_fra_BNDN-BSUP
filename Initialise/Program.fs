@@ -86,14 +86,14 @@ module Main =
     insert <- insert@createDataInForAllowedAction "EDIT_TYPE_ADMIN" "EDIT additional account information"
     insert <- insert@createDataInForAllowedAction "CREATE_TYPE_ADMIN" "CREATE account"
 
-    insert <- insert@createDataInForAllowedAction "BAN_UNBAN_TYPE_CONTENTPROVIDER" "Ban/unban accounts"
-    insert <- insert@createDataInForAllowedAction "CHANGE_EMAIL_TYPE_CONTENTPROVIDER" "CHANGE_EMAIL"
-    insert <- insert@createDataInForAllowedAction "CHANGE_PASSWORD_TYPE_CONTENTPROVIDER" "CHANGE_PASSWORD"
-    insert <- insert@createDataInForAllowedAction "READ_AUTH_INFO_TYPE_CONTENTPROVIDER" "Read last time of authentication"
-    insert <- insert@createDataInForAllowedAction "RESET_PASSWORD_TYPE_CONTENTPROVIDER" "RESET_PASSWORD"
-    insert <- insert@createDataInForAllowedAction "READ_TYPE_CONTENTPROVIDER" "READ account information"
-    insert <- insert@createDataInForAllowedAction "EDIT_TYPE_CONTENTPROVIDER" "EDIT additional account information"
-    insert <- insert@createDataInForAllowedAction "CREATE_TYPE_CONTENTPROVIDER" "CREATE account"
+    insert <- insert@createDataInForAllowedAction "BAN_UNBAN_TYPE_Content Provider" "Ban/unban accounts"
+    insert <- insert@createDataInForAllowedAction "CHANGE_EMAIL_TYPE_Content Provider" "CHANGE_EMAIL"
+    insert <- insert@createDataInForAllowedAction "CHANGE_PASSWORD_TYPE_Content Provider" "CHANGE_PASSWORD"
+    insert <- insert@createDataInForAllowedAction "READ_AUTH_INFO_TYPE_Content Provider" "Read last time of authentication"
+    insert <- insert@createDataInForAllowedAction "RESET_PASSWORD_TYPE_Content Provider" "RESET_PASSWORD"
+    insert <- insert@createDataInForAllowedAction "READ_TYPE_Content Provider" "READ account information"
+    insert <- insert@createDataInForAllowedAction "EDIT_TYPE_Content Provider" "EDIT additional account information"
+    insert <- insert@createDataInForAllowedAction "CREATE_TYPE_Content Provider" "CREATE account"
 
     insert <- insert@createDataInForAllowedAction "BAN_UNBAN_TYPE_CUSTOMER" "Ban/unban accounts"
     insert <- insert@createDataInForAllowedAction "CHANGE_EMAIL_TYPE_CUSTOMER" "CHANGE_EMAIL"
@@ -117,7 +117,7 @@ module Main =
     insert <- insert@createDataInForActionGroup "Admin" "Admin"
     insert <- insert@createDataInForActionGroup "Unauth" "Unauthenticated user"
     insert <- insert@createDataInForActionGroup "Customer" "Customer"
-    insert <- insert@createDataInForActionGroup "ContentProvider" "Content provider"
+    insert <- insert@createDataInForActionGroup "Content Provider" "Content provider"
 
     printfn "%A" ("---------- Create " + "ActionGroup" + " ----------")
     for i in insert do
@@ -144,13 +144,13 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CREATE_TYPE_Admin"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_TYPE_Admin"
 
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "BAN_UNBAN_TYPE_ContentProvider"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CHANGE_EMAIL_TYPE_ContentProvider"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CHANGE_PASSWORD_TYPE_ContentProvider"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_AUTH_INFO_TYPE_ContentProvider"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "RESET_PASSWORD_TYPE_ContentProvider"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CREATE_TYPE_ContentProvider"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_TYPE_ContentProvider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "BAN_UNBAN_TYPE_Content Provider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CHANGE_EMAIL_TYPE_Content Provider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CHANGE_PASSWORD_TYPE_Content Provider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_AUTH_INFO_TYPE_Content Provider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "RESET_PASSWORD_TYPE_Content Provider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CREATE_TYPE_Content Provider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_TYPE_Content Provider"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "BAN_UNBAN_TYPE_Customer"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CHANGE_EMAIL_TYPE_Customer"
@@ -168,7 +168,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "RESET_PASSWORD_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_OWN"
 
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_TYPE_ContentProvider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_TYPE_Content Provider"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_TYPE_Customer"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "READ_ANY" //For testing
@@ -179,7 +179,7 @@ module Main =
     
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_TYPE_Admin"
 
-    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_TYPE_ContentProvider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_TYPE_Content Provider"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_TYPE_Customer"
 
@@ -191,19 +191,19 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "RESET_PASSWORD_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_OWN"
 
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "READ_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_ANY"
     
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "READ_TYPE_Admin"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_TYPE_Admin"
 
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "READ_TYPE_ContentProvider"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_TYPE_Content Provider"
 
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "READ_TYPE_Customer"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_TYPE_Customer"
 
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "CHANGE_EMAIL_OWN"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "CHANGE_PASSWORD_OWN"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "READ_AUTH_INFO_OWN"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "RESET_PASSWORD_OWN"
-    insert <- insert@createDataInForActionGroupHasAllowedAction "ContentProvider" "READ_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "CHANGE_EMAIL_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "CHANGE_PASSWORD_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_AUTH_INFO_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "RESET_PASSWORD_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_OWN"
 
     printfn "%A" ("---------- Create " + "ActionGroup_has_AllowedAction" + " ----------")
     for i in insert do
@@ -215,7 +215,7 @@ module Main =
     insert <- insert@createDataInForUserType "Admin"
     insert <- insert@createDataInForUserType "Unauth"
     insert <- insert@createDataInForUserType "Customer"
-    insert <- insert@createDataInForUserType "ContentProvider"
+    insert <- insert@createDataInForUserType "Content Provider"
 
     printfn "%A" ("---------- Create " + "UserType" + " ----------")
     for i in insert do
@@ -227,7 +227,7 @@ module Main =
     insert <- insert@createDataInForUserTypeHasActionGroup "Admin" "Admin"
     insert <- insert@createDataInForUserTypeHasActionGroup "Unauth" "Unauth"
     insert <- insert@createDataInForUserTypeHasActionGroup "Customer" "Customer"
-    insert <- insert@createDataInForUserTypeHasActionGroup "ContentProvider" "ContentProvider"
+    insert <- insert@createDataInForUserTypeHasActionGroup "Content Provider" "Content Provider"
     
     printfn "%A" ("---------- Create " + "UserType_has_ActionGroup" + " ----------")
     for i in insert do
