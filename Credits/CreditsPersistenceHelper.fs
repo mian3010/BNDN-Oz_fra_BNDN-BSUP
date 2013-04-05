@@ -59,10 +59,10 @@ open RentIt.CreditsTypes
         let filterAccount = ref (Persistence.FilterGroup.createFilterGroup [] objectName "User_Username" username)
 
         let filterAccess1 = Persistence.FilterGroup.createFilterGroup [] objectName "Type" "B"
-        let filterAccessGroup1 = Persistence.FilterGroup.createFilterGroupFilters [] {((!filterAccess1).Head) with joiner=Some Persistence.FilterGroup.orJoiner}
+        let filterAccessGroup1:Persistence.Types.FilterGroup List = [{filterAccess1.Head with joiner=Some Persistence.FilterGroup.orJoiner}]
 
         let filterAccess2 = ref (Persistence.Filter.createFilter [] objectName "Type" "R")
         filterAccess2 := Persistence.Filter.createFilterProc [] objectName "Expires_Date" (Persistence.Helper.convertDatetimeToString System.DateTime.Now) Persistence.Filter.lessThanOrEqual
         let filterAccessGroup2 = Persistence.FilterGroup.createFilterGroupFilters [] !filterAccess2
 
-        [(!filterAccount).Head;filterAccessGroup1;filterAccessGroup2]
+        [(!filterAccount).Head;filterAccessGroup1.Head;filterAccessGroup2.Head]

@@ -184,6 +184,12 @@ module ProductPersistence =
       l <- l@[c.["Name"]]
     List.toArray l
 
-  //let searchProducts search =
-    //let baseObject = "Product"
-    //fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+  let searchProducts search =
+    let objectName = "Product"
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    let joinsQ = Persistence.ObjectJoin.createObjectJoin [] "Product" "Id" "MetaData" "Product_Id"
+    let filtersQ = ref (Persistence.Filter.createFilterProc [] objectName "Name" search Persistence.Filter.anyBeforeAndAfter)
+    filtersQ := Persistence.Filter.createFilterProc !filtersQ objectName "Description" search Persistence.Filter.anyBeforeAndAfter
+    filtersQ := Persistence.Filter.createFilterProc !filtersQ "MetaData" "Content" search Persistence.Filter.anyBeforeAndAfter
+    let filterGroup = Persistence.FilterGroup.createFilterGroupFiltersProc [] !filtersQ Persistence.FilterGroup.orCondition
+    convertFromResults (Persistence.Api.read fieldsQ objectName joinsQ filterGroup)

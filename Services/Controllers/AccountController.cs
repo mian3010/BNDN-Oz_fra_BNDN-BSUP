@@ -77,7 +77,7 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { return h.Failure(400); }
             catch (AccountExceptions.UnknownAccType) { return h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (Exception) { return h.Failure(500); }
         }
 
@@ -88,7 +88,7 @@ namespace RentIt.Services.Controllers
                 // VERIFY
 
                 var invoker = h.Authorize();
-                var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth) invoker).Item.accType : "";
+                var accType = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth) invoker).Item.accType : "";
 
                 // GET DATA
 
@@ -111,7 +111,7 @@ namespace RentIt.Services.Controllers
                 return j.Json(account, keep);
             }
             catch (BadRequestException) { return h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (AccountExceptions.NoSuchUser) { return h.Failure(404); }
             catch (Exception) { return h.Failure(500); }
         }
@@ -147,7 +147,7 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { h.Failure(400); }
             catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); }
             catch (AccountExceptions.NoSuchUser) { h.Failure(404); }
             catch (AccountExceptions.TooLargeData) { h.Failure(413); }
             catch (Exception) { h.Failure(500); }
@@ -180,7 +180,7 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { h.Failure(400); } // TODO: Should also be returned for too long usernames, instead of 413 
             catch (AccountExceptions.BrokenInvariant) { h.Failure(400); }
-            catch (AccountPermissions.PermissionDenied) { h.Failure(403); } 
+            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); } 
             catch (AccountExceptions.UnknownAccType) { h.Failure(400); }
             catch (AccountExceptions.UserAlreadyExists) { h.Failure(409); }
             catch (AccountExceptions.TooLargeData) { h.Failure(413); }
@@ -196,7 +196,7 @@ namespace RentIt.Services.Controllers
                 h.Success();
                 return j.Json(ControlledAccount.getAcceptedCountries(invoker));
             }
-            catch (AccountPermissions.PermissionDenied) { return h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { return h.Failure(403); }
             catch (Exception) { return h.Failure(500);  }
         }
     }

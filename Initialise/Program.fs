@@ -56,7 +56,8 @@ module Main =
     insert <- insert@createDataInForAllowedAction "HAS_CREDITS" "Allows an account to have credits associated"
     insert <- insert@createDataInForAllowedAction "BUYABLE" "Allows a Product to bought"
     insert <- insert@createDataInForAllowedAction "RENTABLE" "Allows a Product to be rented"
-    insert <- insert@createDataInForAllowedAction "CREATE_PRODUCT" "Allows an account to create products"
+    insert <- insert@createDataInForAllowedAction "CREATE_PRODUCT_ANY" "Allows an account to create products"
+    insert <- insert@createDataInForAllowedAction "RATE_PRODUCT_ANY" "Allows an account to rate products"
 
     insert <- insert@createDataInForAllowedAction "BAN_UNBAN_ANY" "Ban/unban accounts"
     insert <- insert@createDataInForAllowedAction "CHANGE_EMAIL_ANY" "CHANGE_EMAIL"
@@ -199,6 +200,8 @@ module Main =
     
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "CREATE_TYPE_Customer"
 
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDITS"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "RATE_PRODUCT_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_PRODUCT_ANY"
     
@@ -217,6 +220,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_OWN"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_ANY"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "CREATE_PRODUCT_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_PRODUCT_ANY"
     
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_TYPE_Admin"

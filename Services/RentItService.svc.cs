@@ -19,6 +19,7 @@ namespace RentIt
         private readonly AuthenticationController auth;
         private readonly AccountController account;
         private readonly ProductController product;
+        private readonly CreditsController credits;
 
         public RentItService() : this(new Helper()) { }
 
@@ -33,6 +34,7 @@ namespace RentIt
             auth = new AuthenticationController(h, j, c);
             account = new AccountController(h, j, c);
             product = new ProductController(h, j, c);
+            credits = new CreditsController(h, j, c);
         }
 
         #endregion
@@ -157,7 +159,7 @@ namespace RentIt
 
         public void BuyCredits(CreditsData data)
         {
-            h.Failure(501);
+            credits.BuyCredits(data);
         }
 
         #endregion

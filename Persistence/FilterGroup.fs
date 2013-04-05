@@ -36,3 +36,9 @@
 
     let createSingleFilterGroupProc (list:Types.Filter list) objectName field value processor =
       createFilterGroup [{filters=list;processor=processor;joiner=None}] objectName field value
+
+    let createFilterGroupFiltersProc (list:Types.FilterGroup List) (filters:Types.Filter List) processor =
+      list@[({filters=filters;processor=processor;joiner=None}:Types.FilterGroup)]
+
+    let createFilterGroupFilters (list:Types.FilterGroup List) (filters:Types.Filter List)=
+      list@[({filters=filters;processor=Default;joiner=None}:Types.FilterGroup)]

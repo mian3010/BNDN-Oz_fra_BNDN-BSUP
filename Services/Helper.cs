@@ -144,21 +144,21 @@ namespace RentIt.Services
 
         #region API Helpers
 
-        public AccountPermissions.Invoker Authorize()
+        public PermissionsUtil.Invoker Authorize()
         {
             return Authorize(Header("Token"));
         }
 
-        public AccountPermissions.Invoker Authorize(string token)
+        public PermissionsUtil.Invoker Authorize(string token)
         {
             try
             {
-                if (token == null) return AccountPermissions.Invoker.Unauth;
-                else return AccountPermissions.Invoker.NewAuth(ControlledAuth.accessAccount(token));
+                if (token == null) return PermissionsUtil.Invoker.Unauth;
+                else return PermissionsUtil.Invoker.NewAuth(ControlledAuth.accessAccount(token));
             }
-            catch (AccountPermissions.AccountBanned) { throw new AccountPermissions.PermissionDenied("Account is banned"); }
-            catch (Auth.Token.IllegalToken) { throw new AccountPermissions.PermissionDenied("Token is illegal"); }
-            catch (Auth.Token.TokenExpired) { throw new AccountPermissions.PermissionDenied("Token is expired"); }
+            catch (PermissionExceptions.AccountBanned) { throw new PermissionExceptions.PermissionDenied("Account is banned"); }
+            catch (Auth.Token.IllegalToken) { throw new PermissionExceptions.PermissionDenied("Token is illegal"); }
+            catch (Auth.Token.TokenExpired) { throw new PermissionExceptions.PermissionDenied("Token is expired"); }
         }
 
         #endregion
