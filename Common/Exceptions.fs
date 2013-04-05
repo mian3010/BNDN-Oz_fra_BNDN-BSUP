@@ -1,5 +1,8 @@
 ﻿namespace RentIt
 
+module ControlledProductExceptions =
+    exception Conflict
+
 module ProductExceptions =
   exception NoSuchProduct
   exception NoSuchUser

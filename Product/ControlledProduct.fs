@@ -1,5 +1,6 @@
 ﻿namespace RentIt
 open PermissionsUtil
+open ControlledProductExceptions
 
 module ControlledProduct =
     exception AccountBanned              // Raised when a banned invoker attempts to perform an action
@@ -63,7 +64,7 @@ module ControlledProduct =
     ///
     let getProductById (invoker:Invoker) (id:int) =
         let product = Product.getProductById(id)
-        if(product.owner = (invokerToId invoker)) then
+        if(product.owner = (string (invokerToId invoker))) then
             let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
             Product.getProductById id
@@ -89,7 +90,7 @@ module ControlledProduct =
     ///
     ///
     let update (invoker:Invoker) (p:Product) =
-        if((invokerToId invoker) = p.owner) then 
+        if((string (invokerToId invoker)) = p.owner) then 
             let allowed = Internal.checkUser invoker "EDIT" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
             Product.update p
@@ -102,18 +103,21 @@ module ControlledProduct =
     ///
     let publish (invoker:Invoker) (pId:int) (status:bool) =
         let product = Product.getProductById(pId)
-        if((invokerToId invoker) = product.owner) then
+        if((string (invokerToId invoker)) = product.owner) then
             let allowed = Internal.checkUser invoker "PUBLISH" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
-            try
+            if(Product.hasMedia (uint32 pId)) then
                 Product.publishProduct pId status
-            with
-                | :?ArgumentException -> raise 
+            else
+                raise Conflict 
 
         else
             let allowed = Internal.checkUser invoker "PUBLISH" (CheckTarget.Type "Any")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.publishProduct pId status
+            if(Product.hasMedia (uint32 pId)) then
+                Product.publishProduct pId status
+            else
+                raise Conflict
     
     ///
     ///
@@ -124,15 +128,15 @@ module ControlledProduct =
 
     ///
     ///
-    let getAllProductsByUser (invoker:Invoker) (user:string) (showPublished:PublishedStatus) =
-        if(showPublished = PublishedStatus.Published) then
-            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
-            Internal.checkAllowed invoker allowed |> ignore
-            Product.getAllProductsByUser user showPublished
-        else
-            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Own")
-            Internal.checkAllowed invoker allowed |> ignore
-            Product.getAllProductsByUser user showPublished
+//    let getAllProductsByUser (invoker:Invoker) (user:string) (showPublished:PublishedStatus) =
+//        if(showPublished = PublishedStatus.Published) then
+//            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
+//            Internal.checkAllowed invoker allowed |> ignore
+//            Product.getAllProductsByUser user showPublished
+//        else
+//            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Own")
+//            Internal.checkAllowed invoker allowed |> ignore
+//            Product.getAllProductsByUser user showPublished
 
 
                 
