@@ -27,6 +27,9 @@ module Main =
   let internal createDataInForProductType name =
       [Persistence.DataIn.createDataIn [] "ProductType" "Name" name]
 
+  let internal createDataInForMimeType pType mType =
+      [Persistence.DataIn.createDataIn (Persistence.DataIn.createDataIn [] "MimeType" "ProductType_Name" pType) "MimeType" "Type" mType]
+
   [<EntryPoint>]
   let main argv = 
     
@@ -48,6 +51,7 @@ module Main =
     Persistence.Api.delete "Country" [] |> ignore
     Persistence.Api.delete "ProductType" [] |> ignore
     Persistence.Api.delete "Loggable" [] |> ignore
+    Persistence.Api.delete "MimeType" [] |> ignore
     (Persistence.Helper.performSql "DBCC CHECKIDENT('Loggable', RESEED, 1)").Close() |> ignore
 
     // Create AllowedAction
@@ -297,18 +301,69 @@ module Main =
                }:AccountTypes.ExtraAccInfo
     let user = Account.make "Admin" "Lynette" "lynette@smu" "Awesome" info
     Account.persist user
+    let info = {
+                  name = Some "Claus";
+                  address = ({
+                               address = Some "Somewhere";
+                               postal = Some 7738;
+                               country = Some "Over the rainbow";
+                            }:AccountTypes.Address);
+                  birth = Some System.DateTime.Now;
+                  about = None;
+                  credits = Some 42;
+               }:AccountTypes.ExtraAccInfo
+    let user = Account.make "Content Provider" "Claus" "asd@smu" "Claus" info
+    Account.persist user
 
     // Product types
     let mutable insert:((Persistence.Types.DataIn List) List) = []
-    insert <- insert@createDataInForProductType "Movie"
-    insert <- insert@createDataInForProductType "Music"
-    insert <- insert@createDataInForProductType "TV"
-    insert <- insert@createDataInForProductType "Audio"
-    insert <- insert@createDataInForProductType "Ebook"
+    insert <- insert@createDataInForProductType "ebook"
+    insert <- insert@createDataInForProductType "audio"
+    insert <- insert@createDataInForProductType "music"
+    insert <- insert@createDataInForProductType "film"
+    insert <- insert@createDataInForProductType "series"
 
     printfn "%A" ("---------- Create " + "ProductType" + " ----------")
     for i in insert do
       Persistence.Api.create "ProductType" i |> ignore
+
+    // Mime types
+    let mutable insert:((Persistence.Types.DataIn List) List) = []
+    insert <- insert@createDataInForMimeType "ebook" "application/pdf"
+
+    insert <- insert@createDataInForMimeType "audio" "audio/ogg"
+    insert <- insert@createDataInForMimeType "audio" "audio/mpeg"
+    insert <- insert@createDataInForMimeType "audio" "audio/mp4"
+    insert <- insert@createDataInForMimeType "audio" "audio/mid"
+    insert <- insert@createDataInForMimeType "audio" "audio/wav"
+    insert <- insert@createDataInForMimeType "audio" "audio/x-wav"
+    insert <- insert@createDataInForMimeType "audio" "audio/x-aiff"
+    insert <- insert@createDataInForMimeType "audio" "audio/x-ms-wma"
+
+    insert <- insert@createDataInForMimeType "music" "music/ogg"
+    insert <- insert@createDataInForMimeType "music" "music/mpeg"
+    insert <- insert@createDataInForMimeType "music" "music/mp4"
+    insert <- insert@createDataInForMimeType "music" "music/mid"
+    insert <- insert@createDataInForMimeType "music" "music/wav"
+    insert <- insert@createDataInForMimeType "music" "music/x-wav"
+    insert <- insert@createDataInForMimeType "music" "music/x-aiff"
+    insert <- insert@createDataInForMimeType "music" "music/x-ms-wma"
+
+    insert <- insert@createDataInForMimeType "film" "video/ogg"
+    insert <- insert@createDataInForMimeType "film" "video/mp4"
+    insert <- insert@createDataInForMimeType "film" "video/webm"
+    insert <- insert@createDataInForMimeType "film" "video/H264"
+    insert <- insert@createDataInForMimeType "film" "video/x-ms-wmv"
+    
+    insert <- insert@createDataInForMimeType "series" "video/ogg"
+    insert <- insert@createDataInForMimeType "series" "video/mp4"
+    insert <- insert@createDataInForMimeType "series" "video/webm"
+    insert <- insert@createDataInForMimeType "series" "video/H264"
+    insert <- insert@createDataInForMimeType "series" "video/x-ms-wmv"
+
+    printfn "%A" ("---------- Create " + " MimeType" + " ----------")
+    for i in insert do
+      Persistence.Api.create "MimeType" i |> ignore
 
 
     0

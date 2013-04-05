@@ -56,7 +56,7 @@ module Product =
     if (userName = null || userName.Trim().Length = 0) then raise (ArgumentException "userName empty")
     if (name = null || name.Trim().Length = 0) then raise (ArgumentException "Name empty")
     if (productType = null || productType.Trim().Length = 0) then raise (ArgumentException "ProductType empty")
-    persist {
+    {
       name = name;
       createDate = System.DateTime.Now;
       productType = productType;
@@ -162,7 +162,8 @@ module Product =
   /// Returns all MIME types supported for a given product type
   ///</summary>
   /// <typeparam> product type </typeparam>
-  let getMimesForProductType (productType:string) : string list = raise (new System.NotImplementedException("TODO")); // TODO
+  let getMimesForProductType (productType:string) : string list = 
+    ProductPersistence.getMimeTypesForProductType productType
 
   /// <summary>
   /// Persist a new media

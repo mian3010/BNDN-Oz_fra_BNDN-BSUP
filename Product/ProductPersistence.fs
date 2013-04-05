@@ -215,3 +215,13 @@ module ProductPersistence =
     filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "Name" title
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
     convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)
+
+  let getMimeTypesForProductType (pType:string) =
+    let objectName = "MimeType"
+    let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "ProductType_Name" pType
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    let v = Persistence.Api.read fieldsQ objectName [] filtersQ
+    let mutable l:string list  = []
+    for c in v do
+      l <- l@[c.["Type"]]
+    l
