@@ -1,5 +1,7 @@
 ﻿namespace RentIt
 open RentIt
+open GeneralExceptions
+open PersistenceExceptions
 
   module Permissions = 
     
@@ -132,9 +134,8 @@ open RentIt
     let deleteUserType (name:string) :bool =
       let objectName = "User"
       let fieldsQ = Persistence.ReadField.createReadField [] objectName "Type_name" 
-      let joinsQ = []
       let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Type_name" name
-      let readR = Persistence.Api.read fieldsQ objectName joinsQ filtersQ
+      let readR = Persistence.Api.read fieldsQ objectName [] filtersQ
       
       if not readR.IsEmpty then false
       else
@@ -143,3 +144,24 @@ open RentIt
         Persistence.Api.delete objectName filtersQ |> ignore
         true //TODO Add check
       
+    let assignPermissionToProduct (pId:int) (permission:string) =
+      if (pId < 0) then raise (ArgumentException "Invalid product id")
+      if (permission = null || permission.Trim().Length = 0) then raise (ArgumentException "Invalid permission")
+      try
+        let objectName = "Product_has_AllowedAction"
+        let dataQ = Persistence.DataIn.createDataIn []    objectName "Product_Id" (string pId)
+        let dataQ = Persistence.DataIn.createDataIn dataQ objectName "AllowedAction_name" permission
+        Persistence.Api.create objectName dataQ
+      with
+        | _ as e -> raise e
+
+    let unassignPermissionToProduct (pId:int) (permission:string) =
+      if (pId < 0) then raise (ArgumentException "Invalid product id")
+      if (permission = null || permission.Trim().Length = 0) then raise (ArgumentException "Invalid permission")
+      try
+        let objectName = "Product_has_AllowedAction"
+        let filtersQ = ref (Persistence.FilterGroup.createSingleFilterGroup [] objectName "AllowedAction_name" permission)
+        filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "Product_Id" (string pId)
+        Persistence.Api.delete objectName !filtersQ |> ignore
+      with
+        | _ as e -> raise e
