@@ -176,7 +176,7 @@ namespace RentIt
             return _h.Failure(501);
         }
 
-        public Stream MakePurchases(string customer, PurchaseData data)
+        public Stream MakePurchases(string customer, PurchaseData[] data)
         {
             return _h.Failure(501);
         }
