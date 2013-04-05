@@ -49,9 +49,9 @@ module Main =
     Persistence.Api.delete "User" [] |> ignore
     Persistence.Api.delete "UserType" [] |> ignore
     Persistence.Api.delete "Country" [] |> ignore
-    Persistence.Api.delete "ProductType" [] |> ignore
     Persistence.Api.delete "Loggable" [] |> ignore
     Persistence.Api.delete "MimeType" [] |> ignore
+    Persistence.Api.delete "ProductType" [] |> ignore
     (Persistence.Helper.performSql "DBCC CHECKIDENT('Loggable', RESEED, 1)").Close() |> ignore
 
     // Create AllowedAction
