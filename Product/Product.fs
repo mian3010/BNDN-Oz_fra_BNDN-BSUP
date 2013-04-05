@@ -262,3 +262,15 @@ module Product =
 
   let searchProducts search =
     ProductPersistence.searchProducts search
+
+  let getAllProducts (showPublished:PublishedStatus) =
+    ProductPersistence.getAllProducts showPublished
+
+  let getAllProductsByUser (userName:string) (showPublished:PublishedStatus) =
+    ProductPersistence.getAllProductsByUser userName showPublished
+
+  let getAllProductsByType (pType:string) (showPublished:PublishedStatus) =
+    ProductPersistence.getAllProductsByType pType showPublished
+
+  let getAllProductsByUserAndName (userName:string) (name:string) (showPublished:PublishedStatus) =
+    ProductPersistence.getAllProductsByUserAndName userName name showPublished

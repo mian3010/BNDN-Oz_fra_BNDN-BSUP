@@ -126,3 +126,11 @@ module Product =
   val getMediaThumbnail : uint32 -> System.IO.FileStream*string
 
   val searchProducts : string -> Product list
+
+  val getAllProducts : PublishedStatus -> Product List
+
+  val getAllProductsByUser : string -> PublishedStatus -> Product List
+
+  val getAllProductsByType : string -> PublishedStatus -> Product List
+
+  val getAllProductsByUserAndName : string -> string -> PublishedStatus -> Product List
