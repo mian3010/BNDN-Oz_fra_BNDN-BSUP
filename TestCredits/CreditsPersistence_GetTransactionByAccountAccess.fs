@@ -7,7 +7,7 @@
   module TestGetTransactionAccountAccess =
     [<Fact>]
     let ``Test get transaction by account access with result``() =
-      let test = "TestGetTransactionByTypeAccountAccess"
+      let test = "TestGetTransByTypeAccAccs"
       try
         let testProd1 = Helper.createTestProduct test
         let testProd2 = Helper.createTestProduct (test+"2")
@@ -24,7 +24,7 @@
 
     [<Fact>]
     let ``Test get transaction by account access with no result``() =
-      let test = "TestGetTransactionByTypeAccountAccess"
+      let test = "TestGetTransByTypeAccAccs"
       try
         let testProd1 = Helper.createTestProduct test
         let testProd2 = Helper.createTestProduct (test+"2")
@@ -40,7 +40,7 @@
 
     [<Fact>]
     let ``Test get transaction by account access that does not exist``() =
-      let test = "TestGetTransactionByTypeAccountAccess"
+      let test = "TestGetTransByTypeAcctAccsNo"
       try
         let testProd1 = Helper.createTestProduct test
         let testProd2 = Helper.createTestProduct (test+"2")
@@ -48,9 +48,7 @@
         let testTrans2 = Helper.createTestRentTransaction test
         let testTrans3 = Helper.createTestBuyTransaction (test+"2")
 
-        let accessRes = getTransactionByAccountAccess "DoesNotExist"
-
-        accessRes.Length |> should equal 0
+        (fun () -> (getTransactionByAccountAccess "DoesNotExist") |> ignore) |> should throw typeof<AccountExceptions.NoSuchUser>
       finally
         Helper.removeTestProduct test
         Helper.removeTestProduct (test+"2")

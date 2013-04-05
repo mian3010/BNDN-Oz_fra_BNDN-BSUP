@@ -46,6 +46,7 @@
     <None Include="packages.config" />
     <None Include="app.config" />
     <Compile Include="CreditsPersistence_GetTransactionByAccountAccess.fs" />
+    <Compile Include="CreditsPersistence_CheckAccessToProductTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Account\Account.fsproj">

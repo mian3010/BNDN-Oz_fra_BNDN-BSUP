@@ -12,7 +12,7 @@
         let testProd = Helper.createTestProduct test
         let testTrans = Helper.createTestBuyTransaction test
         let transRes = match (getTransactionByAccount testProd.owner).Head with
-                        | CreditsTypes.RentOrBuy.Rent b -> Some b
+                        | CreditsTypes.RentOrBuy.Buy b -> Some b
                         | _ -> None
 
         testTrans.item.paid |> should equal transRes.Value.item.paid

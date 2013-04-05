@@ -8,7 +8,7 @@ open RentIt.CreditsTypes
       let internal createDataInFromRentOrBuy userName purchased paid productId =
         let dataQ = ref (Persistence.DataIn.createDataIn [] objectName "User_Username" userName)
         dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Purchased_Date" (Persistence.Helper.convertDatetimeToString purchased)
-        dataQ := Persistence.DataIn.createDataIn !dataQ objectName "PricePaid" (string paid)
+        dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Price_Paid" (string paid)
         dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Product_Id" (string productId)
         !dataQ
 
@@ -25,7 +25,7 @@ open RentIt.CreditsTypes
                                 id=(int result.["Id"]);
                                 user=result.["User_Username"];
                                 purchased=(System.DateTime.Parse result.["Purchased_Date"]);
-                                paid=(int result.["PricePaid"]);
+                                paid=(int result.["Price_Paid"]);
                                 product=(ProductPersistence.getProductById (int result.["Product_Id"]));
                           }:Transaction)
         }:Buy
@@ -36,7 +36,7 @@ open RentIt.CreditsTypes
                                 id=(int result.["Id"]);
                                 user=result.["User_Username"];
                                 purchased=(System.DateTime.Parse result.["Purchased_Date"]);
-                                paid=(int result.["PricePaid"]);
+                                paid=(int result.["Price_Paid"]);
                                 product=(ProductPersistence.getProductById (int result.["Product_Id"]));
                           }:Transaction);
                           expires=(System.DateTime.Parse result.["Expires_Date"]);
@@ -62,7 +62,7 @@ open RentIt.CreditsTypes
         let filterAccessGroup1:Persistence.Types.FilterGroup List = [{filterAccess1.Head with joiner=Some Persistence.FilterGroup.orJoiner}]
 
         let filterAccess2 = ref (Persistence.Filter.createFilter [] objectName "Type" "R")
-        filterAccess2 := Persistence.Filter.createFilterProc [] objectName "Expires_Date" (Persistence.Helper.convertDatetimeToString System.DateTime.Now) Persistence.Filter.lessThanOrEqual
+        filterAccess2 := Persistence.Filter.createFilterProc !filterAccess2 objectName "Expires_Date" (Persistence.Helper.convertDatetimeToString System.DateTime.Now) Persistence.Filter.greaterThanOrEqual
         let filterAccessGroup2 = Persistence.FilterGroup.createFilterGroupFilters [] !filterAccess2
 
         [(!filterAccount).Head;filterAccessGroup1.Head;filterAccessGroup2.Head]
