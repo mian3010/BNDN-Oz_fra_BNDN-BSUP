@@ -45,8 +45,6 @@
     <Compile Include="TestGetProductByName.fs" />
     <Compile Include="TestGetAllByType.fs" />
     <Compile Include="TestUpdate.fs" />
-    <Compile Include="TestBuyProduct.fs" />
-    <Compile Include="TestRentProduct.fs" />
     <Compile Include="ProductPersistence_CreateProductTest.fs" />
     <Compile Include="ProductPersistence_UpdateProductTest.fs" />
     <Compile Include="ProductPersistence_GetProductTest.fs" />
