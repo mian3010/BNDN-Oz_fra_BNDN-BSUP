@@ -10,15 +10,28 @@ using System.IO;
 
 namespace RentIt.Services
 {
+    /// <summary>
+    /// Various helper methods
+    /// </summary>
     public class Helper
     {
 
         #region HTTP Helpers
+
+        /// <summary>
+        /// Outgoing HTTP response entity
+        /// </summary>
+        /// <returns>Read what it says, dummy</returns>
         public OutgoingWebResponseContext GetResponse()
         {
             return WebOperationContext.Current.OutgoingResponse;
         }
 
+        /// <summary>
+        /// The status code object for a particular status code
+        /// </summary>
+        /// <param name="code">The HTTP status code to retrieve an representation of</param>
+        /// <returns></returns>
         public HttpStatusCode Status(uint code)
         {
             OutgoingWebResponseContext response = GetResponse();
@@ -113,42 +126,75 @@ namespace RentIt.Services
             #endregion
         }
 
+        /// <summary>
+        /// Sets the status code for the outgoing response
+        /// </summary>
+        /// <param name="code">The HTTP status code to set</param>
         public void SetStatus(uint code)
         {
             GetResponse().StatusCode = Status(code);
         }
 
+        /// <summary>
+        /// Retrieves the text representation of a header of the incoming request.
+        /// </summary>
+        /// <param name="name">Name of header to retrieve value of. Null if not available.</param>
+        /// <returns>Header value of header name</returns>
         public string Header(string name)
         {
             return WebOperationContext.Current.IncomingRequest.Headers[name]; // null if it is not set
         }
 
+        /// <summary>
+        /// Sets a header of the outgoing response
+        /// </summary>
+        /// <param name="name">Name of the header to set</param>
+        /// <param name="value">Value of the header to set</param>
         public void SetHeader(string name, string value)
         {
-            WebOperationContext.Current.IncomingRequest.Headers.Set(name, value);
+            WebOperationContext.Current.OutgoingResponse.Headers.Set(name, value);
         }
 
+        /// <summary>
+        /// Shorthand for setting status code and response content type in a single method call
+        /// </summary>
+        /// <param name="status">Status code to set. Defaults to 200 OK</param>
+        /// <param name="responseType">Response type to set. Defaults to application/json</param>
         public void Success(uint status=200, string responseType="application/json")
         {
             SetStatus(status);
             GetResponse().ContentType = responseType;
         }
 
+        /// <summary>
+        /// Shorthand for signaling a failure, setting the reponse status code to some error code (HTTP status code)
+        /// </summary>
+        /// <param name="statusCode">Status code of the failure</param>
+        /// <returns>null</returns>
         public Stream Failure(uint statusCode)
         {
             GetResponse().StatusCode = Status(statusCode);
 
             return null;
         }
+
         #endregion
 
         #region API Helpers
 
+        /// <summary>
+        /// Authenticates the client using the Token header, throwing Permission Exceptions as needed if the authentication fails
+        /// </summary>
+        /// <returns>Invoker object representing the client to use for calls to the Controlled modules of the backend</returns>
         public PermissionsUtil.Invoker Authorize()
         {
             return Authorize(Header("Token"));
         }
 
+        /// <summary>
+        /// Authenticates the client using a custom token string, throwing Permission Exceptions as needed if the authentication fails
+        /// </summary>
+        /// <returns>Invoker object representing the client to use for calls to the Controlled modules of the backend</returns>
         public PermissionsUtil.Invoker Authorize(string token)
         {
             try
@@ -165,6 +211,12 @@ namespace RentIt.Services
 
         #region Validation
 
+        /// <summary>
+        /// Returns the given value, unless its null or empty in which case the specified default value is returned.
+        /// </summary>
+        /// <param name="value">value to return if not null or empty</param>
+        /// <param name="def">alternative value to return</param>
+        /// <returns>value if non-null, non-empty, otherwise def</returns>
         public string DefaultString(string value, string def)
         {
 
@@ -172,17 +224,36 @@ namespace RentIt.Services
             else return value;
         }
 
+        /// <summary>
+        /// Checks if a specified string value is one of the strings found in the options array
+        /// </summary>
+        /// <param name="value">The value to check whether is contained inside the options array</param>
+        /// <param name="options">The possible values value may be</param>
+        /// <returns>value, if it is found in the options array</returns>
+        /// <exception cref="BadRequestException">If the specified string is not found in the options array</exception>
         public string OneOf(string value, params string[] options)
         {
             if (options.Contains(value)) return value;
             else throw new BadRequestException();
         }
 
+        /// <summary>
+        /// Parses a boolean in string form to its normal form.
+        /// </summary>
+        /// <param name="value">The value to parse into a boolean</param>
+        /// <returns>The value as boolean</returns>
+        /// <exception cref="BadRequestException">If the specified string not either "true" or "false"</exception>
         public bool Boolean(string value)
         {
             return System.Boolean.Parse(OneOf(value, "true", "false"));
         }
 
+        /// <summary>
+        /// Parses a uint in string form to its normal form.
+        /// </summary>
+        /// <param name="value">The value to parse into a uint</param>
+        /// <returns>The value as uint</returns>
+        /// <exception cref="BadRequestException">If the specified string not a uint</exception>
         public uint Uint(string value)
         {
             try
@@ -192,6 +263,12 @@ namespace RentIt.Services
             catch (Exception) {  throw new BadRequestException(); }
         }
 
+        /// <summary>
+        /// Converts a string of characters into a set where each character is replaced by the account type it represents
+        /// </summary>
+        /// <param name="types">A string containing any subset of the characters A, C, and P</param>
+        /// <returns>A hashmap where each character has been expanded into its full account type form: Admin, content Provider, Customer</returns>
+        /// <exception cref="BadRequestException">If other characters than A, C, and P is given within the types string</exception>
         public HashSet<string> ExpandAccountTypes(string types)
         {
 
@@ -212,6 +289,11 @@ namespace RentIt.Services
             return resultSet;
         }
 
+        /// <summary>
+        /// Parses a string of product types separated by '|' into a set of each product type apparent
+        /// </summary>
+        /// <param name="types">The string of product types separated by '|'</param>
+        /// <returns>A set of the product types separated, minus any empty product type strings</returns>
         public HashSet<string> ExpandProductTypes(string types)
         {
             if (string.IsNullOrEmpty(types)) return new HashSet<string>();
@@ -231,6 +313,15 @@ namespace RentIt.Services
 
         #region Other
 
+        /// <summary>
+        /// Applies a function to each element of an IEnumerable, producing an array of the results
+        /// Any produces null value is ignored
+        /// </summary>
+        /// <typeparam name="A">The type to convert from</typeparam>
+        /// <typeparam name="B">The type to convert to</typeparam>
+        /// <param name="input">Input IEnumrable to map from</param>
+        /// <param name="func">The function to apply to each value of the input</param>
+        /// <returns>An array of the result values, minus any null values produced by the func</returns>
         public B[] Map<A, B>(IEnumerable<A> input, Func<A, B> func)
         {
             LinkedList<B> list = new LinkedList<B>();
@@ -255,6 +346,14 @@ namespace RentIt.Services
             return result;
         }
 
+        /// <summary>
+        /// Produces a string of all elements in an IEnumerable, where the ToString() value of each element is separated by a custom delimiter.
+        /// Any null values of the input IEnumerable is ignored.
+        /// </summary>
+        /// <typeparam name="T">Type of elements in the input IEnumerable</typeparam>
+        /// <param name="input">The IEnumerable to join into a string</param>
+        /// <param name="delimiter">The string to separate the string representations of the input with</param>
+        /// <returns></returns>
         public string Join<T>(IEnumerable<T> input, string delimiter)
         {
             string result = "";
@@ -273,18 +372,38 @@ namespace RentIt.Services
 
         #region Null Handlers
 
+        /// <summary>
+        /// Converts an Option of Some(T)/None to T/null
+        /// </summary>
+        /// <typeparam name="T">Type of value</typeparam>
+        /// <param name="option">The Option value to convert</param>
+        /// <returns>The value of Some(T) or null, if it was None</returns>
         public T OrNull<T>(FSharpOption<T> option) where T : class
         {
             try { return option.Value; }
             catch (NullReferenceException) { return null; }
         }
 
+        /// <summary>
+        /// Converts an Option of Some(A)/None to B/null, where B is the output of applying a function to A
+        /// </summary>
+        /// <typeparam name="A">Type of value</typeparam>
+        /// <typeparam name="B">Type of output value</typeparam>
+        /// <param name="option">The Option value to convert</param>
+        /// <returns>The value of func(Some(T)) or null, if it was None</returns>
         public B OrNull<A, B>(FSharpOption<A> option, Func<A, B> func) where B : class
         {
             try { return func(option.Value); }
             catch (NullReferenceException) { return null; }
         }
 
+        /// <summary>
+        /// Converts an Option of Some(A)/None to B/null, where B is the output of applying a function to A
+        /// </summary>
+        /// <typeparam name="A">Type of value</typeparam>
+        /// <typeparam name="B">Type of output value</typeparam>
+        /// <param name="option">The Option value to convert</param>
+        /// <returns>The value of func(Some(T)) or null, if it was None</returns>
         public B OrNull<A, B>(Nullable<A> option, Func<A, B> func)  where A : struct
                                                                     where B : class
         {
@@ -292,26 +411,51 @@ namespace RentIt.Services
             else return null;
         }
 
+        /// <summary>
+        /// Converts an Option of Some(T)/None to T/null
+        /// </summary>
+        /// <typeparam name="T">Type of value</typeparam>
+        /// <param name="option">The Option value to convert</param>
+        /// <returns>The value of Some(T) or null, if it was None</returns>
         public T? OrNulled<T>(FSharpOption<T> option) where T : struct
         {
             try { return option.Value; }
             catch (NullReferenceException) { return null; }
         }
 
+        /// <summary>
+        /// Converts an Option of Some(A)/None to B/null, where B is the output of applying a function to A
+        /// </summary>
+        /// <typeparam name="A">Type of value</typeparam>
+        /// <typeparam name="B">Type of output value</typeparam>
+        /// <param name="option">The Option value to convert</param>
+        /// <returns>The value of func(Some(T)) or null, if it was None</returns>
         public B? OrNulled<A, B>(FSharpOption<A> option, Func<A, B> func) where B : struct
         {
             try { return func(option.Value); }
             catch (NullReferenceException) { return null; }
         }
 
-        public FSharpOption<T> ToOption<T>(T t)
+        /// <summary>
+        /// Converts a value, which might be null, to an Option of the value
+        /// </summary>
+        /// <typeparam name="T">The type of the value</typeparam>
+        /// <param name="value">The value to to convert to the Option type</param>
+        /// <returns>An Option of the value, Some(value) if value is not null, otherwise None</returns>
+        public FSharpOption<T> ToOption<T>(T value)
         {
-            return t == null ? FSharpOption<T>.None : FSharpOption<T>.Some(t);
+            return value == null ? FSharpOption<T>.None : FSharpOption<T>.Some(value);
         }
 
-        public FSharpOption<T> ToOption<T>(T? t) where T:struct
+        /// <summary>
+        /// Converts a value, which might be null, to an Option of the value
+        /// </summary>
+        /// <typeparam name="T">The type of the value</typeparam>
+        /// <param name="value">The value to to convert to the Option type</param>
+        /// <returns>An Option of the value, Some(value) if value is not null, otherwise None</returns>
+        public FSharpOption<T> ToOption<T>(T? value) where T:struct
         {
-            return t == null ? FSharpOption<T>.None : FSharpOption<T>.Some(t.Value);
+            return value == null ? FSharpOption<T>.None : FSharpOption<T>.Some(value.Value);
         }
 
         #endregion
