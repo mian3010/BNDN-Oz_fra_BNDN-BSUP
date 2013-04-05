@@ -39,6 +39,7 @@ module CreditsExceptions =
   exception NoSuchTransaction
   exception UnexpectedType
   exception TooLargeData      // If credits could not be bought, because the account cannot have any more credits
+  exception InvalidCredits
 
 module PermissionExceptions =
   exception AccountBanned              // Raised when a banned invoker attempts to perform an action
