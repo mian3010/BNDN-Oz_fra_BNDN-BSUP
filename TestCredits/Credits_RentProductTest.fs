@@ -13,7 +13,8 @@
         let successCred = Credits.purchaseCredits testUser 1000
         let testUser = Account.getByUsername testUser.user
         let rent = Credits.rentProduct testUser testProd 2
-        rent > System.DateTime.Now.AddDays 1.0 |> should equal true
+        rent.IsSome |> should equal true
+        rent.Value.item.id > 0 |> should equal true
       finally
         Helper.removeTestProduct test
 
