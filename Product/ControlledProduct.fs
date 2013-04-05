@@ -55,10 +55,15 @@ module ControlledProduct =
 
     ///
     ///
-    let getAll (invoker:Invoker) =
-        let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
-        Internal.checkAllowed invoker allowed |> ignore
-        Product.getAll
+    let getAll (invoker:Invoker)(status:PublishedStatus) =
+        if(status = PublishedStatus.Published) then
+            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.getAllProducts status
+        else
+            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Any")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.getAllProducts status    
     
     ///
     ///
@@ -82,10 +87,15 @@ module ControlledProduct =
 
     ///
     ///
-    let getAllByType (invoker:Invoker) (typeName:string) =
-        let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
-        Internal.checkAllowed invoker allowed |> ignore
-        Product.getAllByType typeName
+    let getProductByType (invoker:Invoker) (pType:string) (status:PublishedStatus) =
+        if(status = PublishedStatus.Published) then
+            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.getAllProductsByType pType status
+        else
+            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Any")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.getAllProductsByType pType status
 
     ///
     ///
@@ -128,15 +138,50 @@ module ControlledProduct =
 
     ///
     ///
-//    let getAllProductsByUser (invoker:Invoker) (user:string) (showPublished:PublishedStatus) =
-//        if(showPublished = PublishedStatus.Published) then
-//            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
-//            Internal.checkAllowed invoker allowed |> ignore
-//            Product.getAllProductsByUser user showPublished
-//        else
-//            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Own")
-//            Internal.checkAllowed invoker allowed |> ignore
-//            Product.getAllProductsByUser user showPublished
+    let getAllProductsByUser (invoker:Invoker) (user:string) (status:PublishedStatus) =
+        if(status = PublishedStatus.Published) then
+            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.getAllProductsByUser user status
+        else
+            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Own")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.getAllProductsByUser user status
 
+    ///
+    ///
+    let getProductByUserAndTitle (invoker:Invoker) (user:string) (pTitle:string) (status:PublishedStatus) =
+        if(status = PublishedStatus.Published) then
+            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.getAllProductsByUserAndTitle user pTitle status
+        else
+            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Own")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.getAllProductsByUserAndTitle user pTitle status
 
-                
+    ///
+    ///
+    let persistMediaThumbnail (invoker:Invoker) (id:uint32) (mime:string) (stream:System.IO.Stream) =
+        let p = Product.getProductById (int id)
+        if((string (invokerToId invoker)) = p.owner) then
+            let allowed = Internal.checkUser invoker "UPLOAD_THUMBNAIL" (CheckTarget.Type "Own")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.persistMediaThumbnail id mime stream
+        else
+            let allowed = Internal.checkUser invoker "UPLOAD_THUMBNAIL" (CheckTarget.Type "Any")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.persistMediaThumbnail id mime stream
+
+    ///
+    ///
+    let persitMedia (invoker:Invoker) (id:uint32) (mime:string) (stream:System.IO.Stream) =
+        let p = Product.getProductById (int id)
+        if((string (invokerToId invoker)) = p.owner) then
+            let allowed = Internal.checkUser invoker "UPLOAD_MEDIA" (CheckTarget.Type "Own")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.persistMedia id mime stream
+        else
+            let allowed = Internal.checkUser invoker "UPLOAD_MEDIA" (CheckTarget.Type "Any")
+            Internal.checkAllowed invoker allowed |> ignore
+            Product.persistMedia id mime stream
