@@ -24,7 +24,7 @@ module ControlledAccount =
     /// {invoker} is of type Permissions.Invoker
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
-    let persist invoker acc =
+    let persist invoker acc : unit =
         let allowed = AccountPermissions.mayCreateAccount invoker acc
         Internal.check invoker allowed |> ignore
         Account.persist acc
@@ -94,7 +94,7 @@ module ControlledAccount =
     /// {invoker} is of type Permissions.Invoker
     /// Raises PermissionDenied if the {invoker} does not have the rights to perform this action
     /// Raised AccountBanned if the {invoker} is banned, and hence cannot perform actions
-    let getAcceptedCountries invoker = 
+    let getAcceptedCountries invoker : string [] = 
         let allowed = AccountPermissions.mayRetrieveCountryList invoker
         Internal.check invoker allowed |> ignore
         Account.getAcceptedCountries

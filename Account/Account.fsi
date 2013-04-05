@@ -6,8 +6,6 @@ module Account =
 
     module Password =
 
-        type Password
-
         /// Produces a salted hash of the given unhashed password
         val create : string -> Password
 
@@ -29,7 +27,7 @@ module Account =
     /// Raises UserAlreadyExists if the username already is occupied
     /// Raises UnknownAccType if the specified account type does not exist
     /// Raises TooLargeData if one or more of the account fields were too large to be persisted
-    val persist : Account -> Account
+    val persist : Account -> unit
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -69,5 +67,4 @@ module Account =
     val filterBanned : Account list -> Account list
 
     /// Returns a list of every accepted country name of the system
-    val getAcceptedCountries : unit -> string list
-
+    val getAcceptedCountries : string []

@@ -9,7 +9,7 @@ module ControlledAccount =
     /// Raises UserAlreadyExists if the username already is occupied
     /// Raises UnknownAccType if the specified account type does not exist
     /// Raises TooLargeData if one or more of the account fields were too large to be persisted
-    val persist : Invoker -> Account -> Account
+    val persist : Invoker -> Account -> unit
         
     /// Retrieves an account from persistence based on its associated username
     /// Raises NoSuchUser if no account is associated with the given username
@@ -35,3 +35,5 @@ module ControlledAccount =
     /// Raises TooLargeData if one or more of the new account fields were too large to be persisted
     val update : Invoker -> Account -> Account
 
+    /// Returns a list of every accepted country name of the system
+    val getAcceptedCountries : Invoker -> string []

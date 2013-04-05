@@ -33,7 +33,7 @@ namespace RentIt.Services.Controllers
 
                 return _j.Json(_c.Convert(t));
             }
-            catch (Auth.AuthenticationFailed) { return _h.Failure(401); }
+            catch (AuthExceptions.AuthenticationFailed) { return _h.Failure(401); }
             catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (Exception) { return _h.Failure(500); }
         }
