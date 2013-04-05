@@ -7,15 +7,15 @@ namespace RentIt.Services.Controllers
 {
     public class CreditsController
     {   
-        private readonly Helper h;
-        private readonly JsonSerializer j;
-        private CoreConverter c;
+        private readonly Helper _h;
+        private readonly JsonSerializer _j;
+        private readonly CoreConverter _c;
 
         public CreditsController(Helper helper, JsonSerializer json, CoreConverter converter)
         {
-            h = helper;
-            j = json;
-            c = converter;
+            _h = helper;
+            _j = json;
+            _c = converter;
         }
 
         public void BuyCredits(CreditsData data) {
@@ -26,7 +26,7 @@ namespace RentIt.Services.Controllers
 
                 if (data == null || data.credits == 0) throw new BadRequestException();
 
-                var invoker = h.Authorize();
+                var invoker = _h.Authorize();
 
                 AccountTypes.Account account;
                 if(invoker.IsAuth) account = ((PermissionsUtil.Invoker.Auth) invoker).Item;
@@ -38,12 +38,12 @@ namespace RentIt.Services.Controllers
 
                 // SIGNAL SUCCESS
 
-                h.Success(204);
+                _h.Success(204);
             }
-            catch (BadRequestException) { h.Failure(400); }
-            catch (PermissionExceptions.PermissionDenied) { h.Failure(403); }
-            catch (CreditsExceptions.TooLargeData) { h.Failure(413); }
-            catch (Exception) { h.Failure(500); }
+            catch (BadRequestException) { _h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (CreditsExceptions.TooLargeData) { _h.Failure(413); }
+            catch (Exception) { _h.Failure(500); }
         }
     }
 }

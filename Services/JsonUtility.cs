@@ -11,18 +11,18 @@ namespace RentIt.Services
     public static class JsonUtility
     {
 
-        private static CultureInfo provider = CultureInfo.InvariantCulture;
+        private static readonly CultureInfo provider = CultureInfo.InvariantCulture;
 
         #region Date/time handling
 
-        private static string dateTimeFormat = "yyyy-MM-dd HH:mm:ss zzz";
+        private const string dateTimeFormat = "yyyy-MM-dd HH:mm:ss zzz";
 
         /// <summary>
         /// Converts a DateTime date into the string date/time format specified by the REST API
         /// </summary>
         /// <param name="date">The date/time value to convert</param>
         /// <returns>The date/time value formatted as the REST API dictates</returns>
-        public static string dateTimeToString(DateTime date){
+        public static string DateTimeToString(DateTime date){
         
             return date.ToString(dateTimeFormat);
         }
@@ -33,7 +33,7 @@ namespace RentIt.Services
         /// <param name="str">The string formatted as a date/time string, which should be parsed</param>
         /// <returns>The DateTime object representing the passed date/time string</returns>
         /// <exception cref="FormatException">If the passed string does not match the REST API format</exception>
-        public static DateTime stringToDateTime(string str){
+        public static DateTime StringToDateTime(string str){
         
             return DateTime.ParseExact(str, dateTimeFormat, provider);
         }
@@ -42,16 +42,16 @@ namespace RentIt.Services
         
         #region Date handling
 
-        private static string dateFormat = "yyyy-MM-dd";
+        private const string DateFormat = "yyyy-MM-dd";
 
         /// <summary>
         /// Converts a DateTime date into the string date format specified by the REST API
         /// </summary>
         /// <param name="date">The date value to convert</param>
         /// <returns>The date value formatted as the REST API dictates</returns>
-        public static string dateToString(DateTime date){
+        public static string DateToString(DateTime date){
         
-            return date.ToString(dateFormat);
+            return date.ToString(DateFormat);
         }
 
         /// <summary>
@@ -60,9 +60,9 @@ namespace RentIt.Services
         /// <param name="str">The string formatted as a date string, which should be parsed</param>
         /// <returns>The DateTime object representing the passed date string</returns>
         /// <exception cref="FormatException">If the passed string does not match the REST API format</exception>
-        public static DateTime stringToDate(string str){
+        public static DateTime StringToDate(string str){
         
-            return DateTime.ParseExact(str, dateFormat, provider);
+            return DateTime.ParseExact(str, DateFormat, provider);
         }
 
         #endregion
