@@ -37,8 +37,6 @@ module Account =
     
         ///////////////////////////////////////////////////////////////////////
 
-        type Password = AccountTypes.Password
-
         /// Produces a salted hash of the given unhashed password
         let create password :Password =
             let salt = Internal.produceSalt
@@ -87,7 +85,7 @@ module Account =
     /// Raises UserAlreadyExists if the username already is occupied
     /// Raises UnknownAccType if the specified account type does not exist
     /// Raises TooLargeData if one or more of the account fields were too large to be persisted
-    let persist (acc:Account) =
+    let persist (acc:Account) : unit =
         try
             AccountPersistence.createUser acc
         with
@@ -121,7 +119,7 @@ module Account =
             | NoUserWithSuchName -> raise NoSuchUser
 
     /// Deletes an previously created account. The account will be removed from persistence.
-    let delete (acc:Account) =
+    let delete (acc:Account) : unit =
         raise (new System.NotImplementedException())
 
     /// Updates the persisted account record to the passed {acc} account record
@@ -145,7 +143,7 @@ module Account =
     /// Resets the password of the account with the specified username {user}
     /// The new, randomly generated password will be emailed to the account associated with the username
     /// Raises NoSuchUser if no account is associated with the given username
-    let resetPassword user =
+    let resetPassword (user:string) : unit =
         raise (new System.NotImplementedException())
 
     /// True if the unhashed password {password} matches the password hash of the account {acc}
@@ -159,5 +157,5 @@ module Account =
             | acc :: accs                   -> [acc] @ (filterBanned accs)
 
     /// Returns a list of every accepted country name of the system
-    let getAcceptedCountries () =
+    let getAcceptedCountries : string [] =
         AccountPersistence.getListOfCountries ()
