@@ -5,6 +5,10 @@ module AuthExceptions =
   exception TokenExpired              // Raised if a token is expired and was not supposed to be so
   exception IllegalToken of string    // Raised if a token is malformed
 
+module Controlled =
+    exception AccountBanned              // Raised when a banned invoker attempts to perform an action
+    exception PermissionDenied
+
 module ControlledProductExceptions =
     exception Conflict
 

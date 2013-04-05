@@ -15,7 +15,7 @@ module PermissionsUtil =
     let own = CheckTarget.Other Permissions.Target.Own
     let any = CheckTarget.Other Permissions.Target.Any
 
-    let internal invokerToId = function
+    let invokerToId = function
     | Invoker.Auth acc -> Permissions.Auth acc.user
     | Invoker.Unauth   -> Permissions.Unauth
 
