@@ -3,6 +3,9 @@
 module ControlledProductExceptions =
     exception Conflict
 
+module GeneralExceptions =
+  exception ArgumentException of string
+
 module ProductExceptions =
   exception NoSuchProduct
   exception NoSuchUser
