@@ -3,14 +3,10 @@ open ProductTypes
 open System
     module ProductPersistenceHelper =
 
-      //Converts a datetime object to string that can be understood by the persistence layer
-      let internal convertDatetimeToString (date:System.DateTime) =
-        (string date.Year)+"-"+(string date.Month)+"-"+(string date.Day)+" "+(string date.Hour)+":"+(string date.Minute)+":"+(string date.Second)
-
       //Convert a product to a list of datain types for the persistence layer
       let internal convertToDataIn objectName (prod:Product) =
         let dataQ = ref (Persistence.DataIn.createDataIn [] objectName "Name" prod.name)
-        dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Created_date" (convertDatetimeToString prod.createDate)
+        dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Created_date" (Persistence.Helper.convertDatetimeToString prod.createDate)
         dataQ := Persistence.DataIn.createDataIn !dataQ objectName "ProductType_Name" prod.productType
         dataQ := Persistence.DataIn.createDataIn !dataQ objectName "User_Username" prod.owner
         dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Published" (string prod.published)

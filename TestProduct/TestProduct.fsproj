@@ -38,6 +38,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="app.config" />
+    <Compile Include="TestSearchProducts.fs" />
     <Compile Include="TestMake.fs" />
     <Compile Include="TestGetProductById.fs" />
     <Compile Include="TestPersist.fs" />

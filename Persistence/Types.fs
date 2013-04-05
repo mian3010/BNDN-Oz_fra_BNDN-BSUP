@@ -17,6 +17,7 @@
         // Group of filters
         type FilterGroup = {
           filters : Filter List;
+          joiner : string Option;
           processor : FilterGroup -> string
         }
         ///Defining a field to be read by a select query. SELECT ReadField FROM ..
@@ -40,6 +41,7 @@
         type ObjectJoin = {
             fieldFrom : Field;
             fieldTo : Field;
+            processor : ObjectJoin -> string;
         }
         ///Defining a create query, and the information needed
         type Create = {
