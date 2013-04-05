@@ -274,3 +274,23 @@ module Product =
 
   let getAllProductsByUserAndName (userName:string) (name:string) (showPublished:PublishedStatus) =
     ProductPersistence.getAllProductsByUserAndName userName name showPublished
+
+  /// <summary>
+  /// Checks if a media file is avalible for the given product
+  ///</summary>
+  let hasMedia (id:uint32) =
+    try
+      match getMedia id with
+      | (s, _) -> s.Close(); true
+    with
+      | ProductExceptions.NoSuchMedia -> false
+
+  /// <summary>
+  /// Checks if a thumbnail file is avalible for the given product
+  ///</summary>
+  let hasThumbnail (id:uint32) =
+    try
+      match getMediaThumbnail id with
+      | (s, _) -> s.Close(); true
+    with
+      | ProductExceptions.NoSuchMedia -> false

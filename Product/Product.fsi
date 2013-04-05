@@ -134,3 +134,13 @@ module Product =
   val getAllProductsByType : string -> PublishedStatus -> Product List
 
   val getAllProductsByUserAndName : string -> string -> PublishedStatus -> Product List
+
+  /// <summary>
+  /// Checks if a media file is avalible for the given product
+  ///</summary>
+  val hasMedia : uint32 -> bool
+
+  /// <summary>
+  /// Checks if a thumbnail file is avalible for the given product
+  ///</summary>
+  val hasThumbnail : uint32 -> bool

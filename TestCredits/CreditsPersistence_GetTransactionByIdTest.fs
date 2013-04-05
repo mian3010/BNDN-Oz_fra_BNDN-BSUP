@@ -13,7 +13,7 @@
         let testTrans = Helper.createTestBuyTransaction test
 
         let transaction = match (getTransactionById testTrans.item.id) with
-                            | CreditsTypes.RentOrBuy.Rent b -> Some b
+                            | CreditsTypes.RentOrBuy.Buy b -> Some b
                             | _ -> None
 
         testTrans.item.paid |> should equal transaction.Value.item.paid

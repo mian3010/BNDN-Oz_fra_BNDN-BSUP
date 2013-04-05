@@ -44,8 +44,19 @@
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     let createBuyTransaction (buy:Buy) :Buy =
-      let dataQ = convertToDataIn (RentOrBuy.Buy buy)
-      convertFromResultToBuy ((Persistence.Api.create objectName dataQ).Head)
+      try
+        let dataQ = ref (convertToDataIn (RentOrBuy.Buy buy))
+        dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Type" "B"
+        convertFromResultToBuy ((Persistence.Api.create objectName !dataQ).Head)
+      with
+        | PersistenceExceptions.ReferenceDoesNotExist -> 
+          try
+            let user = Account.getByUsername buy.item.user
+            raise ProductExceptions.NoSuchProduct
+          with
+            | AccountPersistenceExceptions.NoUserWithSuchName -> raise AccountExceptions.NoSuchUser
+            | _ as e -> raise e
+        | _ as e -> raise e
 
     /// <summary>
     /// Create a rent transaction
@@ -58,8 +69,19 @@
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     let createRentTransaction (rent:Rent) :Rent =
-      let dataQ = convertToDataIn (RentOrBuy.Rent rent)
-      convertFromResultToRent ((Persistence.Api.create objectName dataQ).Head)
+      try
+        let dataQ = ref (convertToDataIn (RentOrBuy.Rent rent))
+        dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Type" "R"
+        convertFromResultToRent ((Persistence.Api.create objectName !dataQ).Head)
+      with
+        | PersistenceExceptions.ReferenceDoesNotExist -> 
+          try
+            let user = Account.getByUsername rent.item.user
+            raise ProductExceptions.NoSuchProduct
+          with
+            | AccountPersistenceExceptions.NoUserWithSuchName -> raise AccountExceptions.NoSuchUser
+            | _ as e -> raise e
+        | _ as e -> raise e
 
     /// <summary>
     /// Get a transaction by Id
@@ -70,7 +92,9 @@
     let getTransactionById (id:int) :RentOrBuy =
       let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
       let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "Id" (string id)
-      convertFromResult ((Persistence.Api.read fieldsQ objectName [] filtersQ).Head)
+      let readR = Persistence.Api.read fieldsQ objectName [] filtersQ
+      if (readR.Length.Equals 0) then raise CreditsExceptions.NoSuchTransaction
+      convertFromResult (readR.Head)
 
     /// <summary>
     /// Get list of transactions by username
@@ -79,9 +103,14 @@
     /// <returns> The transactions </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     let getTransactionByAccount (username:string) :RentOrBuy List =
-      let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-      let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "User_Username" username 
-      convertFromResults (Persistence.Api.read fieldsQ objectName [] filtersQ)
+      try
+        let user = Account.getByUsername username
+        let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+        let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] objectName "User_Username" username 
+        convertFromResults (Persistence.Api.read fieldsQ objectName [] filtersQ)
+      with
+        | AccountPersistenceExceptions.NoUserWithSuchName -> raise AccountExceptions.NoSuchUser
+        | _ as e -> raise e
 
     /// <summary>
     /// Get list of transactions by type
@@ -99,31 +128,53 @@
     /// <typeparam> Whether or not it should be rent or buy. 0 = buy, 1 = rent </typeparam>
     /// <typeparam> Username of the account to get by </typeparam>
     /// <returns> The transactions </returns>
+    /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     let getTransactionsByTypeAccount (isRent:bool) (username:string) :RentOrBuy List =
-      let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-      let filtersQ = ref (Persistence.FilterGroup.createSingleFilterGroup [] objectName "Type" (if isRent then "R" else "B") )
-      filtersQ := Persistence.FilterGroup.createSingleFilterGroup [] objectName "User_Username" username 
-      convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)
+      try
+        let user = Account.getByUsername username
+        let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+        let filtersQ = ref (Persistence.FilterGroup.createSingleFilterGroup [] objectName "Type" (if isRent then "R" else "B") )
+        filtersQ := Persistence.FilterGroup.createFilterGroup !filtersQ objectName "User_Username" username 
+        convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)
+      with
+        | AccountPersistenceExceptions.NoUserWithSuchName -> raise AccountExceptions.NoSuchUser
+        | _ as e -> raise e
 
     /// <summary>
     /// Get list of transactions by username. Only transactions with access now.
     /// </summary>
     /// <typeparam> Username of the account to get by </typeparam>
     /// <returns> The transactions </returns>
+    /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     let getTransactionByAccountAccess  (username:string) :RentOrBuy List =
-      let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-      let filtersQ = createFiltersFromAccountAccess username
+      try
+        let user = Account.getByUsername username
+        let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+        let filtersQ = createFiltersFromAccountAccess username
 
-      convertFromResults (Persistence.Api.read fieldsQ objectName [] filtersQ)
+        convertFromResults (Persistence.Api.read fieldsQ objectName [] filtersQ)
+      with
+        | AccountPersistenceExceptions.NoUserWithSuchName -> raise AccountExceptions.NoSuchUser
+        | _ as e -> raise e
 
     /// <summary>
-    /// Get list of transactions by username. Only transactions with access now.
+    /// Get whether or not user has access to product
     /// </summary>
     /// <typeparam> Username of the account to get by </typeparam>
-    /// <returns> The transactions </returns>
-    let getTransactionByAccountAccessProduct  (username:string) (product:int) :RentOrBuy List =
-      let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
-      let filtersQ = ref (createFiltersFromAccountAccess username)
-      filtersQ := Persistence.FilterGroup.createSingleFilterGroup [] objectName "Product_Id" (string product)
+    /// <typeparam> Product id to check </typeparam>
+    /// <returns> Whether or not user has access </returns>
+    /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
+    /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
+    let checkAccessToProduct (username:string) (product:int) :bool =
+      try
+        let user = Account.getByUsername username
+        let product = Product.getProductById product
+        let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+        let filtersQ = ref (createFiltersFromAccountAccess username)
+        filtersQ := Persistence.FilterGroup.createFilterGroup !filtersQ objectName "Product_Id" (string product.id)
 
-      convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)
+        if ((Persistence.Api.read fieldsQ objectName [] !filtersQ).Length.Equals 1) then true
+        else false
+      with
+        | AccountPersistenceExceptions.NoUserWithSuchName -> raise AccountExceptions.NoSuchUser
+        | _ as e -> raise e
