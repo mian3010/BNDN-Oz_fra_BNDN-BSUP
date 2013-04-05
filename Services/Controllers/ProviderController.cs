@@ -30,7 +30,40 @@ namespace Services.Controllers
 
         public Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished)
         {
-            return _h.Failure(501);
+            try
+            {
+                var invoker = _h.Authorize();
+                var accType = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth)invoker).Item.accType : "";
+
+                // PRODUCE RESPONSE
+
+                var returnProducts = _p.GetProductsHelper(provider, search, type, info, unpublished);
+
+                string[] keep = null;
+                if (info.Equals("more"))
+                {
+
+                    keep = !accType.Equals("Admin") ? new[] { "title", "description", "type", "price" }
+                                                    : new[] { "title", "description", "type", "price", "published" };
+                }
+                else if (info.Equals("detailed"))
+                {
+
+                    keep = !accType.Equals("Admin") ? new[] { "title", "description", "type", "price", "rating", "meta" }
+                                                    : new[] { "title", "description", "type", "price", "rating", "meta", "published" };
+                }
+
+                _h.Success();
+
+                if (info.Equals("detailed")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
+                if (info.Equals("more")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
+                if (info.Equals("id")) return _j.Json(_h.Map(returnProducts, p => (uint)p.id));  // Only ids are returned
+                throw new BadRequestException(); // Never happens
+            }
+            catch (BadRequestException) { return _h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
+            catch (Exception) { return _h.Failure(500); }
         }
 
         public Stream CreateProviderProduct(string provider, ProductData data)
@@ -68,32 +101,167 @@ namespace Services.Controllers
 
         public Stream GetProviderProduct(string provider, string id)
         {
-            return _h.Failure(501);
+            try
+            {
+                // VERIFY
+
+                uint pId;
+                try { pId = _h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                var invoker = _h.Authorize();
+
+                var product = Product.getProductById((int)pId);
+                if (!Ops.compareUsernames(product.owner, provider)) throw new NotFoundException();
+
+                // EXECUTE
+
+                return _p.GetProduct(id);
+            }
+            catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
+            catch (NotFoundException) { return _h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { return _h.Failure(404); }
+            catch (Exception) { return _h.Failure(500); }
         }
 
         public void UpdateProviderProduct(string provider, string id, ProductData data)
         {
-            _h.Failure(501);
+            try
+            {
+                // VERIFY
+
+                uint pId;
+                try { pId = _h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                var invoker = _h.Authorize();
+
+                var product = Product.getProductById((int)pId);
+                if (!Ops.compareUsernames(product.owner, provider)) throw new NotFoundException();
+
+                // EXECUTE
+
+                _p.UpdateProduct(id, data);
+            }
+            catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
+            catch (NotFoundException) { _h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
+            catch (Exception) { _h.Failure(500); } 
         }
 
         public void UpdateProviderProductMedia(string provider, string id, Stream data)
         {
-            _h.Failure(501);
+            try
+            {
+                // VERIFY
+
+                uint pId;
+                try { pId = _h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                var invoker = _h.Authorize();
+
+                var product = Product.getProductById((int)pId);
+                if (!Ops.compareUsernames(product.owner, provider)) throw new NotFoundException();
+
+                // EXECUTE
+
+                _p.UpdateProductMedia(id, data);
+            }
+            catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
+            catch (NotFoundException) { _h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
+            catch (Exception) { _h.Failure(500); } 
         }
 
         public void DeleteProviderProduct(string provider, string id)
         {
-            _h.Failure(501);
+            try
+            {
+                // VERIFY
+
+                uint pId;
+                try { pId = _h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                var invoker = _h.Authorize();
+
+                var product = Product.getProductById((int)pId);
+                if (!Ops.compareUsernames(product.owner, provider)) throw new NotFoundException();
+
+                // EXECUTE
+
+                _p.DeleteProduct(id);
+            }
+            catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
+            catch (NotFoundException) { _h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
+            catch (Exception) { _h.Failure(500); } 
         }
 
         public Stream GetProviderProductThumbnail(string provider, string id)
         {
-            return _h.Failure(501);
+            try
+            {
+                // VERIFY
+
+                uint pId;
+                try { pId = _h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                var invoker = _h.Authorize();
+
+                var product = Product.getProductById((int) pId);
+                if (!Ops.compareUsernames(product.owner, provider)) throw new NotFoundException();
+
+                // LOAD
+
+                var result = Product.getMediaThumbnail(pId);
+
+                // SIGNAL SUCCESS
+
+                _h.SetHeader("Content-Length", result.Item1.Length.ToString());
+                _h.Success(200, result.Item2);
+
+                return result.Item1;
+            }
+            catch (BadRequestException) { return _h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
+            catch (NotFoundException) { return _h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { return _h.Failure(404); }
+            catch (ProductExceptions.NoSuchMedia) { return _h.Failure(404); }
+            catch (Exception) { return _h.Failure(500); } 
         }
 
         public void UpdateProviderProductThumbnail(string provider, string id, Stream data)
         {
-            _h.Failure(501);
+            try
+            {
+                // VERIFY
+
+                uint pId;
+                try { pId = _h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
+                var invoker = _h.Authorize();
+
+                var product = Product.getProductById((int)pId);
+                if (!Ops.compareUsernames(product.owner, provider)) throw new NotFoundException();
+
+                // EXECUTE
+
+                _p.UpdateProductThumbnail(id, data);
+            }
+            catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
+            catch (NotFoundException) { _h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
+            catch (Exception) { _h.Failure(500); } 
         }
 
     }
