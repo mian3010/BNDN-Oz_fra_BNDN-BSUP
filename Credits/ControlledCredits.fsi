@@ -31,7 +31,7 @@
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
-    val buyProduct : Invoker -> Account -> Product -> bool
+    val buyProduct : Invoker -> Account -> Product -> Buy option
 
     /// <summary>
     /// Rent a product for user, adding a permissions check
@@ -45,7 +45,7 @@
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
-    val rentProduct : Invoker -> Account -> Product -> int -> System.DateTime
+    val rentProduct : Invoker -> Account -> Product -> int -> Rent option
 
     /// <summary>
     /// Get a specific transaction, adding a permissions check

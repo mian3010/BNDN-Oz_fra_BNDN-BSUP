@@ -10,9 +10,11 @@ module TestAssignPermissionToProduct =
     let p1 = Helper.createTestProduct "test as p"
     let permission = "test as p"
     try
+      Permissions.addAllowedAction permission "test permission" |> ignore
       Permissions.assignPermissionToProduct p1.id permission |> ignore
       let allowed = Permissions.checkProductPermission p1.id permission
       allowed |> should equal true
     finally
       Permissions.unassignPermissionToProduct p1.id permission
       Helper.removeTestProduct "test as p"
+      Permissions.deleteAllowedAction permission |> ignore

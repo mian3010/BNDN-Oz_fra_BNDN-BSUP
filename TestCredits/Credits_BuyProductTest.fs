@@ -12,7 +12,8 @@
         let testUser = Account.getByUsername testProd.owner
         let successCred = Credits.purchaseCredits testUser 1000
         let buy = Credits.buyProduct testUser testProd
-        buy |> should equal true
+        buy.IsSome |> should equal true
+        buy.Value.item.id > 0 |> should equal true
       finally
         Helper.removeTestProduct test
 
@@ -34,6 +35,8 @@
         let testProd2 = Helper.createTestProduct (test+"2")
         Helper.removeTestProduct (test+"2")
         let testUser = Account.getByUsername testProd.owner
+        let successCred = Credits.purchaseCredits testUser 1000
+        let testUser = Account.getByUsername testUser.user
         (fun() -> (Credits.buyProduct testUser testProd2) |> ignore) |> should throw typeof<ProductExceptions.NoSuchProduct>
       finally
         Helper.removeTestProduct test

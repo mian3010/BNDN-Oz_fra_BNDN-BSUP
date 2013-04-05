@@ -77,8 +77,3 @@ module ProductTest =
   [<Fact>]
   let ``productType should throw arg``() =
     (fun () -> Product.make userName name null description buyPrice rentPrice |> ignore) |> should throw typeof<ArgumentException>
-  
-  [<Fact>]
-  let ``productType should throw no such``() =
-    (fun () -> Product.make userName name "asdlkfj s" description buyPrice rentPrice |> ignore) |> should throw typeof<NoSuchProductType>
-  

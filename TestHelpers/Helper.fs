@@ -78,6 +78,7 @@ open RentIt.CreditsPersistence
       removeUserRatings test
       let filtersQ = Persistence.FilterGroup.createSingleFilterGroup [] "User" "Username" ("TESTUSER_"+test)
       Persistence.Api.delete "User" filtersQ |> ignore
+      AccountPersistence.removeUserFromCache ("TESTUSER_"+test)
 
     //Create test product
     let createTestProduct test =

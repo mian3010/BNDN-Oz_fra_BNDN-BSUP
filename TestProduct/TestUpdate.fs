@@ -35,14 +35,6 @@ module TestUpdate =
       Helper.removeTestProduct "test upd rent"
 
   [<Fact>]
-  let ``update owner should not work``() =
-    let tp = Helper.createTestProduct "test upd own fail"
-    try
-      (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<UpdateNotAllowed>
-    finally
-      Helper.removeTestProduct "test upd own fail"
-
-  [<Fact>]
   let ``update name should work``() =
     let tp = Helper.createTestProduct "test upd name"
     let uv = "bla bla bla"
@@ -73,22 +65,6 @@ module TestUpdate =
       Helper.removeTestProduct "test upd type"
     finally
       Helper.removeTestType "test upd type z"
-
-  [<Fact>]
-  let ``update owner should throw arg``() =
-    let tp = Helper.createTestProduct "test upd own fail 2"
-    try
-      (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
-    finally
-      Helper.removeTestProduct "test upd own fail 2"
-  
-  [<Fact>]
-  let ``update name should throw arg``() =
-    let tp = {  (Helper.createTestProduct "test upd name fail") with name = null  }
-    try
-      (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
-    finally
-      Helper.removeTestProduct "test upd name fail"
   
   [<Fact>]
   let ``update productType should throw arg``() =
@@ -97,12 +73,4 @@ module TestUpdate =
       (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
     finally
       Helper.removeTestProduct "test upd ptype fail"
-  
-  [<Fact>]
-  let ``update productType should throw no such``() =
-    let tp = {  (Helper.createTestProduct "test upd ptype fail 2") with productType = "not very likely" }
-    try
-      (fun () -> tp = Product.update tp |> ignore) |> should throw typeof<ArgumentException>
-    finally
-      Helper.removeTestProduct "test upd ptype fail 2"
   

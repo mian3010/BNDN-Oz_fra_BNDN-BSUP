@@ -22,6 +22,7 @@
         trans.Length |> should equal 2
       finally
         Helper.removeTestProduct test
+        Helper.removeTestProduct (test+"2")
 
     [<Fact>]
     let ``Test get transactions by type rent``() =
@@ -40,6 +41,7 @@
         trans.Length |> should equal 1
       finally
         Helper.removeTestProduct test
+        Helper.removeTestProduct (test+"2")
 
     [<Fact>]
     let ``Test get transactions by type for user that does not exist``() =

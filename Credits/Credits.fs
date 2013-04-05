@@ -11,9 +11,10 @@
     /// <typeparam> Amount to buy </typeparam>
     /// <returns> Whether or not add was successfull </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
-    /// <exception> RentIt.AccountExceptions.InvalidCredits </exception>
+    /// <exception> RentIt.CreditsExceptions.InvalidCredits </exception>
     let purchaseCredits (account:Account) (credits:int) :bool =
-      raise (new System.NotImplementedException())
+      if (credits < 1) then raise CreditsExceptions.InvalidCredits
+      CreditsPersistence.updateCredits account.user credits
 
     /// <summary>
     /// Buy a product for user
@@ -24,8 +25,10 @@
     /// <exception> RentIt.CreditsExceptions.NotEnoughCredits </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
-    let buyProduct (account:Account) (product:Product) :bool =
-      raise (new System.NotImplementedException())
+    let buyProduct (account:Account) (product:Product) : Buy option =
+      if (CreditsPersistence.updateCredits account.user -(product.buyPrice.Value)) then
+        Some (CreditsPersistence.createBuyTransaction (CreditsHelper.createBuy -1 account.user System.DateTime.Now product.buyPrice.Value product))
+      else None
 
     /// <summary>
     /// Rent a product for user
@@ -36,8 +39,11 @@
     /// <exception> RentIt.CreditsExceptions.NotEnoughCredits </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
-    let rentProduct (account:Account) (product:Product) (days:int) :System.DateTime =
-      raise (new System.NotImplementedException())
+    let rentProduct (account:Account) (product:Product) (days:int) : Rent option =
+      if (CreditsPersistence.updateCredits account.user -((product.rentPrice.Value*days))) then
+        let expire = System.DateTime.Now.AddDays (float days)
+        Some (CreditsPersistence.createRentTransaction (CreditsHelper.createRent -1 account.user System.DateTime.Now (product.rentPrice.Value*days) product expire))
+      else None
 
     /// <summary>
     /// Get a specific transaction
@@ -46,7 +52,8 @@
     /// <returns> RentOrBuy that corresponds to the transaction </returns>
     /// <exception> RentIt.CreditsException.NoSuchTransaction </exception>
     let getTransaction (id:int) :RentOrBuy =
-      raise (new System.NotImplementedException())
+      if (id < 1) then raise CreditsExceptions.NoSuchTransaction
+      CreditsPersistence.getTransactionById id
 
     /// <summary>
     /// Get a list of transactions for a account
@@ -55,7 +62,7 @@
     /// <returns> RentOrBuy list that corresponds to the account </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     let getTransactions (account:Account) :RentOrBuy List =
-      raise (new System.NotImplementedException())
+      CreditsPersistence.getTransactionByAccount account.user
 
     /// <summary>
     /// Get a list of transaction for an account by type
@@ -65,7 +72,7 @@
     /// <returns> RentOrBuy list that corresponds to the account and type </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     let getTransactionsByType (account:Account) (isRent:bool) :RentOrBuy List =
-      raise (new System.NotImplementedException())
+      CreditsPersistence.getTransactionsByTypeAccount isRent account.user
 
     /// <summary>
     /// Check whether or not an account has access to a product
@@ -76,4 +83,4 @@
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     let checkAccessToProduct (account:Account) (product:Product) :bool =
-      raise (new System.NotImplementedException())
+      CreditsPersistence.checkAccessToProduct account.user product.id
