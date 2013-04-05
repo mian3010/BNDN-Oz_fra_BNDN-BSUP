@@ -19,6 +19,7 @@ namespace RentIt
         private readonly AuthenticationController _auth;
         private readonly AccountController _account;
         private readonly ProductController _product;
+        private readonly ProviderController _provider;
         private readonly CreditsController _credits;
 
         public RentItService() : this(new Helper()) { }
@@ -34,6 +35,7 @@ namespace RentIt
             _auth = new AuthenticationController(_h, _j, _c);
             _account = new AccountController(_h, _j, _c);
             _product = new ProductController(_h, _j, _c);
+            _provider = new ProviderController(_h, _j, _c, _product);
             _credits = new CreditsController(_h, _j, _c);
         }
 
@@ -203,43 +205,42 @@ namespace RentIt
 
         public Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished)
         {
-            return _h.Failure(501);
+            return _provider.GetProviderProducts(provider, search, type, info, unpublished);
         }
 
         public Stream CreateProviderProduct(string provider, ProductData data)
         {
-            return _h.Failure(501);
+            return _provider.CreateProviderProduct(provider, data);
         }
 
         public Stream GetProviderProduct(string provider, string id)
         {
-            return _h.Failure(501);
+            return _provider.GetProviderProduct(provider, id);
         }
 
         public void UpdateProviderProduct(string provider, string id, ProductData data)
         {
-            _h.Failure(501);
+            _provider.UpdateProviderProduct(provider, id, data);
         }
 
-        public void UpdateProviderProductMedia(string provider, string id, Stream media)
+        public void UpdateProviderProductMedia(string provider, string id, Stream data)
         {
-            _h.Failure(501);
+            _provider.UpdateProviderProductMedia(provider, id, data);
         }
 
         public void DeleteProviderProduct(string provider, string id)
         {
-            _h.Failure(501);
+            _provider.DeleteProviderProduct(provider, id);
         }
 
         public Stream GetProviderProductThumbnail(string provider, string id)
         {
-            _h.Failure(501);
-            return null;
+            return _provider.GetProviderProductThumbnail(provider, id);
         }
 
-        public void UpdateProviderProductThumbnail(string provider, string id, Stream media)
+        public void UpdateProviderProductThumbnail(string provider, string id, Stream data)
         {
-            _h.Failure(501);
+            _provider.UpdateProviderProductThumbnail(provider, id, data);
         }
 
         #endregion
