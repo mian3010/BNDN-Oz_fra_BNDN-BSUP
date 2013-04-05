@@ -15,7 +15,7 @@ module PermissionsUtil =
     let own = CheckTarget.Other Permissions.Target.Own
     let any = CheckTarget.Other Permissions.Target.Any
 
-    let internal invokerToId = function
+    let invokerToId = function
     | Invoker.Auth acc -> Permissions.Auth acc.user
     | Invoker.Unauth   -> Permissions.Unauth
 
@@ -28,3 +28,8 @@ module PermissionsUtil =
                                                                     | Type t  -> check (Permissions.Target.Type t)
                                                 if hasPermission then Access.Accepted
                                                 else Access.Denied ("The system has not granted invoker's account the permission "+permission+", or invoker is not allowed to perform its action on the given target")
+
+    let checkProduct (product:ProductTypes.Product) (permission:string) =
+        match product with
+        | prod when not prod.published      ->  Access.Denied "Product is not published"
+        | _                                 ->  if (Permissions.checkProductPermission product.id permission) then Access.Accepted else Access.Denied "Product does not have permission"
