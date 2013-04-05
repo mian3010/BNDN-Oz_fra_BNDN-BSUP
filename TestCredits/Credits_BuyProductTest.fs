@@ -12,7 +12,8 @@
         let testUser = Account.getByUsername testProd.owner
         let successCred = Credits.purchaseCredits testUser 1000
         let buy = Credits.buyProduct testUser testProd
-        buy |> should equal true
+        buy.IsSome |> should equal true
+        buy.Value.item.id > 0 |> should equal true
       finally
         Helper.removeTestProduct test
 
