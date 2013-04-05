@@ -314,30 +314,26 @@ namespace RentIt.Services
 
         #endregion
 
-        //public PurchaseData Convert()
-        //{
-        //    return new PurchaseData {
+        #region CreditsData
 
+        public PurchaseData Convert(CreditsTypes.RentOrBuy rb)
+        {
+            CreditsTypes.Transaction t = rb.IsRent 
+                                                ? ((CreditsTypes.RentOrBuy.Rent)rb).Item.item 
+                                                : ((CreditsTypes.RentOrBuy.Buy)rb).Item.item;
+            CreditsTypes.Rent r = rb.IsRent ? ((CreditsTypes.RentOrBuy.Rent) rb).Item : null;
 
-        //    };
-
-        //[DataContract]
-//public class PurchaseData
-//{
-//    [DataMember]
-//    public string purchased { get; set; }
-//    [DataMember]
-//    public uint paid { get; set; }
-//    [DataMember]
-//    public string type { get; set; }
-//    [DataMember]
-//    public string expires { get; set; }
-//    [DataMember]
-//    public string title { get; set; }
-//    [DataMember]
-//    public uint product { get; set; }
-//}
-//        }
+            return new PurchaseData {
+                purchased = JsonUtility.DateTimeToString(t.purchased),
+                paid = (uint) t.paid,
+                expires = rb.IsRent ? JsonUtility.DateTimeToString(r.expires) : null,
+                product = (uint) t.product.id,
+                type = rb.IsRent ? "R" : "B"
+            };
+        }
+        
+        #endregion
+        
 
         public IdData Convert(uint id)
         {
