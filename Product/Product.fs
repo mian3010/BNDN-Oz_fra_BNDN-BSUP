@@ -78,21 +78,6 @@ module Product =
     ProductPersistence.getListOfProductTypes ()
 
   /// <summary>
-  /// Get all products
-  /// </summary>
-  /// <returns> List of products </returns>
-  let getAll () : Product list =
-    let types = getListOfProductTypes ()
-    let returnList = ref []
-    try
-      for s in types do
-        returnList := returnList.Value @ ProductPersistence.getProductByType s
-      returnList.Value
-    with
-      | NoSuchProduct     -> raise NoSuchProduct
-      | NoSuchProductType -> raise NoSuchProductType
-  
-  /// <summary>
   /// Get prodcut by product id
   /// </summary>
   /// <typeparam> Id </typeparam>
@@ -120,23 +105,6 @@ module Product =
       ProductPersistence.getProductByName pName
     with
       | NoSuchProduct -> raise NoSuchProduct
-
-  /// <summary>
-  /// Get all products by product type
-  /// If the type argument is empty, all products will be returned
-  /// </summary>
-  // <typeparam> Product type name </typeparam>
-  /// <returns> List of products </returns>
-  /// <exception> RentIt.Product.NoSuchProductType </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  let getAllByType (typeName:string) : Product list =
-    if (typeName = null) then raise (ArgumentException "Product type name empty")
-
-    try
-      if typeName.Trim().Length = 0 then getAll() else ProductPersistence.getProductByType typeName
-    with
-      | NoSuchProduct     -> raise NoSuchProduct
-      | NoSuchProductType -> raise NoSuchProductType
 
   /// <summary>
   /// Update existing product
@@ -189,16 +157,6 @@ module Product =
       ProductPersistence.publishProduct pId status
     with
       | NoSuchProduct -> raise NoSuchProduct
-
-  /// <summary>
-  /// Removes unpublished products from a list of products
-  ///</summary>
-  /// <typeparam> products </typeparam>
-  let rec filterUnpublished (products:Product list) =
-    match products with
-      | []                                    -> products
-      | p :: products when not p.published    -> filterUnpublished products
-      | p :: products                         -> [p] @ (filterUnpublished products)
 
   /// <summary>
   /// Returns all MIME types supported for a given product type

@@ -73,7 +73,7 @@ open AccountExceptions
                         email = result.Item"Email"
                         password = Internal.splitDbPass (result.Item "Password")
                         created = DateTime.Parse (result.Item "Created_date")
-                        banned = if (result.Item "Banned").Equals "False" then false else true
+                        banned = if (result.Item "Banned").Equals "0" then false else true
 
                         info = {
                                 name = Internal.tryFind result "Name";
@@ -124,7 +124,7 @@ open AccountExceptions
                         email = map.Item"Email"
                         password = Internal.splitDbPass (map.Item "Password")
                         created = DateTime.Parse (map.Item "Created_date")
-                        banned = if (map.Item "Banned").Equals "False" then false else true
+                        banned = if (map.Item "Banned").Equals "0" then false else true
                         info = {
                                 name = Internal.tryFind map "Name";
                                 address = {

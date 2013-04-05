@@ -47,15 +47,6 @@ module Product =
   val getProductByName : string -> Product list 
 
   /// <summary>
-  /// Get all products by product type
-  /// </summary>
-  // <typeparam> Product type name </typeparam>
-  /// <returns> List of products </returns>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  val getAllByType : string -> Product list 
-
-  /// <summary>
   /// Update existing product
   /// </summary>
   // <typeparam> Product name </typeparam>
@@ -84,18 +75,6 @@ module Product =
   /// </summary>
   /// <returns> String list of product types </returns>
   val getListOfProductTypes : unit -> string[]
-
-   /// <summary>
-  /// Get all products
-  /// </summary>
-  /// <returns> List of products </returns>
-  val getAll : unit -> Product list
-
-  /// <summary>
-  /// Removes unpublished products from a list of products
-  ///</summary>
-  /// <typeparam> products </typeparam>
-  val filterUnpublished : Product list -> Product list
 
   /// <summary>
   /// Returns all MIME types supported for a given product type

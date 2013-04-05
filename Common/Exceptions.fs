@@ -5,6 +5,9 @@ module AuthExceptions =
   exception TokenExpired              // Raised if a token is expired and was not supposed to be so
   exception IllegalToken of string    // Raised if a token is malformed
 
+module ControlledProductExceptions =
+    exception Conflict
+
 module ProductExceptions =
   exception NoSuchProduct
   exception NoSuchUser
