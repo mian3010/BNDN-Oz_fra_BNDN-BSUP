@@ -7,6 +7,10 @@ open System.Data
             let cmd = new SqlClient.SqlCommand(sql, Settings.connDb)
             cmd.ExecuteReader()
 
+        //Converts a datetime object to string that can be understood by the persistence layer
+        let convertDatetimeToString (date:System.DateTime) =
+          (string date.Year)+"-"+(string date.Month)+"-"+(string date.Day)+" "+(string date.Hour)+":"+(string date.Minute)+":"+(string date.Second)
+
         // Read a row
         let internal extractRow (reader:SqlClient.SqlDataReader) data =
             let rec readData = function

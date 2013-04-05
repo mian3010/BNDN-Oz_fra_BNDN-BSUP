@@ -25,3 +25,9 @@ module ProductTypes =
                    rentPrice : int option;
                    buyPrice : int option;
                  }
+
+    type PublishedStatus = 
+                         Published
+                        |Unpublished
+                        |Both
+                        

@@ -37,6 +37,7 @@ module AccountPersistenceExceptions =
 module CreditsExceptions =
   exception NotEnoughCredits
   exception NoSuchTransaction
+  exception UnexpectedType
   exception TooLargeData      // If credits could not be bought, because the account cannot have any more credits
 
 module PermissionExceptions =
