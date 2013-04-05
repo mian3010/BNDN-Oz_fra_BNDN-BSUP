@@ -28,61 +28,27 @@ namespace Services.Controllers
 
         public Stream GetProducts(string search, string types, string info, string unpublished)
         {
-            try
-            {
-                // VALIDATE PARAMETERS
-
-                search = _h.DefaultString(search, ""); // Default
-                types = _h.DefaultString(types, ""); // Default
-                HashSet<string> fullTypes = _h.ExpandProductTypes(types);
-
-                info = _h.DefaultString(info, "id");
-                info = _h.OneOf(info, "id", "more", "detailed");
-
-                unpublished = _h.DefaultString(unpublished, "false");
-                bool alsoUnpublished = _h.Boolean(unpublished);
-
-                ProductTypes.PublishedStatus status = alsoUnpublished
-                                                          ? ProductTypes.PublishedStatus.Both
-                                                          : ProductTypes.PublishedStatus.Published;
-
-                // AUTHORIZE
+            try {
 
                 var invoker = _h.Authorize();
                 var accType = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth)invoker).Item.accType : "";
-            
-                // RETRIEVE PRODUCTS
-                IEnumerable<ProductTypes.Product> returnProducts;
-                FSharpList<ProductTypes.Product> products = ListModule.Empty<ProductTypes.Product>();
-                if (fullTypes.Count == 0) products = Product.getAllProducts(status);
-                else
-                {
-                    foreach (string type in fullTypes)
-                    { products = ListModule.Append(products, Product.getAllProductsByType(type, status));}
-                }
-
-                if (!search.Equals(""))
-                {
-                    FSharpSet<ProductTypes.Product> searchProducts = SetModule.OfList(Product.searchProducts(search));
-                    returnProducts = SetModule.Intersect(SetModule.OfList(products), searchProducts);
-                }
-                else
-                {
-                    returnProducts = products;
-                }
 
                 // PRODUCE RESPONSE
 
+                var returnProducts = GetProductsHelper(null, search, types, info, unpublished);
+
                 string[] keep = null;
-                if (info.Equals("more")) {
+                if (info.Equals("more"))
+                {
 
-                    keep = !accType.Equals("Admin") ? new []{ "title", "description", "type", "price", "owner" } 
-                                                    : new []{ "title", "description", "type", "price", "owner", "published" };
+                    keep = !accType.Equals("Admin") ? new[] { "title", "description", "type", "price", "owner" }
+                                                    : new[] { "title", "description", "type", "price", "owner", "published" };
                 }
-                else if (info.Equals("detailed")) {
+                else if (info.Equals("detailed"))
+                {
 
-                    keep = !accType.Equals("Admin") ? new []{ "title", "description", "type", "price", "rating", "owner", "meta" } 
-                                                    : new []{ "title", "description", "type", "price", "rating", "owner", "meta", "published" };
+                    keep = !accType.Equals("Admin") ? new[] { "title", "description", "type", "price", "rating", "owner", "meta" }
+                                                    : new[] { "title", "description", "type", "price", "rating", "owner", "meta", "published" };
                 }
 
                 _h.Success();
@@ -94,6 +60,7 @@ namespace Services.Controllers
             }
             catch (BadRequestException) { return _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (Exception) { return _h.Failure(500); }
         }
             
@@ -126,6 +93,7 @@ namespace Services.Controllers
                 return _j.Json(product);
             }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (BadRequestException) { return _h.Failure(404); } // Only thrown if id != uint
             catch (ProductExceptions.NoSuchProduct) { return _h.Failure(404); }
             catch (Exception) { return _h.Failure(500); }
@@ -163,6 +131,7 @@ namespace Services.Controllers
                 _h.Success(204);
             }
             catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
             catch (BadRequestException) { _h.Failure(404); } // Only thrown if id != uint
             catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
             catch (ProductExceptions.TooLargeData) { _h.Failure(413); }
@@ -203,6 +172,7 @@ namespace Services.Controllers
             }
             catch (BadRequestException) { _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
             catch (NotFoundException) { _h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
             catch (Exception) { _h.Failure(500); }
@@ -235,6 +205,7 @@ namespace Services.Controllers
             }
             catch (BadRequestException) { _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
             catch (NotFoundException) { _h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
             catch (Exception) { _h.Failure(500); }
@@ -256,7 +227,9 @@ namespace Services.Controllers
 
                 // RETRIEVE RATING
 
-                int pId = (int)_h.Uint(id);
+                int pId;
+                try { pId = (int)_h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
 
                 RatingData rating = _c.Convert(_h.OrNull(Product.getProductById(pId).rating));
 
@@ -267,7 +240,8 @@ namespace Services.Controllers
                 return _j.Json(rating);
             }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
-            catch (BadRequestException) { return _h.Failure(404); } // Only thrown if id != uint
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
+            catch (NotFoundException) { return _h.Failure(404); }
             catch (ProductExceptions.ArgumentException) { return _h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { return _h.Failure(404); }
             catch (Exception) { return _h.Failure(500); }
@@ -302,6 +276,7 @@ namespace Services.Controllers
             }
             catch (BadRequestException) { _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
             catch (NotFoundException) { _h.Failure(404); }
             catch (ProductExceptions.ArgumentException) { _h.Failure(400); }
             catch (ProductExceptions.NoSuchProduct) { _h.Failure(404); }
@@ -333,6 +308,7 @@ namespace Services.Controllers
             }
             catch (BadRequestException) { return _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (NotFoundException) { return _h.Failure(404); }
             catch (ProductExceptions.NoSuchProduct) { return _h.Failure(404); }
             catch (ProductExceptions.NoSuchMedia) { return _h.Failure(404); }
@@ -349,7 +325,72 @@ namespace Services.Controllers
                 return _j.Json(Product.getListOfProductTypes(/*invoker*/));
             }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (Exception) { return _h.Failure(500); }
+        }
+
+        /////////////////////////////////
+
+        /// <summary>
+        /// Retrieves a collection of products, either from the whole system, or only from a specific content provider
+        /// </summary>
+        /// <param name="target">target == null, then all products are used, else only products of the content provider with the name </param>
+        /// <returns>IEnumerable of Products</returns>
+        internal IEnumerable<ProductTypes.Product> GetProductsHelper(string target, string search, string types, string info, string unpublished)
+        {
+            // VALIDATE PARAMETERS
+
+            search = _h.DefaultString(search, ""); // Default
+            types = _h.DefaultString(types, ""); // Default
+            HashSet<string> fullTypes = _h.ExpandProductTypes(types);
+
+            info = _h.DefaultString(info, "id");
+            info = _h.OneOf(info, "id", "more", "detailed");
+
+            unpublished = _h.DefaultString(unpublished, "false");
+            bool alsoUnpublished = _h.Boolean(unpublished);
+
+            ProductTypes.PublishedStatus status = alsoUnpublished
+                                                        ? ProductTypes.PublishedStatus.Both
+                                                        : ProductTypes.PublishedStatus.Published;
+
+            // AUTHORIZE
+
+            var invoker = _h.Authorize();
+            var accType = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth)invoker).Item.accType : "";
+
+            // RETRIEVE PRODUCTS
+            IEnumerable<ProductTypes.Product> returnProducts;
+            FSharpList<ProductTypes.Product> products = ListModule.Empty<ProductTypes.Product>();
+            if (fullTypes.Count == 0)
+            {
+                if (string.IsNullOrEmpty(target)) products = Product.getAllProducts(status);
+                else products = Product.getAllProductsByUser(target, status);
+            }
+            else
+            {
+                foreach (string type in fullTypes)
+                {products = ListModule.Append(products, Product.getAllProductsByType(type, status)); }
+
+                if (!string.IsNullOrEmpty(target)) {
+
+                    products = ListModule.OfArray(_h.Map(products, p => p.owner.Equals(target) ? p : null));
+                }
+            }
+
+            if (!search.Equals(""))
+            {
+                FSharpSet<ProductTypes.Product> searchProducts = SetModule.OfList(Product.searchProducts(search));
+                returnProducts = SetModule.Intersect(SetModule.OfList(products), searchProducts);
+            }
+            else
+            {
+                returnProducts = products;
+            }
+
+            // PRODUCE RESPONSE
+
+            return returnProducts;
         }
     }
 }
