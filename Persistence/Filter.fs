@@ -15,8 +15,11 @@
         let anyBeforeAndAfter (filter:Types.Filter) =
             (filter.field.processor filter.field)+" LIKE '%"+filter.value+"%'"
 
-        let greateThanOrEqual (filter:Types.Filter) =
+        let greaterThanOrEqual (filter:Types.Filter) =
             (filter.field.processor filter.field)+">='"+filter.value+"'"
+
+        let lessThanOrEqual (filter:Types.Filter) =
+            (filter.field.processor filter.field)+"<='"+filter.value+"'"
 
         //Factory functions creating an instance of the type
         let createFilter (list:Types.Filter List) objectName field value =

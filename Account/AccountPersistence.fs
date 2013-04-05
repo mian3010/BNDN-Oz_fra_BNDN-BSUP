@@ -80,7 +80,7 @@ open AccountExceptions
                                 address = {
                                             address = Internal.tryFind result "Address"
                                             postal = 
-                                                let zipString = Internal.tryFind result  "Zipcode"
+                                                let zipString = Internal.tryFind result "Zipcode"
                                                 if zipString = None then 
                                                     None else Some (int zipString.Value)
                                             country = Some (result.Item "Country_Name") }
@@ -199,17 +199,17 @@ open AccountExceptions
                                         created = acc.created
                                         banned = acc.banned
                                         info = {
-                                                name = None
+                                                name = acc.info.name
                                                 address = {
-                                                            address = None
-                                                            postal = None
-                                                            country = None }
-                                                birth = None
-                                                about = None
-                                                credits = None }
+                                                            address = acc.info.address.address
+                                                            postal = acc.info.address.postal
+                                                            country = acc.info.address.country }
+                                                birth = acc.info.birth
+                                                about = acc.info.about
+                                                credits = acc.info.credits }
                                         accType = acc.accType
                                         version = acc.version + uint32 1 }
-                Internal.cache <- Internal.cache.Add(acc.user, acc)
+                Internal.cache <- Internal.cache.Add(newAcc.user, newAcc)
                 newAcc
                     
             lock Internal.cache (fun() -> internalFun)

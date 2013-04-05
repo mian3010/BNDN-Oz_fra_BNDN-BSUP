@@ -11,14 +11,15 @@
         let rec internal joinJoins (joins:Types.ObjectJoin List) =
             match joins with 
                 | [] -> ""
-                | x::[] -> ObjectJoin.Default x
-                | x::xs -> ObjectJoin.Default x+" "+joinJoins xs
+                | x::[] -> x.processor x
+                | x::xs -> x.processor x+" "+joinJoins xs
         ///Join Filter list in an SQL format
         let rec internal joinFilterGroups (filters:Types.FilterGroup List) =
             match filters with 
                 | [] -> "1=1"
                 | x::[] -> "("+ (x.processor x) + ")"
-                | x::xs -> "("+ (x.processor x) + ") AND "+joinFilterGroups xs
+                | x::xs when x.joiner.IsSome -> "("+ (x.processor x) + ") " + x.joiner.Value + " "+joinFilterGroups xs
+                | x::xs -> "("+ (x.processor x) + ") " + FilterGroup.defaultJoiner + " "+joinFilterGroups xs
         ///Default processor
         let Default (read:Types.Read) =
             "SELECT "+joinReadFields read.fields+" FROM ["+read.baseObjectName+"] "+joinJoins read.joins+" WHERE "+joinFilterGroups read.filters
