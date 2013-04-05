@@ -13,9 +13,7 @@ namespace Services.Controllers
     public class ProductController
     {
 
-        //TODO: Make calls to ControlledProduct instead og Product
-        //TODO: Check for permissions to view unpublished products
-        //TODO: Implement product search
+        //TODO: Make calls to ControlledProduct instead of Product
         
         private readonly Helper _h;
         private readonly JsonSerializer _j;

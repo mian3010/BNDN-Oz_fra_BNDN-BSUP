@@ -13,86 +13,88 @@ namespace Services.Controllers
     public class ProviderController
     {
 
-        /*private readonly Helper _h;
-        private readonly JsonSerializer _j;
-        private CoreConverter _c;
+        // TODO: Change Product to ControlledProduct
 
-        public ProviderController(Helper helper, JsonSerializer json, CoreConverter converter)
+        private readonly Helper _h;
+        private readonly JsonSerializer _j;
+        private readonly CoreConverter _c;
+        private readonly ProductController _p;
+
+        public ProviderController(Helper helper, JsonSerializer json, CoreConverter converter, ProductController productController)
         {
             _h = helper;
             _j = json;
             _c = converter;
+            _p = productController;
         }
 
         public Stream GetProviderProducts(string provider, string search, string type, string info, string unpublished)
         {
-            var invoker = _h.Authorize();
-            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
-            OutgoingWebResponseContext response = _h.GetResponse();
+            return _h.Failure(501);
         }
 
         public Stream CreateProviderProduct(string provider, ProductData data)
         {
-            var invoker = _h.Authorize();
-            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
-            OutgoingWebResponseContext response = _h.GetResponse();
-
             try
             {
-                ProductTypes.Product tmpP = _h.ProductDataToProductType(data);
-                ProductTypes.Product persistedP = Product.persist(tmpP);
-                response.StatusCode = HttpStatusCode.NoContent;
-                // Return the ID --> persistedP.id
-            }
-            catch (Exception) { response.StatusCode = HttpStatusCode.InternalServerError; }
+                // VERIFY
 
-            return null;
+                if (data == null || string.IsNullOrEmpty(data.title)) throw new BadRequestException();
+                _h.OneOf(data.type, Product.getListOfProductTypes());
+
+                var invoker = _h.Authorize();
+
+                // CREATE ACCOUNT
+
+                data.published = false;
+                data.owner = provider;
+
+                ProductTypes.Product product = _c.Convert(data);
+
+                var id = (uint) Product.persist(product).id;
+
+                // SIGNAL SUCCESS
+
+                _h.SetHeader("Location", "/accounts/" + provider + "/products/" + id);
+                _h.Success(201);
+
+                return _j.Json(_c.Convert(id));
+            }
+            catch (BadRequestException) { return _h.Failure(400); }
+            catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (ProductExceptions.TooLargeData) { return _h.Failure(413); }
+            catch (Exception) { return _h.Failure(500); }
         }
 
         public Stream GetProviderProduct(string provider, string id)
         {
-            var invoker = _h.Authorize();
-            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
-            OutgoingWebResponseContext response = _h.GetResponse();
-
+            return _h.Failure(501);
         }
 
         public void UpdateProviderProduct(string provider, string id, ProductData data)
         {
-            var invoker = _h.Authorize();
-            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
-            OutgoingWebResponseContext response = _h.GetResponse();
-
+            _h.Failure(501);
         }
 
-        public void UpdateProviderProductMedia(string provider, string id, Stream media)
+        public void UpdateProviderProductMedia(string provider, string id, Stream data)
         {
-            var invoker = _h.Authorize();
-            OutgoingWebResponseContext response = _h.GetResponse();
-
+            _h.Failure(501);
         }
 
         public void DeleteProviderProduct(string provider, string id)
         {
-            var invoker = _h.Authorize();
-            OutgoingWebResponseContext response = _h.GetResponse();
-
+            _h.Failure(501);
         }
 
         public Stream GetProviderProductThumbnail(string provider, string id)
         {
-            var invoker = _h.Authorize();
-            var accType = invoker.IsAuth ? ((AccountPermissions.Invoker.Auth)invoker).Item.accType : "";
-            OutgoingWebResponseContext response = _h.GetResponse();
-
+            return _h.Failure(501);
         }
 
-        public void UpdateProviderProductThumbnail(string provider, string id, Stream media)
+        public void UpdateProviderProductThumbnail(string provider, string id, Stream data)
         {
-            var invoker = _h.Authorize();
-            OutgoingWebResponseContext response = _h.GetResponse();
-
+            _h.Failure(501);
         }
-         * */
+
     }
 }
