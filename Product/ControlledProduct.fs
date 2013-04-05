@@ -1,13 +1,7 @@
 ﻿namespace RentIt
+open PermissionsUtil
 
 module ControlledProduct =
-    
-    type Invoker =     Auth of AccountTypes.Account   // authenticated invokers
-                     | Unauth                    // anonymous invokers
-
-    type Access =       Accepted
-                      | Denied         // Reason why it was denied
-
     exception AccountBanned              // Raised when a banned invoker attempts to perform an action
     exception PermissionDenied
         
@@ -16,10 +10,6 @@ module ControlledProduct =
     open Product
 
     module internal Internal =
-
-            
-        type CheckTarget =     Other of   Permissions.Target
-                             | Type of    string
 
         let own = CheckTarget.Other Permissions.Target.Own
         let any = CheckTarget.Other Permissions.Target.Any
@@ -36,13 +26,13 @@ module ControlledProduct =
                                                                         | Other x -> check x
                                                                         | Type t  -> check (Permissions.Target.Type t)
                                                     if hasPermission then Access.Accepted
-                                                    else Access.Denied
+                                                    else Access.Denied "MORTEN WRITE SOMETHING HERE"
 
         let checkAllowed (invoker:Invoker) (access:Access) =
             match invoker with
                 | Invoker.Auth auth when auth.banned -> raise AccountBanned
                 | _                                  -> match access with
-                                                        | Access.Denied         -> raise PermissionDenied
+                                                        | Access.Denied string         -> raise PermissionDenied
                                                         | Access.Accepted       -> ignore; // Return normally in this case
                                                         
 

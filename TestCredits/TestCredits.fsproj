@@ -43,10 +43,11 @@
     <Compile Include="CreditsPersistence_GetTransactionByAccountTest.fs" />
     <Compile Include="CreditsPersistence_GetTransactionsByTypeTest.fs" />
     <Compile Include="CreditsPersistence_GetTransactionByTypeAccountTest.fs" />
-    <None Include="packages.config" />
-    <None Include="app.config" />
     <Compile Include="CreditsPersistence_GetTransactionByAccountAccess.fs" />
     <Compile Include="CreditsPersistence_CheckAccessToProductTest.fs" />
+    <None Include="packages.config" />
+    <None Include="app.config" />
+    <Compile Include="Credits_PurchaseCreditsTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Account\Account.fsproj">
