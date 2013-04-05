@@ -41,6 +41,7 @@
         type ObjectJoin = {
             fieldFrom : Field;
             fieldTo : Field;
+            processor : ObjectJoin -> string;
         }
         ///Defining a create query, and the information needed
         type Create = {

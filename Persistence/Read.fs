@@ -11,8 +11,8 @@
         let rec internal joinJoins (joins:Types.ObjectJoin List) =
             match joins with 
                 | [] -> ""
-                | x::[] -> ObjectJoin.Default x
-                | x::xs -> ObjectJoin.Default x+" "+joinJoins xs
+                | x::[] -> x.processor x
+                | x::xs -> x.processor x+" "+joinJoins xs
         ///Join Filter list in an SQL format
         let rec internal joinFilterGroups (filters:Types.FilterGroup List) =
             match filters with 
