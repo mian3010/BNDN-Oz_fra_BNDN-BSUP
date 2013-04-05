@@ -175,23 +175,22 @@ namespace RentIt
 
         public Stream GetPurchases(string customer, string purchases, string info)
         {
-            return _h.Failure(501);
+            return _credits.GetPurchases(customer, purchases, info);
         }
 
         public Stream MakePurchases(string customer, PurchaseData[] data)
         {
-            return _h.Failure(501);
+            return _credits.MakePurchases(customer, data);
         }
 
         public Stream GetPurchase(string customer, string id)
         {
-            return _h.Failure(501);
+            return _credits.GetPurchase(customer, id);
         }
 
         public Stream GetPurchasedMedia(string customer, string id)
         {
-            _h.Failure(501);
-            return null;
+            return _credits.GetPurchasedMedia(customer, id);
         }
 
         #endregion
