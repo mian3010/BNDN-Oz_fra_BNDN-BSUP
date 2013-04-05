@@ -18,7 +18,7 @@ module ControlledProduct =
     module internal Internal =
 
             
-        type CheckTarget =   Other of   Permissions.Target
+        type CheckTarget =     Other of   Permissions.Target
                              | Type of    string
 
         let own = CheckTarget.Other Permissions.Target.Own
@@ -85,11 +85,9 @@ module ControlledProduct =
     ///
     ///
     let getProductByName (invoker:Invoker) (pName:string) =
-        let product = Product.getProductByName(pName)
-        if(product.owner = (invokerToId invoker)) then
-            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
-            Internal.checkAllowed invoker allowed |> ignore
-            Product.getProductByName(pName)
+        let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
+        Internal.checkAllowed invoker allowed |> ignore
+        Product.getProductByName pName
 
     ///
     ///
