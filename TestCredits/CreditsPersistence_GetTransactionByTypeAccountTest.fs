@@ -44,7 +44,7 @@
 
     [<Fact>]
     let ``Test get transaction by type and account with no result for buy``() =
-      let test = "TestGetTransactionByTypeAccountNoResultBuy"
+      let test = "TestGetTransByTypeAccNoResBuy"
       try
         let testProd = Helper.createTestProduct test
         let testTrans = Helper.createTestBuyTransaction test
@@ -55,7 +55,7 @@
 
     [<Fact>]
     let ``Test get transaction by type and account with no result for rent``() =
-      let test = "TestGetTransactionByTypeAccountNoResultRent"
+      let test = "TestGetTransByTypeAccNoResRent"
       try
         let testProd = Helper.createTestProduct test
         let testTrans = Helper.createTestRentTransaction test
@@ -66,7 +66,7 @@
 
     [<Fact>]
     let ``Test get transaction by type and other account with no result for rent``() =
-      let test = "TestGetTransactionByTypeAccountWrongNoResultRent"
+      let test = "TestGetTransByTypeAccWrgNoResRent"
       try
         let testProd = Helper.createTestProduct test
         let testUser = Helper.createTestUser (test+"2")
@@ -79,7 +79,7 @@
 
     [<Fact>]
     let ``Test get transaction by type and wrong account``() =
-      let test = "TestGetTransactionByTypeAccountNotExist"
+      let test = "TestGetTransByTypeAccNotEx"
       try
         let testProd = Helper.createTestProduct test
         let testTrans = Helper.createTestRentTransaction test

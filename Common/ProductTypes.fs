@@ -27,7 +27,6 @@ module ProductTypes =
                  }
 
     type PublishedStatus = 
-                         Published
-                        |Unpublished
-                        |Both
-                        
+                          Published
+                        | Unpublished
+                        | Both

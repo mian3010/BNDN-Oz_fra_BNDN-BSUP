@@ -15,7 +15,7 @@
         let transaction = Helper.createTestRentTransaction test
 
         //Test the values
-        transaction.item.paid |> should equal testProd.buyPrice
+        transaction.item.paid |> should equal 20
         transaction.item.product |> should equal testProd
         transaction.item.purchased |> should equal payDate
         transaction.expires |> should equal expireDate

@@ -67,6 +67,7 @@
     /// <typeparam> Whether or not it should be rent or buy. 0 = buy, 1 = rent </typeparam>
     /// <typeparam> Username of the account to get by </typeparam>
     /// <returns> The transactions </returns>
+    /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     val getTransactionsByTypeAccount : bool -> string -> RentOrBuy List
 
     /// <summary>
@@ -74,4 +75,15 @@
     /// </summary>
     /// <typeparam> Username of the account to get by </typeparam>
     /// <returns> The transactions </returns>
+    /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     val getTransactionByAccountAccess : string -> RentOrBuy List
+
+    /// <summary>
+    /// Get whether or not user has access to product
+    /// </summary>
+    /// <typeparam> Username of the account to get by </typeparam>
+    /// <typeparam> Product id to check </typeparam>
+    /// <returns> Whether or not user has access </returns>
+    /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
+    /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
+    val checkAccessToProduct : string -> int -> bool
