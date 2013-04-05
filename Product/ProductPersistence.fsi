@@ -81,3 +81,11 @@ module ProductPersistence =
   val getListOfProductTypes : unit -> string[]
 
   val searchProducts : string -> Product list
+
+  val getAllProducts : PublishedStatus -> Product List
+
+  val getAllProductsByUser : string -> PublishedStatus -> Product List
+
+  val getAllProductsByType : string -> PublishedStatus -> Product List
+
+  val getAllProductsByUserAndName : string -> string -> PublishedStatus -> Product List
