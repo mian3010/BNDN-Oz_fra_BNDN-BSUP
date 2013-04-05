@@ -64,23 +64,6 @@ module Product =
   val update : Product -> Product
 
   /// <summary>
-  /// Buy a product
-  /// </summary>
-  // <typeparam> Product id </typeparam>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  val buyProduct : int -> 'a
-
-  /// <summary>
-  /// Rent a product
-  /// </summary>
-  // <typeparam> Product id </typeparam>
-  // <typeparam> Number of days </typeparam>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  val rentProduct : int -> int -> 'a
-
-  /// <summary>
   /// Rate Product
   ///</summary>
   /// <typeparam> Product id </typeparam>
@@ -143,3 +126,13 @@ module Product =
   val getMediaThumbnail : uint32 -> System.IO.FileStream*string
 
   val searchProducts : string -> Product list
+
+  /// <summary>
+  /// Checks if a media file is avalible for the given product
+  ///</summary>
+  val hasMedia : uint32 -> bool
+
+  /// <summary>
+  /// Checks if a thumbnail file is avalible for the given product
+  ///</summary>
+  val hasThumbnail : uint32 -> bool

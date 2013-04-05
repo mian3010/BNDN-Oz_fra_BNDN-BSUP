@@ -7,6 +7,9 @@ using Microsoft.FSharp.Collections;
 
 namespace RentIt.Services
 {
+    /// <summary>
+    /// Conversions between the data contract types found in IRentItService and the types used by the backend
+    /// </summary>
     public class CoreConverter
     {
         private Helper h;
