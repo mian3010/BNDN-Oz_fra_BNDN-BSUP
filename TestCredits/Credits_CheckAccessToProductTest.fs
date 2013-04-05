@@ -7,7 +7,7 @@
   module TestCheckAccessToProductCr =
     [<Fact>]
     let ``Test check access to product with buy result``() =
-      let test = "TestCheckAccessToProductBuyAccessCr"
+      let test = "TestChckAccToProdBuyAccCr"
       try
         let testProd1 = Helper.createTestProduct test
         let testUser = Account.getByUsername testProd1.owner
@@ -21,11 +21,13 @@
 
     [<Fact>]
     let ``Test check access to product with rent result``() =
-      let test = "TestCheckAccessToProductRentAccessCr"
+      let test = "TestChckAccToProdRentAccCr"
       try
         let testProd1 = Helper.createTestProduct test
         let testUser = Account.getByUsername testProd1.owner
         let payDate = System.DateTime.Now
+        let successCred = Credits.purchaseCredits testUser 1000
+        let testUser = Account.getByUsername testUser.user
         let testTrans = Credits.rentProduct testUser testProd1 1
 
         let accessRes = Credits.checkAccessToProduct testUser testProd1
@@ -36,7 +38,7 @@
 
     [<Fact>]
     let ``Test check access to product with rent no result``() =
-      let test = "TestCheckAccessToProductRentNoAccessCr"
+      let test = "TestChckAccToProdRentNoAccCr"
       try
         let testProd1 = Helper.createTestProduct test
         let testUser = Account.getByUsername testProd1.owner

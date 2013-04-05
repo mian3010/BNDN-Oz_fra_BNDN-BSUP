@@ -12,7 +12,7 @@
         let success = Credits.purchaseCredits testUser 20
         success |> should equal true
         let testUser = Account.getByUsername testUser.user
-        testUser.info.credits |> should equal 20
+        testUser.info.credits.Value |> should equal 20
       finally
         Helper.removeTestUser test
 
