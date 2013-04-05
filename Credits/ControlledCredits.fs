@@ -43,7 +43,7 @@
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
-    let buyProduct (invoker:Invoker) (account:Account) (product:Product) :bool =
+    let buyProduct (invoker:Invoker) (account:Account) (product:Product) :CreditsTypes.Buy option =
         let allowed = CreditsPermissions.mayBuyProduct invoker account product
         check invoker allowed |> ignore
         Credits.buyProduct account product
@@ -60,7 +60,7 @@
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
-    let rentProduct (invoker:Invoker) (account:Account) (product:Product) (days:int) :System.DateTime =
+    let rentProduct (invoker:Invoker) (account:Account) (product:Product) (days:int) :CreditsTypes.Rent option =
         let allowed = CreditsPermissions.mayRentProduct invoker account product days
         check invoker allowed |> ignore
         Credits.rentProduct account product days
