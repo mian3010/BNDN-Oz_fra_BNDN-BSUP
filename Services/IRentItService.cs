@@ -41,7 +41,7 @@ namespace RentIt
         Stream DefaultGetAccounts();
 
         [OperationContract]
-        [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={include_banned}",
+        [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={includeBanned}",
                     ResponseFormat = WebMessageFormat.Json)]
         Stream GetAccounts(string types, string info, string includeBanned);
 
