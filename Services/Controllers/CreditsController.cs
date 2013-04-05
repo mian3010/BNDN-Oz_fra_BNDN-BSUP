@@ -93,38 +93,28 @@ namespace RentIt.Services.Controllers
                     ProductTypes.Product product = ControlledProduct.getProductById(invoker, (int) p.product);
                     if (p.purchased.Equals("B"))
                     {
-                        try
-                        {
-                            returnList.Add((uint) ControlledCredits.buyProduct(invoker, account, product)
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
+                        var result = _h.OrNull(ControlledCredits.buyProduct(invoker, account, product));
+                           
+                        if(result != null) returnList.Add((uint) result.item.id);
                     }
                     else if (p.purchased.Equals("R"))
                     {
-                        try
-                        {
-                            ControlledCredits.rentProduct(invoker, account, product, 7);
-                            returnList.Add((uint) p.product);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
+                        var result = _h.OrNull(ControlledCredits.rentProduct(invoker, account, product, 7)); // Rented products are always rented for 7 days by default
+
+                        if (result != null) returnList.Add((uint)result.item.id);
                     }
                 }
 
                 _h.Success();
                 return _j.Json(returnList);
             }
-            catch (ProductExceptions.NoSuchProduct)         { return _h.Failure(404); }
             catch (ProductExceptions.ArgumentException)     { return _h.Failure(400); }
             catch (CreditsExceptions.NotEnoughCredits)      { return _h.Failure(402); }
-            catch (AccountExceptions.NoSuchUser)            { return _h.Failure(404); }
             catch (PermissionExceptions.AccountBanned)      { return _h.Failure(403); }
             catch (PermissionExceptions.PermissionDenied)   { return _h.Failure(403); }
+            catch (ProductExceptions.NoSuchProduct)         { return _h.Failure(404); }
+            catch (AccountExceptions.NoSuchUser)            { return _h.Failure(404); }
+            catch (AccountExceptions.NoSuchUser)            { return _h.Failure(409); }
             catch (Exception)                               { return _h.Failure(500); }
         }
 
@@ -134,16 +124,19 @@ namespace RentIt.Services.Controllers
             {
                 var invoker = _h.Authorize();
 
-                CreditsTypes.RentOrBuy rentOrBuy = ControlledCredits.getTransaction(invoker, int.Parse(id));
+                AccountTypes.Account account = ControlledAccount.getByUsername(invoker, customer);
+
+                CreditsTypes.RentOrBuy rentOrBuy = ControlledCredits.getTransaction(invoker, (int) _h.Uint(id));
                 PurchaseData returnData = _c.Convert(rentOrBuy);
-            
+
                 _h.Success();
                 return _j.Json(returnData);
             }
-            catch (CreditsExceptions.NoSuchTransaction)     { return _h.Failure(404); }
-            catch (PermissionExceptions.AccountBanned)      { return _h.Failure(403); }
-            catch (PermissionExceptions.PermissionDenied)   { return _h.Failure(403); }
-            catch (Exception)                               { return _h.Failure(500); }
+            catch (CreditsExceptions.NoSuchTransaction) { return _h.Failure(404); }
+            catch (AccountExceptions.NoSuchUser) { return _h.Failure(404); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
+            catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (Exception) { return _h.Failure(500); }
         }
 
         public Stream GetPurchasedMedia(string customer, string id)
@@ -151,8 +144,6 @@ namespace RentIt.Services.Controllers
             try
             {
                 // VERIFY
-
-                //TODO: Use ControlledProducts
 
                 uint pId;
                 try { pId = _h.Uint(id); }

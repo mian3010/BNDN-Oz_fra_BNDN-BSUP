@@ -25,7 +25,7 @@
     /// <exception> RentIt.CreditsExceptions.NotEnoughCredits </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
-    let buyProduct (account:Account) (product:Product) :Buy Option =
+    let buyProduct (account:Account) (product:Product) : Buy option =
       if (CreditsPersistence.updateCredits account.user -(product.buyPrice.Value)) then
         Some (CreditsPersistence.createBuyTransaction (CreditsHelper.createBuy -1 account.user System.DateTime.Now product.buyPrice.Value product))
       else None
@@ -39,7 +39,7 @@
     /// <exception> RentIt.CreditsExceptions.NotEnoughCredits </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
-    let rentProduct (account:Account) (product:Product) (days:int) :Rent Option =
+    let rentProduct (account:Account) (product:Product) (days:int) : Rent option =
       if (CreditsPersistence.updateCredits account.user -((product.rentPrice.Value*days))) then
         let expire = System.DateTime.Now.AddDays (float days)
         Some (CreditsPersistence.createRentTransaction (CreditsHelper.createRent -1 account.user System.DateTime.Now (product.rentPrice.Value*days) product expire))

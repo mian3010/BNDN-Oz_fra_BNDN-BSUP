@@ -24,7 +24,7 @@
     /// <exception> RentIt.CreditsExceptions.NotEnoughCredits </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
-    val buyProduct : Account -> Product -> Buy
+    val buyProduct : Account -> Product -> Buy option
 
     /// <summary>
     /// Rent a product for user
@@ -35,7 +35,7 @@
     /// <exception> RentIt.CreditsExceptions.NotEnoughCredits </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
-    val rentProduct : Account -> Product -> int -> Rent
+    val rentProduct : Account -> Product -> int -> Rent option
 
     /// <summary>
     /// Get a specific transaction
