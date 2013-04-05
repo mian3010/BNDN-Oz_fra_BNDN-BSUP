@@ -143,3 +143,13 @@ module Product =
   val getMediaThumbnail : uint32 -> System.IO.FileStream*string
 
   val searchProducts : string -> Product list
+
+  /// <summary>
+  /// Checks if a media file is avalible for the given product
+  ///</summary>
+  val hasMedia : uint32 -> bool
+
+  /// <summary>
+  /// Checks if a thumbnail file is avalible for the given product
+  ///</summary>
+  val hasThumbnail : uint32 -> bool
