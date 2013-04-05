@@ -1,5 +1,10 @@
 ﻿namespace RentIt
 
+module AuthExceptions = 
+  exception AuthenticationFailed
+  exception TokenExpired              // Raised if a token is expired and was not supposed to be so
+  exception IllegalToken of string    // Raised if a token is malformed
+
 module ControlledProductExceptions =
     exception Conflict
 
@@ -42,6 +47,7 @@ module CreditsExceptions =
   exception NoSuchTransaction
   exception UnexpectedType
   exception TooLargeData      // If credits could not be bought, because the account cannot have any more credits
+  exception InvalidCredits
 
 module PermissionExceptions =
   exception AccountBanned              // Raised when a banned invoker attempts to perform an action

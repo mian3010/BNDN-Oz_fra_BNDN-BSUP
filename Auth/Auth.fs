@@ -2,6 +2,8 @@
 
 module Auth =
 
+    open AuthExceptions
+
     ///////////////////////////////////////////////////////////////////////
 
     module internal Internal =
@@ -17,15 +19,11 @@ module Auth =
 
     module Token =
 
-        /// Authentication token type. user is in lower case!
         type AuthToken = { expires: System.DateTime; user: string }
-
-        exception TokenExpired              // Raised if a token is expired and was not supposed to be so
-        exception IllegalToken of string    // Raised if a token is malformed
         
         ///////////////////////////////////////////////////////////////////
 
-        module Date =
+        module internal Date =
             
             let dateFormat = "yyyy-MM-dd HH:mm:ss zzz" // Always 26 characters long
 
@@ -117,8 +115,6 @@ module Auth =
 
     ///////////////////////////////////////////////////////////////////////
 
-    exception AuthenticationFailed
-
     /// Retrieves an encoded token for the user {user}, together with an expiration date/time.
     /// Raises AuthenticationFailed if the credentials are incorrect
     /// The result is a tuple: (encodedToken, tokenExpiration) aka (string * System.DateTime)
@@ -128,9 +124,9 @@ module Auth =
         (Token.encode token, token.expires)
 
     /// Retrieves the account for which {token} is a reference to.
-    /// Raises Auth.Token.IllegalToken if the token is malformed
-    /// Raises Auth.Token.TokenExpired if the token has expired
+    /// Raises AuthExceptions.IllegalToken if the token is malformed
+    /// Raises AuthExceptions.TokenExpired if the token has expired
     let accessAccount token =
         let t = Token.decode token
-        if (Token.isExpired t) then raise Token.TokenExpired
+        if (Token.isExpired t) then raise TokenExpired
         Account.getByUsername t.user

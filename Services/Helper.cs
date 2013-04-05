@@ -199,8 +199,8 @@ namespace RentIt.Services
                                         : PermissionsUtil.Invoker.NewAuth(ControlledAuth.accessAccount(token));
             }
             catch (PermissionExceptions.AccountBanned) { throw new PermissionExceptions.PermissionDenied("Account is banned"); }
-            catch (Auth.Token.IllegalToken) { throw new PermissionExceptions.PermissionDenied("Token is illegal"); }
-            catch (Auth.Token.TokenExpired) { throw new PermissionExceptions.PermissionDenied("Token is expired"); }
+            catch (AuthExceptions.IllegalToken) { throw new PermissionExceptions.PermissionDenied("Token is illegal"); }
+            catch (AuthExceptions.TokenExpired) { throw new PermissionExceptions.PermissionDenied("Token is expired"); }
         }
 
         #endregion
