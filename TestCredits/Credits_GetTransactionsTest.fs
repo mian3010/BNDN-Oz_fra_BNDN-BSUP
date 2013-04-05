@@ -21,6 +21,7 @@
         trans.Length |> should equal 2
       finally
         Helper.removeTestProduct test
+        Helper.removeTestProduct (test+"2")
 
     [<Fact>]
     let ``Test get transactions for user that does not exist``() =
