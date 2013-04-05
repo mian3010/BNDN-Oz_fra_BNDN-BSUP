@@ -42,12 +42,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Credits.fsi" />
+    <Compile Include="Credits.fs" />
+    <Compile Include="CreditsPermissions.fs" />
     <Compile Include="ControlledCredits.fsi" />
     <Compile Include="ControlledCredits.fs" />
     <Compile Include="CreditsPersistence.fsi" />
     <Compile Include="CreditsPersistenceHelper.fs" />
     <Compile Include="CreditsPersistence.fs" />
-    <Compile Include="Credits.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Account\Account.fsproj">

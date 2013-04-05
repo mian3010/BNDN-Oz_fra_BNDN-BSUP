@@ -64,23 +64,6 @@ module Product =
   val update : Product -> Product
 
   /// <summary>
-  /// Buy a product
-  /// </summary>
-  // <typeparam> Product id </typeparam>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  val buyProduct : int -> 'a
-
-  /// <summary>
-  /// Rent a product
-  /// </summary>
-  // <typeparam> Product id </typeparam>
-  // <typeparam> Number of days </typeparam>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  val rentProduct : int -> int -> 'a
-
-  /// <summary>
   /// Rate Product
   ///</summary>
   /// <typeparam> Product id </typeparam>

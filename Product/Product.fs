@@ -37,9 +37,9 @@ module Product =
     try
       ProductPersistence.createProduct p
     with
-      | ProductPersistence.ProductAlreadyExists -> raise ProductAlreadyExists
-      | ProductPersistence.NoSuchUser           -> raise NoSuchUser
-      | ProductPersistence.NoSuchProductType    -> raise NoSuchProductType
+      | ProductAlreadyExists -> raise ProductAlreadyExists
+      | NoSuchUser           -> raise NoSuchUser
+      | NoSuchProductType    -> raise NoSuchProductType
 
   /// <summary>
   /// Creater
@@ -89,8 +89,8 @@ module Product =
         returnList := returnList.Value @ ProductPersistence.getProductByType s
       returnList.Value
     with
-      | ProductPersistence.NoSuchProduct     -> raise NoSuchProduct
-      | ProductPersistence.NoSuchProductType -> raise NoSuchProductType
+      | NoSuchProduct     -> raise NoSuchProduct
+      | NoSuchProductType -> raise NoSuchProductType
   
   /// <summary>
   /// Get prodcut by product id
@@ -104,7 +104,7 @@ module Product =
     try
       ProductPersistence.getProductById id
     with
-      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
+      | NoSuchProduct -> raise NoSuchProduct
     
   /// <summary>
   /// Get products by product name
@@ -119,7 +119,7 @@ module Product =
     try
       ProductPersistence.getProductByName pName
     with
-      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
+      | NoSuchProduct -> raise NoSuchProduct
 
   /// <summary>
   /// Get all products by product type
@@ -135,8 +135,8 @@ module Product =
     try
       if typeName.Trim().Length = 0 then getAll() else ProductPersistence.getProductByType typeName
     with
-      | ProductPersistence.NoSuchProduct     -> raise NoSuchProduct
-      | ProductPersistence.NoSuchProductType -> raise NoSuchProductType
+      | NoSuchProduct     -> raise NoSuchProduct
+      | NoSuchProductType -> raise NoSuchProductType
 
   /// <summary>
   /// Update existing product
@@ -155,28 +155,9 @@ module Product =
     try
       ProductPersistence.updateProduct p
     with
-      | ProductPersistence.ProductAlreadyExists -> raise ProductAlreadyExists
-      | ProductPersistence.NoSuchUser           -> raise NoSuchUser
-      | ProductPersistence.NoSuchProductType    -> raise NoSuchProductType
-
-  /// <summary>
-  /// Buy a product
-  /// </summary>
-  // <typeparam> Product id </typeparam>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  let buyProduct (pId:int) =
-    raise (new System.NotImplementedException())
-
-  /// <summary>
-  /// Rent a product
-  /// </summary>
-  // <typeparam> Product id </typeparam>
-  // <typeparam> Number of days </typeparam>
-  /// <exception> RentIt.Product.NoSuchProduct </exception>
-  /// <exception> RentIt.Product.ArgumentException </exception>
-  let rentProduct (pId:int) (days:int) =
-    raise (new System.NotImplementedException())
+      | ProductAlreadyExists -> raise ProductAlreadyExists
+      | NoSuchUser           -> raise NoSuchUser
+      | NoSuchProductType    -> raise NoSuchProductType
 
   /// <summary>
   /// Rate Product
@@ -193,7 +174,7 @@ module Product =
     try
       ProductPersistence.rateProduct pId user rating
     with
-      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
+      | NoSuchProduct -> raise NoSuchProduct
 
   /// <summary>
   /// Change Published-flag on Product
@@ -207,7 +188,7 @@ module Product =
     try
       ProductPersistence.publishProduct pId status
     with
-      | ProductPersistence.NoSuchProduct -> raise NoSuchProduct
+      | NoSuchProduct -> raise NoSuchProduct
 
   /// <summary>
   /// Removes unpublished products from a list of products

@@ -15,6 +15,7 @@
     /// <returns> Whether or not add was successfull </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.AccountExceptions.InvalidCredits </exception>
+    /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
     val purchaseCredits : Invoker -> Account -> int -> bool
 
@@ -28,6 +29,7 @@
     /// <exception> RentIt.CreditsExceptions.NotEnoughCredits </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
+    /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
     val buyProduct : Invoker -> Account -> Product -> bool
 
@@ -41,6 +43,7 @@
     /// <exception> RentIt.CreditsExceptions.NotEnoughCredits </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
+    /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
     val rentProduct : Invoker -> Account -> Product -> int -> System.DateTime
 
@@ -51,6 +54,7 @@
     /// <typeparam> Id of the transaction </typeparam>
     /// <returns> RentOrBuy that corresponds to the transaction </returns>
     /// <exception> RentIt.CreditsException.NoSuchTransaction </exception>
+    /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
     val getTransaction : Invoker -> int -> RentOrBuy
 
@@ -60,6 +64,7 @@
     /// <typeparam> The account to get transactions for </typeparam>
     /// <returns> RentOrBuy list that corresponds to the account </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
+    /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
     val getTransactions : Invoker -> Account -> RentOrBuy List
 
@@ -71,6 +76,7 @@
     /// <typeparam> Whether or not it should be rent or buy. 0 = buy, 1 = rent </typeparam>
     /// <returns> RentOrBuy list that corresponds to the account and type </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
+    /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
     val getTransactionsByType : Invoker -> Account -> bool -> RentOrBuy List
 
@@ -83,5 +89,6 @@
     /// <returns> Whether or not access is granted </returns>
     /// <exception> RentIt.AccountExceptions.NoSuchUser </exception>
     /// <exception> RentIt.ProductExceptions.NoSuchProduct </exception>
+    /// <exception> RentIt.PermissionsExceptions.AccountBanned </exception>
     /// <exception> RentIt.PermissionsExceptions.PermissionDenied </exception>
     val checkAccessToProduct : Invoker -> Account -> Product -> bool

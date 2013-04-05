@@ -1,14 +1,8 @@
 ﻿namespace RentIt
 
 module ProductPersistence =
-
-  type Product = ProductTypes.Product
-  
-  exception NoSuchProduct
-  exception NoSuchProductType
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ProductAlreadyExists
+  open ProductTypes
+  open ProductExceptions
   
   /// <summary>
   /// Creater in persistence layer

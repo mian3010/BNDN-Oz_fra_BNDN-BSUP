@@ -134,6 +134,7 @@ namespace RentIt.Services
             }
         }
 
+        // Converts a string to stream
         private Stream asStream(string str)
         {
             byte[] byteArray = Encoding.UTF8.GetBytes(str);
