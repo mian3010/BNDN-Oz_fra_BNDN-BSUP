@@ -61,6 +61,13 @@ open System
         if (prodType.Length < 1) then raise ProductExceptions.NoSuchProductType
         else prodType.Head
 
+      let internal getPublishedFilter (showPublished:PublishedStatus) =
+        let objectName = "Product"
+        match showPublished with
+          | Published   -> Persistence.FilterGroup.createSingleFilterGroup [] objectName "Published" "1"
+          | Unpublished -> Persistence.FilterGroup.createSingleFilterGroup [] objectName "Published" "0"
+          | _           -> []
+
       //Get option from a database format string
       let internal getOptionFromValue value =
         if not (value.Equals "") then Some value else None;

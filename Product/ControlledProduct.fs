@@ -1,13 +1,7 @@
 ﻿namespace RentIt
+open PermissionsUtil
 
 module ControlledProduct =
-    
-    type Invoker =     Auth of AccountTypes.Account   // authenticated invokers
-                     | Unauth                    // anonymous invokers
-
-    type Access =       Accepted
-                      | Denied         // Reason why it was denied
-
     exception AccountBanned              // Raised when a banned invoker attempts to perform an action
     exception PermissionDenied
         
@@ -16,10 +10,6 @@ module ControlledProduct =
     open Product
 
     module internal Internal =
-
-            
-        type CheckTarget =     Other of   Permissions.Target
-                             | Type of    string
 
         let own = CheckTarget.Other Permissions.Target.Own
         let any = CheckTarget.Other Permissions.Target.Any
@@ -36,13 +26,13 @@ module ControlledProduct =
                                                                         | Other x -> check x
                                                                         | Type t  -> check (Permissions.Target.Type t)
                                                     if hasPermission then Access.Accepted
-                                                    else Access.Denied
+                                                    else Access.Denied "MORTEN WRITE SOMETHING HERE"
 
         let checkAllowed (invoker:Invoker) (access:Access) =
             match invoker with
                 | Invoker.Auth auth when auth.banned -> raise AccountBanned
                 | _                                  -> match access with
-                                                        | Access.Denied         -> raise PermissionDenied
+                                                        | Access.Denied string         -> raise PermissionDenied
                                                         | Access.Accepted       -> ignore; // Return normally in this case
                                                         
 
@@ -72,7 +62,7 @@ module ControlledProduct =
     ///
     ///
     let getProductById (invoker:Invoker) (id:int) =
-        let product = Product.getProductById(id)
+        (*let product = Product.getProductById(id)
         if(product.owner = (invokerToId invoker)) then
             let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
@@ -80,7 +70,8 @@ module ControlledProduct =
          else
             let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.getProductById id
+            Product.getProductById id*)
+            ()
 
     ///
     ///
@@ -99,19 +90,20 @@ module ControlledProduct =
     ///
     ///
     let update (invoker:Invoker) (p:Product) =
-        if((invokerToId invoker) = p.owner) then 
+        (*if((invokerToId invoker) = p.owner) then 
             let allowed = Internal.checkUser invoker "EDIT" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
             Product.update p
         else 
             let allowed = Internal.checkUser invoker "EDIT" (CheckTarget.Type "Any")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.update p
+            Product.update p*)
+            ()
 
     ///
     ///
     let publish (invoker:Invoker) (pId:int) (status:bool) =
-        let product = Product.getProductById(pId)
+        (*let product = Product.getProductById(pId)
         if((invokerToId invoker) = product.owner) then
             let allowed = Internal.checkUser invoker "PUBLISH" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
@@ -120,7 +112,8 @@ module ControlledProduct =
         else
             let allowed = Internal.checkUser invoker "PUBLISH" (CheckTarget.Type "Any")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.publishProduct pId status
+            Product.publishProduct pId status*)
+            ()
     
     ///
     ///

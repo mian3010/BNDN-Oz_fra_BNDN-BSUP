@@ -4,14 +4,8 @@ open System
 open ProductPersistenceHelper
 
 module ProductPersistence =
-
-  type Product = ProductTypes.Product
-  
-  exception NoSuchProduct
-  exception NoSuchProductType
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ProductAlreadyExists
+  open ProductTypes
+  open ProductExceptions
     
   let objectName = "Product"
   /// <summary>
@@ -193,3 +187,31 @@ module ProductPersistence =
     filtersQ := Persistence.Filter.createFilterProc !filtersQ "MetaData" "Content" search Persistence.Filter.anyBeforeAndAfter
     let filterGroup = Persistence.FilterGroup.createFilterGroupFiltersProc [] !filtersQ Persistence.FilterGroup.orCondition
     convertFromResults (Persistence.Api.read fieldsQ objectName joinsQ filterGroup)
+
+  let getAllProducts (showPublished:PublishedStatus) =
+    let objectName = "Product"
+    let filtersQ = getPublishedFilter showPublished
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    convertFromResults (Persistence.Api.read fieldsQ objectName [] filtersQ)
+
+  let getAllProductsByUser (userName:string) (showPublished:PublishedStatus) =
+    let objectName = "Product"
+    let filtersQ = ref (getPublishedFilter showPublished)
+    filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "User_Username" userName
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)
+  
+  let getAllProductsByType (pType:string) (showPublished:PublishedStatus) =
+    let objectName = "Product"
+    let filtersQ = ref (getPublishedFilter showPublished)
+    filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "ProductType_Name" pType
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)
+
+  let getAllProductsByUserAndTitle (userName:string) (title:string) (showPublished:PublishedStatus) =
+    let objectName = "Product"
+    let filtersQ = ref (getPublishedFilter showPublished)
+    filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "User_Username" userName
+    filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "Name" title
+    let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
+    convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)

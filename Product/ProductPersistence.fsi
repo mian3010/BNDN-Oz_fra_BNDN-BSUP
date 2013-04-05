@@ -1,14 +1,8 @@
 ﻿namespace RentIt
 
 module ProductPersistence =
-
-  type Product = ProductTypes.Product
-  
-  exception NoSuchProduct
-  exception NoSuchProductType
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ProductAlreadyExists
+  open ProductTypes
+  open ProductExceptions
   
   /// <summary>
   /// Creater in persistence layer
@@ -87,3 +81,11 @@ module ProductPersistence =
   val getListOfProductTypes : unit -> string[]
 
   val searchProducts : string -> Product list
+
+  val getAllProducts : PublishedStatus -> Product List
+
+  val getAllProductsByUser : string -> PublishedStatus -> Product List
+
+  val getAllProductsByType : string -> PublishedStatus -> Product List
+
+  val getAllProductsByUserAndTitle : string -> string -> PublishedStatus -> Product List
