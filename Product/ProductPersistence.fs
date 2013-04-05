@@ -4,14 +4,8 @@ open System
 open ProductPersistenceHelper
 
 module ProductPersistence =
-
-  type Product = ProductTypes.Product
-  
-  exception NoSuchProduct
-  exception NoSuchProductType
-  exception NoSuchUser
-  exception ProductNotPublished
-  exception ProductAlreadyExists
+  open ProductTypes
+  open ProductExceptions
     
   let objectName = "Product"
   /// <summary>
@@ -193,3 +187,15 @@ module ProductPersistence =
     filtersQ := Persistence.Filter.createFilterProc !filtersQ "MetaData" "Content" search Persistence.Filter.anyBeforeAndAfter
     let filterGroup = Persistence.FilterGroup.createFilterGroupFiltersProc [] !filtersQ Persistence.FilterGroup.orCondition
     convertFromResults (Persistence.Api.read fieldsQ objectName joinsQ filterGroup)
+
+  let getAllProducts (showPublished:PublishedStatus) =
+    raise (System.NotImplementedException())
+
+  let getAllProductsByUser (userName:string) (showPublished:PublishedStatus) =
+    raise (System.NotImplementedException())
+  
+  let getAllProductsByType (pType:string) (showPublished:PublishedStatus) =
+    raise (System.NotImplementedException())
+
+  let getAllProductsByUserAndName (userName:string) (name:string) (showPublished:PublishedStatus) =
+    raise (System.NotImplementedException())
