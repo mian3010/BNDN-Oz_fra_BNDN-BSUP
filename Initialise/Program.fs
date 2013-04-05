@@ -34,14 +34,14 @@ module Main =
     Persistence.Api.delete "Transaction" [] |> ignore
     Persistence.Api.delete "ProductRating" [] |> ignore
     Persistence.Api.delete "ActionGroup_has_AllowedAction" [] |> ignore
-    Persistence.Api.delete "AllowedAction" [] |> ignore
     Persistence.Api.delete "UserType_has_ActionGroup" [] |> ignore
+    Persistence.Api.delete "Product_has_AllowedAction" [] |> ignore
+    Persistence.Api.delete "AllowedAction" [] |> ignore
     Persistence.Api.delete "ActionGroup" [] |> ignore
     Persistence.Api.delete "Log" [] |> ignore
     Persistence.Api.delete "LogEntryType" [] |> ignore
     Persistence.Api.delete "MetaData" [] |> ignore
     Persistence.Api.delete "MetaDataType" [] |> ignore
-    Persistence.Api.delete "Product_has_AllowedAction" [] |> ignore
     Persistence.Api.delete "Product" [] |> ignore
     Persistence.Api.delete "User" [] |> ignore
     Persistence.Api.delete "UserType" [] |> ignore
