@@ -115,7 +115,10 @@ module ControlledProduct =
         if((invokerToId invoker) = product.owner) then
             let allowed = Internal.checkUser invoker "PUBLISH" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.publishProduct pId status
+            try
+                Product.publishProduct pId status
+            with
+                | :?ArgumentException -> raise 
 
         else
             let allowed = Internal.checkUser invoker "PUBLISH" (CheckTarget.Type "Any")
