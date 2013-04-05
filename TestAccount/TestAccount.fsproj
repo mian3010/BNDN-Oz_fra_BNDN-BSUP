@@ -58,8 +58,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountPersistence_CreateAccount.fs" />
+    <Compile Include="Account_CreateAccount.fs" />
     <None Include="App.config" />
+    <Compile Include="AccountPersistence_PersistAccount.fs" />
+    <Compile Include="AccountPersistence_UpdateAccount.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Account\Account.fsproj">

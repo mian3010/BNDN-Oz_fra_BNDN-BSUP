@@ -30,9 +30,9 @@
         acc.banned      |> should equal false
         acc.email       |> should equal email
         acc.info        |> should equal extra
-        acc.password    |> should equal pass
+        acc.password    |> should equal (Account.Password.create pass)
         acc.user        |> should equal user
-        acc.version     |> should equal 1
+        acc.version     |> should equal (uint32 0)
       finally
         Helper.removeTestProduct test
 
@@ -48,9 +48,9 @@
         acc.banned      |> should equal false
         acc.email       |> should equal email
         acc.info        |> should equal extra
-        acc.password    |> should equal pass
+        acc.password    |> should equal (Account.Password.create pass)
         acc.user        |> should equal user
-        acc.version     |> should equal 1
+        acc.version     |> should equal (uint32 0)
       finally
         Helper.removeTestProduct test
 
@@ -66,8 +66,8 @@
         acc.banned      |> should equal false
         acc.email       |> should equal email
         acc.info        |> should equal extra
-        acc.password    |> should equal pass
+        acc.password    |> should equal (Account.Password.create pass)
         acc.user        |> should equal user
-        acc.version     |> should equal 1
+        acc.version     |> should equal (uint32 0)
       finally
         Helper.removeTestProduct test
