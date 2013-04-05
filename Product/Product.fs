@@ -272,8 +272,8 @@ module Product =
   let getAllProductsByType (pType:string) (showPublished:PublishedStatus) =
     ProductPersistence.getAllProductsByType pType showPublished
 
-  let getAllProductsByUserAndName (userName:string) (name:string) (showPublished:PublishedStatus) =
-    ProductPersistence.getAllProductsByUserAndName userName name showPublished
+  let getAllProductsByUserAndTitle (userName:string) (title:string) (showPublished:PublishedStatus) =
+    ProductPersistence.getAllProductsByUserAndTitle userName title showPublished
 
   /// <summary>
   /// Checks if a media file is avalible for the given product
