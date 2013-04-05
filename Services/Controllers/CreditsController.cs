@@ -88,9 +88,13 @@ namespace RentIt.Services.Controllers
 
                 List<uint> returnList = new List<uint>();
 
+                // TODO: Only do these things, if they are known not to fail. Undo rents/buys made before error.
                 foreach (PurchaseData p in data)
                 {
                     ProductTypes.Product product = ControlledProduct.getProductById(invoker, (int) p.product);
+
+                    if (!product.published) return _h.Failure(409);
+
                     if (p.purchased.Equals("B"))
                     {
                         var result = _h.OrNull(ControlledCredits.buyProduct(invoker, account, product));
@@ -103,7 +107,10 @@ namespace RentIt.Services.Controllers
 
                         if (result != null) returnList.Add((uint)result.item.id);
                     }
+                    else return _h.Failure(400); // Invalid letter
                 }
+
+                if (returnList.Count == 0) return _h.Failure(400); // Empty list
 
                 _h.Success();
                 return _j.Json(returnList);
@@ -112,9 +119,8 @@ namespace RentIt.Services.Controllers
             catch (CreditsExceptions.NotEnoughCredits)      { return _h.Failure(402); }
             catch (PermissionExceptions.AccountBanned)      { return _h.Failure(403); }
             catch (PermissionExceptions.PermissionDenied)   { return _h.Failure(403); }
-            catch (ProductExceptions.NoSuchProduct)         { return _h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct)         { return _h.Failure(409); }
             catch (AccountExceptions.NoSuchUser)            { return _h.Failure(404); }
-            catch (AccountExceptions.NoSuchUser)            { return _h.Failure(409); }
             catch (Exception)                               { return _h.Failure(500); }
         }
 
@@ -122,18 +128,20 @@ namespace RentIt.Services.Controllers
         {
             try
             {
+                uint tId;
+                try { tId = _h.Uint(id); }
+                catch (BadRequestException) { throw new NotFoundException(); }
+
                 var invoker = _h.Authorize();
 
-                AccountTypes.Account account = ControlledAccount.getByUsername(invoker, customer);
-
-                CreditsTypes.RentOrBuy rentOrBuy = ControlledCredits.getTransaction(invoker, (int) _h.Uint(id));
+                CreditsTypes.RentOrBuy rentOrBuy = ControlledCredits.getTransaction(invoker, (int) tId);
                 PurchaseData returnData = _c.Convert(rentOrBuy);
 
                 _h.Success();
                 return _j.Json(returnData);
             }
+            catch (NotFoundException) { return _h.Failure(404); }
             catch (CreditsExceptions.NoSuchTransaction) { return _h.Failure(404); }
-            catch (AccountExceptions.NoSuchUser) { return _h.Failure(404); }
             catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
             catch (Exception) { return _h.Failure(500); }
@@ -145,15 +153,24 @@ namespace RentIt.Services.Controllers
             {
                 // VERIFY
 
-                uint pId;
-                try { pId = _h.Uint(id); }
+                uint tId;
+                try { tId = _h.Uint(id); }
                 catch (BadRequestException) { throw new NotFoundException(); }
 
                 var invoker = _h.Authorize();
 
                 // LOAD
 
-                var result = Product.getMedia(pId);
+                CreditsTypes.RentOrBuy rentOrBuy = ControlledCredits.getTransaction(invoker, (int)tId);
+                PurchaseData returnData = _c.Convert(rentOrBuy);
+
+                AccountTypes.Account account = ControlledAccount.getByUsername(invoker, customer);
+
+                ProductTypes.Product product = ControlledProduct.getProductById(invoker, (int) returnData.product);
+
+                if(!ControlledCredits.checkAccessToProduct(invoker, account, product)) return _h.Failure(410);
+
+                var result = Product.getMedia(returnData.product);
 
                 // SIGNAL SUCCESS
 
@@ -164,9 +181,10 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { return _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (AccountExceptions.NoSuchUser) { return _h.Failure(404); }
             catch (NotFoundException) { return _h.Failure(404); }
-            catch (ProductExceptions.NoSuchProduct) { return _h.Failure(404); }
-            catch (ProductExceptions.NoSuchMedia) { return _h.Failure(404); }
+            catch (ProductExceptions.NoSuchProduct) { return _h.Failure(410); }
+            catch (ProductExceptions.NoSuchMedia) { return _h.Failure(410); }
             catch (Exception) { return _h.Failure(500); }
         }
     }
