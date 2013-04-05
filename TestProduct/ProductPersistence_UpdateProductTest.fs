@@ -3,6 +3,7 @@
   open FsUnit.Xunit
   open RentIt.ProductTypes
   open RentIt.ProductPersistence
+  open RentIt.ProductExceptions
 
   module TestUpdateProduct =
     [<Fact>]

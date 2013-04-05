@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.ServiceModel.Web;
-using System.Web;
 using Microsoft.FSharp.Core;
-using Microsoft.FSharp.Collections;
 using System.IO;
 
 namespace RentIt.Services
@@ -34,8 +32,6 @@ namespace RentIt.Services
         /// <returns></returns>
         public HttpStatusCode Status(uint code)
         {
-            OutgoingWebResponseContext response = GetResponse();
-
             #region switch over HTTP Status code
             switch (code)
             {
@@ -199,8 +195,8 @@ namespace RentIt.Services
         {
             try
             {
-                if (token == null) return PermissionsUtil.Invoker.Unauth;
-                else return PermissionsUtil.Invoker.NewAuth(ControlledAuth.accessAccount(token));
+                return token == null    ? PermissionsUtil.Invoker.Unauth 
+                                        : PermissionsUtil.Invoker.NewAuth(ControlledAuth.accessAccount(token));
             }
             catch (PermissionExceptions.AccountBanned) { throw new PermissionExceptions.PermissionDenied("Account is banned"); }
             catch (Auth.Token.IllegalToken) { throw new PermissionExceptions.PermissionDenied("Token is illegal"); }
@@ -258,7 +254,7 @@ namespace RentIt.Services
         {
             try
             {
-                return System.UInt32.Parse(value);
+                return UInt32.Parse(value);
             }
             catch (Exception) {  throw new BadRequestException(); }
         }
@@ -273,7 +269,7 @@ namespace RentIt.Services
         {
 
             HashSet<string> controlSet = new HashSet<string>();
-            foreach (char c in types.ToCharArray()) controlSet.Add(c.ToString());
+            foreach (char c in types) controlSet.Add(c.ToString());
             if (!controlSet.IsSubsetOf(new string[] { "A", "C", "P" })) throw new BadRequestException(); // Only A, C, and P is allowed
 
             HashSet<string> resultSet = new HashSet<string>();
@@ -332,7 +328,6 @@ namespace RentIt.Services
                 B temp = func(i);
 
                 if (temp != null){
-                    
                     list.AddFirst(temp);
                     c++;
                 }
@@ -362,7 +357,7 @@ namespace RentIt.Services
             {
                 if (e == null) continue;
 
-                result += e.ToString() + delimiter;
+                result += e + delimiter;
             }
 
             return result.Substring(0, result.Length-delimiter.Length);
@@ -407,8 +402,7 @@ namespace RentIt.Services
         public B OrNull<A, B>(Nullable<A> option, Func<A, B> func)  where A : struct
                                                                     where B : class
         {
-            if (option.HasValue) return func(option.Value);
-            else return null;
+            return option.HasValue ? func(option.Value) : null;
         }
 
         /// <summary>

@@ -127,6 +127,14 @@ module Product =
 
   val searchProducts : string -> Product list
 
+  val getAllProducts : PublishedStatus -> Product List
+
+  val getAllProductsByUser : string -> PublishedStatus -> Product List
+
+  val getAllProductsByType : string -> PublishedStatus -> Product List
+
+  val getAllProductsByUserAndTitle : string -> string -> PublishedStatus -> Product List
+
   /// <summary>
   /// Checks if a media file is avalible for the given product
   ///</summary>

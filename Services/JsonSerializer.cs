@@ -4,23 +4,21 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Web;
 
 namespace RentIt.Services
 {
     public class JsonSerializer
     {
-        private Helper h;
+        private readonly Helper _h;
 
         public JsonSerializer(Helper helper)
         {
-            h = helper;
+            _h = helper;
         }
 
         // The types this JsonSerializer is able to handle
-        private IEnumerable<Type> types = new Type[]{
+        private readonly IEnumerable<Type> _types = new Type[]{
                                                         typeof(TokenData),
                                                         typeof(AccountData),
                                                         typeof(ProductData),
@@ -41,7 +39,7 @@ namespace RentIt.Services
         // Converts an object to JSON format, leaving any null value out. Returns the result as string.
         public string JsonString<T>(T obj)
         {
-            if (!types.Contains(obj.GetType())) throw new Exception("Could not serialize given object - its class is not supported.");
+            if (!_types.Contains(obj.GetType())) throw new Exception("Could not serialize given object - its class is not supported.");
 
             // Collect all properties to serialize to JSOn
             var properties = new Dictionary<string, string>();
@@ -71,7 +69,7 @@ namespace RentIt.Services
                 result[c++] = "\"" + kv.Key + "\":" + kv.Value;
             }
 
-            return "{" + h.Join(result, ",") + "}";
+            return "{" + _h.Join(result, ",") + "}";
         }
 
         // Converts an object to JSON format, only including those properties which have been specified to be included
@@ -85,9 +83,9 @@ namespace RentIt.Services
         // Converts multiple objects to JSON format
         public Stream Json<T>(T[] objects)
         {
-            var values = h.Map(objects, o => Json(o));
+            var values = _h.Map(objects, o => Json(o));
 
-            return asStream("[" + h.Join(values, ",") + "]");
+            return asStream("[" + _h.Join(values, ",") + "]");
         }
 
         // Converts multiple objects to JSON format, only including those properties which have been specified to be included
@@ -95,19 +93,19 @@ namespace RentIt.Services
         {
             var keepSet = new HashSet<string>(keep);
 
-            var values = h.Map(objects, o => Json(nullOutBut(o, keepSet)));
+            var values = _h.Map(objects, o => Json(nullOutBut(o, keepSet)));
 
-            return asStream("[" + h.Join(values, ",") + "]");
+            return asStream("[" + _h.Join(values, ",") + "]");
         }
 
         public Stream Json(string[] strings) 
         {
-            return asStream("[" + h.Join(h.Map(strings, s => escape(s)), ",") + "]");
+            return asStream("[" + _h.Join(_h.Map(strings, s => escape(s)), ",") + "]");
         }
 
         public Stream Json(uint[] intArray)
         {
-            return asStream("[" + h.Join(intArray, ",") + "]");
+            return asStream("[" + _h.Join(intArray, ",") + "]");
         }
 
         // Causes any property but those specified by keep to be set to null

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using Microsoft.FSharp.Core;
 using Microsoft.FSharp.Collections;
 
@@ -12,11 +9,11 @@ namespace RentIt.Services
     /// </summary>
     public class CoreConverter
     {
-        private Helper h;
+        private readonly Helper _h;
 
         public CoreConverter(Helper helper) {
 
-            h = helper;
+            _h = helper;
         }
 
         #region TokenData
@@ -26,9 +23,9 @@ namespace RentIt.Services
             if (t == null) return null;
 
             string token = t.Item1;
-            string expires = JsonUtility.dateTimeToString(t.Item2);
+            string expires = JsonUtility.DateTimeToString(t.Item2);
 
-            return new TokenData() { token = token, expires = expires };
+            return new TokenData { token = token, expires = expires };
         }
 
         #endregion
@@ -46,15 +43,15 @@ namespace RentIt.Services
                 password = null,
                 type = a.accType,
                 banned = a.banned,
-                name = h.OrNull(a.info.name),
-                address = h.OrNull(a.info.address.address),
-                postal = h.OrNulled(a.info.address.postal, i => (uint)i),
-                country = h.OrNull(a.info.address.country),
-                birth = h.OrNull(a.info.birth, JsonUtility.dateToString),
-                about = h.OrNull(a.info.about),
-                credits = h.OrNulled(a.info.credits, i => (uint)i),
-                created = JsonUtility.dateTimeToString(a.created),
-                authenticated = h.OrNull(authenticated, JsonUtility.dateTimeToString)
+                name = _h.OrNull(a.info.name),
+                address = _h.OrNull(a.info.address.address),
+                postal = _h.OrNulled(a.info.address.postal, i => (uint)i),
+                country = _h.OrNull(a.info.address.country),
+                birth = _h.OrNull(a.info.birth, JsonUtility.DateToString),
+                about = _h.OrNull(a.info.about),
+                credits = _h.OrNulled(a.info.credits, i => (uint)i),
+                created = JsonUtility.DateTimeToString(a.created),
+                authenticated = _h.OrNull(authenticated, JsonUtility.DateTimeToString)
             };
         }
 
@@ -73,14 +70,13 @@ namespace RentIt.Services
             if (src == null) return Convert(update);
 
             return new AccountTypes.Account(
-
-                update.user == null ? src.user : update.user,
-                update.email == null ? src.email : update.email,
+                update.user ?? src.user,
+                update.email ?? src.email,
                 update.password == null ? src.password : Account.Password.create(update.password),
-                update.created == null ? src.created : JsonUtility.stringToDateTime(update.created),
+                update.created == null ? src.created : JsonUtility.StringToDateTime(update.created),
                 update.banned == null ? src.banned : (bool) update.banned,
                 Merge(src.info, update),
-                update.type == null ? src.accType : update.type,
+                update.type ?? src.accType,
                 src.version
             );
         }
@@ -88,19 +84,17 @@ namespace RentIt.Services
         public AccountTypes.ExtraAccInfo ConvertToExtra(AccountData a)
         {
             if (a == null) return new AccountTypes.ExtraAccInfo(
-                
                                 FSharpOption<string>.None,
-                                ConvertToAddress((AccountData) null),
+                                ConvertToAddress(null),
                                 FSharpOption<DateTime>.None,
                                 FSharpOption<string>.None,
                                 FSharpOption<int>.None
                             );
 
             return new AccountTypes.ExtraAccInfo(
-
                 new FSharpOption<string>(a.name),
-                ConvertToAddress((AccountData) a),
-                FSharpOption<DateTime>.Some(JsonUtility.stringToDate(a.birth)),
+                ConvertToAddress(a),
+                FSharpOption<DateTime>.Some(JsonUtility.StringToDate(a.birth)),
                 new FSharpOption<string>(a.about),
                 a.credits == null ? FSharpOption<int>.None : FSharpOption<int>.Some((int) a.credits)
             );
@@ -112,10 +106,9 @@ namespace RentIt.Services
             if (src == null) return ConvertToExtra(update);
 
             return new AccountTypes.ExtraAccInfo(
-
                 update.name == null ? src.name : new FSharpOption<string>(update.name),
                 Merge(src.address, update),
-                update.birth == null ? src.birth : new FSharpOption<DateTime>(JsonUtility.stringToDate(update.created)),
+                update.birth == null ? src.birth : new FSharpOption<DateTime>(JsonUtility.StringToDate(update.created)),
                 update.about == null ? src.about : new FSharpOption<string>(update.about),
                 update.credits == null ? src.credits : FSharpOption<int>.Some((int) update.credits)
             );
@@ -124,14 +117,12 @@ namespace RentIt.Services
         public AccountTypes.Address ConvertToAddress(AccountData a)
         {
             if (a == null) return new AccountTypes.Address(
-
                                 FSharpOption<string>.None,
                                 FSharpOption<int>.None,
                                 FSharpOption<string>.None
                             );
 
             return new AccountTypes.Address(
-
                 new FSharpOption<string>(a.address),
                 a.postal == null ? FSharpOption<int>.None : FSharpOption<int>.Some((int) a.postal),
                 new FSharpOption<string>(a.country)
@@ -144,7 +135,6 @@ namespace RentIt.Services
             if (src == null) return ConvertToAddress(update);
 
             return new AccountTypes.Address(
-                
                 update.address == null ? src.address : new FSharpOption<string>(update.address),
                 update.postal == null ? src.postal : FSharpOption<int>.Some((int) update.postal),
                 update.country == null ? src.country : new FSharpOption<string>(update.country)
@@ -159,14 +149,13 @@ namespace RentIt.Services
         {
             return new ProductData
             {
-
                 title = p.name,
-                description = h.OrNull(p.description),
+                description = _h.OrNull(p.description),
                 type = p.productType,
                 price = ConvertToPrice(p),
-                rating = Convert(h.OrNull(p.rating)),
+                rating = Convert(_h.OrNull(p.rating)),
                 owner = p.owner,
-                meta = Convert(h.OrNull(p.metadata)),
+                meta = Convert(_h.OrNull(p.metadata)),
                 published = p.published
             };
         }
@@ -189,14 +178,14 @@ namespace RentIt.Services
 
             return new ProductTypes.Product
             (
-                update.title == null ? src.name : update.title,
+                update.title ?? src.name,
                 src.createDate,
-                update.type == null ? src.productType : update.type,
-                update.owner == null ? src.owner : update.owner,
-                new FSharpOption<ProductTypes.Rating>(Merge(h.OrNull(src.rating), update.rating)),
+                update.type ?? src.productType,
+                update.owner ?? src.owner,
+                new FSharpOption<ProductTypes.Rating>(Merge(_h.OrNull(src.rating), update.rating)),
                 update.published == null ? src.published : (bool) update.published,
                 src.id,
-                new FSharpOption<FSharpMap<string, ProductTypes.Meta>>(Merge(h.OrNull(src.metadata), update.meta)),
+                new FSharpOption<FSharpMap<string, ProductTypes.Meta>>(Merge(_h.OrNull(src.metadata), update.meta)),
                 update.description == null ? src.description : new FSharpOption<string>(update.description),
                 update.price == null || update.price.rent == null ? src.rentPrice : FSharpOption<int>.Some((int) update.price.rent),
                 update.price == null || update.price.buy == null ? src.buyPrice : FSharpOption<int>.Some((int) update.price.buy)
@@ -209,9 +198,8 @@ namespace RentIt.Services
 
             return new PriceData
             {
-
-                buy = h.OrNulled(p.buyPrice, price => (uint)price),
-                rent = h.OrNulled(p.rentPrice, price => (uint)price)
+                buy = _h.OrNulled(p.buyPrice, price => (uint)price),
+                rent = _h.OrNulled(p.rentPrice, price => (uint)price)
             };
         }
 
@@ -247,8 +235,7 @@ namespace RentIt.Services
 
         public ProductTypes.Rating Merge(ProductTypes.Rating src, RatingData update)
         {
-            if (update == null) return src;
-            else return Convert(update);
+            return update == null ? src : Convert(update);
         }
 
         public MetaData Convert(ProductTypes.Meta m)
@@ -280,8 +267,8 @@ namespace RentIt.Services
 
             return new ProductTypes.Meta
             (
-                update.name == null ? src.key : update.name,
-                update.value == null ? src.value : update.value
+                update.name ?? src.key,
+                update.value ?? src.value
             );
         }
 
@@ -291,7 +278,7 @@ namespace RentIt.Services
 
             var result = MapModule.Empty<string, ProductTypes.Meta>();
 
-            foreach (var m in h.Map(meta, m => Convert(m)))
+            foreach (var m in _h.Map(meta, m => Convert(m)))
             {
                 result = result.Add(m.key, m);
             }
@@ -303,7 +290,7 @@ namespace RentIt.Services
         {
             if (meta == null || meta.Count == 0) return null;
             
-            return h.Map(meta, pair => Convert(pair.Value));
+            return _h.Map(meta, pair => Convert(pair.Value));
         }
 
         public FSharpMap<string, ProductTypes.Meta> Merge(FSharpMap<string, ProductTypes.Meta> src, MetaData[] update)
@@ -316,7 +303,6 @@ namespace RentIt.Services
                 if(m == null) continue;
                 if (src.ContainsKey(m.name))
                 {
-
                     var converted = Merge(src[m.name], m);
                     src = src.Add(converted.key, converted);
                 }
@@ -356,7 +342,6 @@ namespace RentIt.Services
         public IdData Convert(uint id)
         {
             return new IdData {
-            
                 id = id
             };
         }

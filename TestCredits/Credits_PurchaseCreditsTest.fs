@@ -1,13 +1,23 @@
 ﻿namespace RentIt.Test
   open Xunit
   open FsUnit.Xunit
-  open RentIt.CreditsPersistence
   open RentIt
 
-  module TestCheckAccessToProduct =
+  module TestPurchaseCredits =
     [<Fact>]
-    let ``Test check access to product with buy result``() =
-      let test = "TestCheckAccessToProductBuyAccess"
+    let ``Test purchase credits``() =
+      let test = "TestPurchaseCredits"
       try
-        let testProd1 = Helper.createTestProduct test
-        let testTrans1 = Helper.createTestBuyTransaction test
+        let testUser = Helper.createTestUser test
+        ()
+      finally
+        Helper.removeTestUser test
+
+    [<Fact>]
+    let ``Test purchase negative credits``() =
+      let test = "TestPurchaseCredits"
+      try
+        let testUser = Helper.createTestUser test
+        ()
+      finally
+        Helper.removeTestUser test

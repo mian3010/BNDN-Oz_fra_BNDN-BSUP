@@ -10,15 +10,15 @@ namespace RentIt.Services.Controllers
 {
     public class AuthenticationController
     {
-        private Helper h;
-        private JsonSerializer j;
-        private CoreConverter c;
+        private readonly Helper _h;
+        private readonly JsonSerializer _j;
+        private readonly CoreConverter _c;
 
         public AuthenticationController(Helper helper, JsonSerializer json, CoreConverter converter) {
 
-            h = helper;
-            j = json;
-            c = converter;
+            _h = helper;
+            _j = json;
+            _c = converter;
         }
 
         public Stream Authorize(string username, string password)
@@ -29,13 +29,13 @@ namespace RentIt.Services.Controllers
 
                 Tuple<string, DateTime> t = ControlledAuth.authenticate(username, password);
 
-                h.Success();
+                _h.Success();
 
-                return j.Json(c.Convert(t));
+                return _j.Json(_c.Convert(t));
             }
-            catch (Auth.AuthenticationFailed) { return h.Failure(401); }
-            catch (PermissionExceptions.AccountBanned) { return h.Failure(403); }
-            catch (Exception) { return h.Failure(500); }
+            catch (Auth.AuthenticationFailed) { return _h.Failure(401); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
+            catch (Exception) { return _h.Failure(500); }
         }
     }
 }
