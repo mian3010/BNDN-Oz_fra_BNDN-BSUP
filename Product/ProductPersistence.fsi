@@ -89,3 +89,5 @@ module ProductPersistence =
   val getAllProductsByType : string -> PublishedStatus -> Product List
 
   val getAllProductsByUserAndTitle : string -> string -> PublishedStatus -> Product List
+
+  val getMimeTypesForProductType : string -> string list

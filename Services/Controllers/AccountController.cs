@@ -78,6 +78,7 @@ namespace RentIt.Services.Controllers
             catch (BadRequestException) { return _h.Failure(400); }
             catch (AccountExceptions.UnknownAccType) { return _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (Exception) { return _h.Failure(500); }
         }
 
@@ -112,6 +113,7 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { return _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (AccountExceptions.NoSuchUser) { return _h.Failure(404); }
             catch (Exception) { return _h.Failure(500); }
         }
@@ -148,6 +150,7 @@ namespace RentIt.Services.Controllers
             catch (BadRequestException) { _h.Failure(400); }
             catch (AccountExceptions.BrokenInvariant) { _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
             catch (AccountExceptions.NoSuchUser) { _h.Failure(404); }
             catch (AccountExceptions.TooLargeData) { _h.Failure(413); }
             catch (Exception) { _h.Failure(500); }
@@ -180,7 +183,8 @@ namespace RentIt.Services.Controllers
             }
             catch (BadRequestException) { _h.Failure(400); } // TODO: Should also be returned for too long usernames, instead of 413 
             catch (AccountExceptions.BrokenInvariant) { _h.Failure(400); }
-            catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); } 
+            catch (PermissionExceptions.PermissionDenied) { _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { _h.Failure(403); }
             catch (AccountExceptions.UnknownAccType) { _h.Failure(400); }
             catch (AccountExceptions.UserAlreadyExists) { _h.Failure(409); }
             catch (AccountExceptions.TooLargeData) { _h.Failure(413); }
@@ -197,6 +201,7 @@ namespace RentIt.Services.Controllers
                 return _j.Json(ControlledAccount.getAcceptedCountries(invoker));
             }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
+            catch (PermissionExceptions.AccountBanned) { return _h.Failure(403); }
             catch (Exception) { return _h.Failure(500);  }
         }
     }

@@ -54,6 +54,7 @@ namespace RentIt.Services
                 if (typeof(String).IsInstanceOfType(value)) properties[p.Name] = escape((string)value);
                 else if (typeof(uint?).IsInstanceOfType(value)) properties[p.Name] = ((uint?)value).ToString();
                 else if (typeof(uint).IsInstanceOfType(value)) properties[p.Name] = ((uint)value).ToString();
+                else if (typeof(int).IsInstanceOfType(value)) properties[p.Name] = ((int)value).ToString();
                 else if (typeof(bool?).IsInstanceOfType(value)) properties[p.Name] = ((bool) value) ? "true" : "false";
                 else if (typeof(bool).IsInstanceOfType(value)) properties[p.Name] = ((bool) value) ? "true" : "false";
                 else properties[p.Name] = JsonString(value);

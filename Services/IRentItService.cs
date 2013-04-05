@@ -142,25 +142,21 @@ namespace RentIt
         #region Purchases
 
         [OperationContract]
-        [WebGet(    UriTemplate = "/accounts/{customer}/purchases",
-                    ResponseFormat = WebMessageFormat.Json)]
+        [WebGet(    UriTemplate = "/accounts/{customer}/purchases")]
         Stream DefaultGetPurchases(string customer);
 
         [OperationContract]
-        [WebGet(    UriTemplate = "/accounts/{customer}/purchases?purchases={purchases}&info={info}",
-                    ResponseFormat = WebMessageFormat.Json)]
+        [WebGet(    UriTemplate = "/accounts/{customer}/purchases?purchases={purchases}&info={info}")]
         Stream GetPurchases(string customer, string purchases, string info);
 
         [OperationContract]
         [WebInvoke( Method = "POST",
                     UriTemplate = "/accounts/{customer}/purchases",
-                    RequestFormat = WebMessageFormat.Json,
-                    ResponseFormat = WebMessageFormat.Json)]
-        Stream MakePurchases(string customer, PurchaseData data);
+                    RequestFormat = WebMessageFormat.Json)]
+        Stream MakePurchases(string customer, PurchaseData[] data);
 
         [OperationContract]
-        [WebGet(    UriTemplate = "/accounts/{customer}/purchases/{id}",
-                    ResponseFormat = WebMessageFormat.Json)]
+        [WebGet(    UriTemplate = "/accounts/{customer}/purchases/{id}")]
         Stream GetPurchase(string customer, string id);
 
         [OperationContract]
@@ -329,8 +325,6 @@ namespace RentIt
         public string type { get; set; }
         [DataMember]
         public string expires { get; set; }
-        [DataMember]
-        public string title { get; set; }
         [DataMember]
         public uint product { get; set; }
     }
