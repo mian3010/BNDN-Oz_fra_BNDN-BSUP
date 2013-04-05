@@ -42,7 +42,7 @@ open PersistenceExceptions
       let objectName = "Product_has_AllowedAction"
       let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
       let filtersQ = ref (Persistence.FilterGroup.createSingleFilterGroup [] objectName "Product_Id" (string id))
-      filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "AllowedAction" permission
+      filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "AllowedAction_name" permission
       let permissions = Persistence.Api.read fieldsQ objectName [] !filtersQ
 
       // Check if any results
