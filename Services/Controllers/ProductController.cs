@@ -44,23 +44,34 @@ namespace Services.Controllers
                 unpublished = _h.DefaultString(unpublished, "false");
                 bool alsoUnpublished = _h.Boolean(unpublished);
 
+                ProductTypes.PublishedStatus status = alsoUnpublished
+                                                          ? ProductTypes.PublishedStatus.Both
+                                                          : ProductTypes.PublishedStatus.Published;
+
                 // AUTHORIZE
 
                 var invoker = _h.Authorize();
                 var accType = invoker.IsAuth ? ((PermissionsUtil.Invoker.Auth)invoker).Item.accType : "";
             
                 // RETRIEVE PRODUCTS
-
+                IEnumerable<ProductTypes.Product> returnProducts;
                 FSharpList<ProductTypes.Product> products = ListModule.Empty<ProductTypes.Product>();
-                
-                if(fullTypes.Count == 0) products = Product.getAll();
-                else foreach (string type in fullTypes)
+                if (fullTypes.Count == 0) products = Product.getAllProducts(status);
+                else
                 {
-                    products = ListModule.Append(products, Product.getAllByType(type));
+                    foreach (string type in fullTypes)
+                    { products = ListModule.Append(products, Product.getAllProductsByType(type, status));}
                 }
 
-                // Remove unpublished products
-                if (!(alsoUnpublished /* && HAS_PERMISSION_TO_GET_UNPUBLISHED */)) products = Product.filterUnpublished(products);
+                if (!search.Equals(""))
+                {
+                    FSharpSet<ProductTypes.Product> searchProducts = SetModule.OfList(Product.searchProducts(search));
+                    returnProducts = SetModule.Intersect(SetModule.OfList(products), searchProducts);
+                }
+                else
+                {
+                    returnProducts = products;
+                }
 
                 // PRODUCE RESPONSE
 
@@ -78,9 +89,9 @@ namespace Services.Controllers
 
                 _h.Success();
 
-                if (info.Equals("detailed")) return _j.Json(_h.Map(products, p => _c.Convert(p)), keep);
-                if (info.Equals("more")) return _j.Json(_h.Map(products, p => _c.Convert(p)), keep);
-                if (info.Equals("id")) return _j.Json(_h.Map(products, p => (uint)p.id));  // Only ids are returned
+                if (info.Equals("detailed")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
+                if (info.Equals("more")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
+                if (info.Equals("id")) return _j.Json(_h.Map(returnProducts, p => (uint)p.id));  // Only ids are returned
                 throw new BadRequestException(); // Never happens
             }
             catch (BadRequestException) { return _h.Failure(400); }

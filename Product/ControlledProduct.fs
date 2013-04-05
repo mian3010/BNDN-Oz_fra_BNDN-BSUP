@@ -1,5 +1,6 @@
 ﻿namespace RentIt
 open PermissionsUtil
+open ControlledProductExceptions
 
 module ControlledProduct =
     exception AccountBanned              // Raised when a banned invoker attempts to perform an action
@@ -51,27 +52,19 @@ module ControlledProduct =
         let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
         Internal.checkAllowed invoker allowed |> ignore
         Product.getListOfProductTypes
-
-    ///
-    ///
-    let getAll (invoker:Invoker) =
-        let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
-        Internal.checkAllowed invoker allowed |> ignore
-        Product.getAll
     
     ///
     ///
     let getProductById (invoker:Invoker) (id:int) =
-        (*let product = Product.getProductById(id)
-        if(product.owner = (invokerToId invoker)) then
+        let product = Product.getProductById(id)
+        if(product.owner = (string (invokerToId invoker))) then
             let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
             Product.getProductById id
          else
             let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.getProductById id*)
-            ()
+            Product.getProductById id
 
     ///
     ///
@@ -82,38 +75,35 @@ module ControlledProduct =
 
     ///
     ///
-    let getAllByType (invoker:Invoker) (typeName:string) =
-        let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Any")
-        Internal.checkAllowed invoker allowed |> ignore
-        Product.getAllByType typeName
-
-    ///
-    ///
     let update (invoker:Invoker) (p:Product) =
-        (*if((invokerToId invoker) = p.owner) then 
+        if((string (invokerToId invoker)) = p.owner) then 
             let allowed = Internal.checkUser invoker "EDIT" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
             Product.update p
         else 
             let allowed = Internal.checkUser invoker "EDIT" (CheckTarget.Type "Any")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.update p*)
-            ()
+            Product.update p
 
     ///
     ///
     let publish (invoker:Invoker) (pId:int) (status:bool) =
-        (*let product = Product.getProductById(pId)
-        if((invokerToId invoker) = product.owner) then
+        let product = Product.getProductById(pId)
+        if((string (invokerToId invoker)) = product.owner) then
             let allowed = Internal.checkUser invoker "PUBLISH" (CheckTarget.Type "Own")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.publishProduct pId status
+            if(Product.hasMedia (uint32 pId)) then
+                Product.publishProduct pId status
+            else
+                raise Conflict 
 
         else
             let allowed = Internal.checkUser invoker "PUBLISH" (CheckTarget.Type "Any")
             Internal.checkAllowed invoker allowed |> ignore
-            Product.publishProduct pId status*)
-            ()
+            if(Product.hasMedia (uint32 pId)) then
+                Product.publishProduct pId status
+            else
+                raise Conflict
     
     ///
     ///
@@ -124,15 +114,15 @@ module ControlledProduct =
 
     ///
     ///
-    let getAllProductsByUser (invoker:Invoker) (user:string) (showPublished:PublishedStatus) =
-        if(showPublished = PublishedStatus.Published) then
-            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
-            Internal.checkAllowed invoker allowed |> ignore
-            Product.getAllProductsByUser user showPublished
-        else
-            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Own")
-            Internal.checkAllowed invoker allowed |> ignore
-            Product.getAllProductsByUser user showPublished
+//    let getAllProductsByUser (invoker:Invoker) (user:string) (showPublished:PublishedStatus) =
+//        if(showPublished = PublishedStatus.Published) then
+//            let allowed = Internal.checkUser invoker "READ" (CheckTarget.Type "Own")
+//            Internal.checkAllowed invoker allowed |> ignore
+//            Product.getAllProductsByUser user showPublished
+//        else
+//            let allowed = Internal.checkUser invoker "READ_UNPUBLISHED" (CheckTarget.Type "Own")
+//            Internal.checkAllowed invoker allowed |> ignore
+//            Product.getAllProductsByUser user showPublished
 
 
                 

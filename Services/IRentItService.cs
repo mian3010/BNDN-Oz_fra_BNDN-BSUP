@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using System.Text;
 using System.IO;
-using System.Web.Services;
 
 namespace RentIt
 {
@@ -41,7 +36,7 @@ namespace RentIt
         Stream DefaultGetAccounts();
 
         [OperationContract]
-        [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={include_banned}",
+        [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={includeBanned}",
                     ResponseFormat = WebMessageFormat.Json)]
         Stream GetAccounts(string types, string info, string includeBanned);
 
