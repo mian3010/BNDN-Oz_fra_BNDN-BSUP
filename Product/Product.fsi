@@ -133,7 +133,7 @@ module Product =
 
   val getAllProductsByType : string -> PublishedStatus -> Product List
 
-  val getAllProductsByUserAndName : string -> string -> PublishedStatus -> Product List
+  val getAllProductsByUserAndTitle : string -> string -> PublishedStatus -> Product List
 
   /// <summary>
   /// Checks if a media file is avalible for the given product
