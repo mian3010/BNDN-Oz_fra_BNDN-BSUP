@@ -38,25 +38,24 @@ namespace Services.Controllers
                 var returnProducts = GetProductsHelper(null, search, types, info, unpublished);
 
                 string[] keep = null;
-                if (info.Equals("more"))
-                {
+                if (info == null || info.Equals("more")) {
 
-                    keep = !accType.Equals("Admin") ? new[] { "title", "description", "type", "price", "owner" }
-                                                    : new[] { "title", "description", "type", "price", "owner", "published" };
+                  keep = !accType.Equals("Admin")
+                            ? new[] {"title", "description", "type", "price", "owner"}
+                            : new[] {"title", "description", "type", "price", "owner", "published"};
+                } else if (info.Equals("detailed")) {
+
+                  keep = !accType.Equals("Admin")
+                            ? new[] {"title", "description", "type", "price", "rating", "owner", "meta"}
+                            : new[] {"title", "description", "type", "price", "rating", "owner", "meta", "published"};
                 }
-                else if (info.Equals("detailed"))
-                {
 
-                    keep = !accType.Equals("Admin") ? new[] { "title", "description", "type", "price", "rating", "owner", "meta" }
-                                                    : new[] { "title", "description", "type", "price", "rating", "owner", "meta", "published" };
-                }
+              _h.Success();
 
-                _h.Success();
-
-                if (info.Equals("detailed")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
-                if (info.Equals("more")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
-                if (info.Equals("id")) return _j.Json(_h.Map(returnProducts, p => (uint)p.id));  // Only ids are returned
-                throw new BadRequestException(); // Never happens
+              if (info == null || info.Equals("detailed")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
+              if (info.Equals("more")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
+              if (info.Equals("id")) return _j.Json(_h.Map(returnProducts, p => (uint)p.id));  // Only ids are returned
+              throw new BadRequestException(); // Never happens
             }
             catch (BadRequestException) { return _h.Failure(400); }
             catch (PermissionExceptions.PermissionDenied) { return _h.Failure(403); }
