@@ -64,16 +64,10 @@ namespace RentIt
         #endregion
 
         #region Products
-
         [OperationContract]
         [WebGet(    UriTemplate = "/products",
                     ResponseFormat = WebMessageFormat.Json)]
-        Stream DefaultGetProducts();
-
-        [OperationContract]
-        [WebGet(    UriTemplate = "/products?search={search}&type={type}&info={info}&unpublished={unpublished}",
-                    ResponseFormat = WebMessageFormat.Json)]
-        Stream GetProducts(string search, string type, string info, string unpublished);
+        Stream GetProducts();
 
         [OperationContract]
         [WebGet(    UriTemplate = "/products/{id}",

@@ -84,7 +84,7 @@ namespace RentIt.Services
         // Converts multiple objects to JSON format
         public Stream Json<T>(T[] objects)
         {
-            var values = _h.Map(objects, o => Json(o));
+            var values = _h.Map(objects, o => JsonString(o));
 
             return asStream("[" + _h.Join(values, ",") + "]");
         }

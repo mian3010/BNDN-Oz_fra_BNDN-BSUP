@@ -3,6 +3,7 @@ using System.ServiceModel.Web;
 using RentIt.Services;
 using RentIt.Services.Controllers;
 using System.IO;
+using Services;
 using Services.Controllers;
 
 namespace RentIt {
@@ -55,16 +56,7 @@ namespace RentIt {
     #region Accounts
       
     public Stream GetAccounts() {
-      var queryParameters = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters;
-      string types = null;
-      string info = null;
-      string includeBanned = null;
-      foreach (string key in queryParameters.AllKeys) {
-        if (key == "info") info = queryParameters[key];
-        if (key == "types") types = queryParameters[key];
-        if (key == "include_banned") includeBanned = queryParameters[key];
-      }
-      return _account.GetAccounts(types, info, includeBanned);
+      return _account.GetAccounts(QueryParameters.get("types"), QueryParameters.get("info"), QueryParameters.get("includeBanned"));
     }
 
     public Stream GetAccount(string user) {
@@ -87,13 +79,8 @@ namespace RentIt {
 
     #region Products
 
-    public Stream DefaultGetProducts() {
-      return GetProducts(null, null, null, null);
-    }
-
-    public Stream GetProducts(string search, string type, string info, string unpublished) {
-      //return h.Failure(501);
-      return _product.GetProducts(search, type, info, unpublished);
+    public Stream GetProducts(/*string search, string type, string info, string unpublished*/) {
+      return _product.GetProducts(QueryParameters.get("search"), QueryParameters.get("type"), QueryParameters.get("info"), QueryParameters.get("unpublished"));
     }
 
     public Stream GetProduct(string id) {

@@ -361,7 +361,8 @@ namespace RentIt.Services
             }
 
             var l = result.Length - delimiter.Length;
-            return result.Substring(0, l == 0 ? 0 : l);
+
+            return result.Substring(0, l <= 0 ? 0 : l);
         }
 
         #endregion
