@@ -79,47 +79,39 @@ namespace RentIt {
 
     #region Products
 
-    public Stream GetProducts(/*string search, string type, string info, string unpublished*/) {
+    public Stream GetProducts() {
       return _product.GetProducts(QueryParameters.get("search"), QueryParameters.get("type"), QueryParameters.get("info"), QueryParameters.get("unpublished"));
     }
 
     public Stream GetProduct(string id) {
-      //return h.Failure(501);
       return _product.GetProduct(id);
     }
 
     public void UpdateProduct(string id, ProductData data) {
-      //h.Failure(501);
       _product.UpdateProduct(id, data);
     }
 
     public void UpdateProductMedia(string id, Stream media) {
-      //h.Failure(501);
       _product.UpdateProductMedia(id, media);
     }
 
     public void DeleteProduct(string id) {
-      //h.Failure(501);
       _product.DeleteProduct(id);
     }
 
     public Stream GetProductRating(string id) {
-      //return h.Failure(501);
       return _product.GetProductRating(id);
     }
 
     public void UpdateProductRating(string id, RatingData data) {
-      //h.Failure(501);
       _product.UpdateProductRating(id, data);
     }
 
     public Stream GetProductThumbnail(string id) {
-      //return h.Failure(501);
       return _product.GetProductThumbnail(id);
     }
 
     public void UpdateProductThumbnail(string id, Stream media) {
-      //h.Failure(501);
       _product.UpdateProductThumbnail(id, media);
     }
 
