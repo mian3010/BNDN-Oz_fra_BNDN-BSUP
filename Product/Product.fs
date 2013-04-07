@@ -191,9 +191,9 @@ module Product =
     if not (allowedTypes.Contains fileType) then raise ProductExceptions.MimeTypeNotAllowed
     
     let fileName = p.id.ToString() + "." + mime.Replace(@"/", "_");
-    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner
+    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\Thumbnails\\"
     if not (System.IO.Directory.Exists filePath) then (System.IO.Directory.CreateDirectory(filePath)) |> ignore
-    let filePath = filePath  + "\\Thumbnails\\" + fileName
+    let filePath = filePath + fileName
 
     let fs = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
     stream.CopyTo(fs);
