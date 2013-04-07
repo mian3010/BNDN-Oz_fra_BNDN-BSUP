@@ -94,7 +94,7 @@ namespace RentIt.Services
         {
             var keepSet = new HashSet<string>(keep);
 
-            var values = _h.Map(objects, o => Json(nullOutBut(o, keepSet)));
+            var values = _h.Map(objects, o => JsonString(nullOutBut(o, keepSet)));
 
             return asStream("[" + _h.Join(values, ",") + "]");
         }

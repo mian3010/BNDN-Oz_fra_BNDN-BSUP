@@ -31,14 +31,9 @@ namespace RentIt
         #region Accounts
 
         [OperationContract]
-        [WebGet(UriTemplate = "/accounts",
+        [WebGet(    UriTemplate = "/accounts",
                     ResponseFormat = WebMessageFormat.Json)]
-        Stream DefaultGetAccounts();
-
-        [OperationContract]
-        [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={includeBanned}",
-                    ResponseFormat = WebMessageFormat.Json)]
-        Stream GetAccounts(string types, string info, string includeBanned);
+        Stream GetAccounts();
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{user}",
