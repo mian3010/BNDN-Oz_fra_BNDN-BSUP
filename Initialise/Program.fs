@@ -356,6 +356,19 @@ module Main =
                }:AccountTypes.ExtraAccInfo
     let user = Account.make "Content Provider" "Claus" "asd@smu" "Claus" info
     Account.persist user
+    let info = {
+                  name = Some "Michael";
+                  address = ({
+                               address = Some "Somewhere";
+                               postal = Some 7738;
+                               country = Some "Over the rainbow";
+                            }:AccountTypes.Address);
+                  birth = Some System.DateTime.Now;
+                  about = None;
+                  credits = Some 42;
+               }:AccountTypes.ExtraAccInfo
+    let user = Account.make "Customer" "Michael" "asd@smu" "Michael" info
+    Account.persist user
 
     // Product types
     let mutable insert:((Persistence.Types.DataIn List) List) = []
