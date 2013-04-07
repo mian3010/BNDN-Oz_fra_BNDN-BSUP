@@ -53,7 +53,7 @@ namespace RentIt {
     #endregion
 
     #region Accounts
-
+      
     public Stream GetAccounts() {
       var queryParameters = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters;
       string types = null;

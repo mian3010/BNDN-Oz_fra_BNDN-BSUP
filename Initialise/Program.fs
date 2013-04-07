@@ -209,6 +209,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "RESET_PASSWORD_TYPE_Admin"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CREATE_TYPE_Admin"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_TYPE_Admin"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "EDIT_ANY"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "BAN_UNBAN_TYPE_Content Provider"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CHANGE_EMAIL_TYPE_Content Provider"
@@ -261,6 +262,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_AUTH_INFO_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "RESET_PASSWORD_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "EDIT_OWN"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "CREATE_PRODUCT_ANY"
@@ -277,6 +279,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_AUTH_INFO_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "RESET_PASSWORD_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "EDIT_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_UNPUBLISHED_PRODUCT_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "EDIT_PRODUCT_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "EDIT_UNPUBLISHED_PRODUCT_OWN"
