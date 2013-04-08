@@ -363,8 +363,7 @@ namespace Services.Controllers
             FSharpList<ProductTypes.Product> products = ListModule.Empty<ProductTypes.Product>();
             if (fullTypes.Count == 0)
             {
-                if (string.IsNullOrEmpty(target)) products = Product.getAllProducts(status);
-                else products = Product.getAllProductsByUser(target, status);
+                products = string.IsNullOrEmpty(target) ? Product.getAllProducts(status) : Product.getAllProductsByUser(target, status);
             }
             else
             {
