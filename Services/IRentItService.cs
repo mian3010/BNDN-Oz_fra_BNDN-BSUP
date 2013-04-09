@@ -252,6 +252,8 @@ namespace RentIt
     public class ProductData
     {
         [DataMember]
+        public int id { get; set; }
+        [DataMember]
         public string title { get; set; }
         [DataMember]
         public string description { get; set; }

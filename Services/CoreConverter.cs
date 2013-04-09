@@ -149,6 +149,7 @@ namespace RentIt.Services
         {
             return new ProductData
             {
+                id = p.id,
                 title = p.name,
                 description = _h.OrNull(p.description),
                 type = p.productType,
