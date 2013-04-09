@@ -73,6 +73,8 @@ module Main =
     // "Name" "Description"
     let mutable insert:((Persistence.Types.DataIn List) List) = []
     insert <- insert@createDataInForAllowedAction "HAS_CREDITS" "Allows an account to have credits associated"
+    insert <- insert@createDataInForAllowedAction "HAS_CREDITS_OWN" "Allows an account to have credits associated"
+    insert <- insert@createDataInForAllowedAction "HAS_CREDITS_ANY" "Allows an account to have credits associated"
     insert <- insert@createDataInForAllowedAction "BUYABLE" "Allows a Product to bought"
     insert <- insert@createDataInForAllowedAction "RENTABLE" "Allows a Product to be rented"
     insert <- insert@createDataInForAllowedAction "CREATE_PRODUCT_ANY" "Allows an account to create products"
@@ -221,6 +223,8 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "CREATE_TYPE_Customer"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDITS"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDITS_ANY" // Delete me
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDITS_OWN" // Delete me
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "RATE_PRODUCT_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_PRODUCT_ANY"
