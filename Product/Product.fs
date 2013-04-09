@@ -17,8 +17,6 @@ module Product =
       let dir = new System.IO.DirectoryInfo(path);
       dir.GetFiles(id.ToString() + ".*").[0]
 
-  // Should this catch Exception and raise UnkownException?
-
   /// <summary>
   /// Persist a new product, making the product available for publish
   /// </summary>
