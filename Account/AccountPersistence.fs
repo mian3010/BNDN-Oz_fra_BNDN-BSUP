@@ -68,6 +68,7 @@ open AccountExceptions
                     let result = read.Item(0)
 
                     // Create the account, using the information from "result"
+                    let country = if (result.Item "Country_Name") = "" then None else Some (result.Item "Country_Name")
                     let acc :AccountTypes.Account = {
                         user = result.Item "Username"
                         email = result.Item"Email"
@@ -83,7 +84,7 @@ open AccountExceptions
                                                 let zipString = Internal.tryFind result "Zipcode"
                                                 if zipString = None then 
                                                     None else Some (int zipString.Value)
-                                            country = Some (result.Item "Country_Name") }
+                                            country = country }
                                 birth =
                                     let bodString = Internal.tryFind result "Date_of_birth"
                                     if bodString = None then 
