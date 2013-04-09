@@ -33,7 +33,7 @@ namespace RentIt.Services.Controllers
                 info = _h.DefaultString(info, "username");
                 info = _h.OneOf(info, "username", "more", "detailed");
 
-                includeBanned = _h.DefaultString(includeBanned, "true");
+                includeBanned = _h.DefaultString(includeBanned, "false");
                 bool alsoBanned = _h.Boolean(includeBanned);
 
                 // AUTHORIZE

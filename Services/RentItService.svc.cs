@@ -56,7 +56,7 @@ namespace RentIt {
     #region Accounts
       
     public Stream GetAccounts() {
-      return _account.GetAccounts(QueryParameters.get("types"), QueryParameters.get("info"), QueryParameters.get("includeBanned"));
+      return _account.GetAccounts(QueryParameters.get("types"), QueryParameters.get("info"), QueryParameters.get("include_banned"));
     }
 
     public Stream GetAccount(string user) {
