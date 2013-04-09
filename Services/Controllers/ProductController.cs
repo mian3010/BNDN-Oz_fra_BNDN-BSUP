@@ -41,13 +41,13 @@ namespace Services.Controllers
                 if (String.IsNullOrEmpty(info) || info.Equals("more")) {
 
                   keep = !accType.Equals("Admin")
-                            ? new[] {"title", "description", "type", "price", "owner"}
-                            : new[] {"title", "description", "type", "price", "owner", "published"};
+                            ? new[] {"id", "title", "description", "type", "price", "owner"}
+                            : new[] {"id", "title", "description", "type", "price", "owner", "published"};
                 } else if (info.Equals("detailed")) {
 
                   keep = !accType.Equals("Admin")
-                            ? new[] {"title", "description", "type", "price", "rating", "owner", "meta"}
-                            : new[] {"title", "description", "type", "price", "rating", "owner", "meta", "published"};
+                            ? new[] {"id", "title", "description", "type", "price", "rating", "owner", "meta"}
+                            : new[] {"id", "title", "description", "type", "price", "rating", "owner", "meta", "published"};
                 }
 
               _h.Success();
