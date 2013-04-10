@@ -17,8 +17,6 @@ module Product =
       let dir = new System.IO.DirectoryInfo(path);
       dir.GetFiles(id.ToString() + ".*").[0]
 
-  // Should this catch Exception and raise UnkownException?
-
   /// <summary>
   /// Persist a new product, making the product available for publish
   /// </summary>
@@ -171,7 +169,10 @@ module Product =
   let persistMedia (id:uint32) (mime:string) (stream:System.IO.Stream) =
     let p = getProductById (int id)
     let fileName = p.id.ToString() + "." + mime.Replace(@"/", "_");
-    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\" + fileName
+    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "Uploads\\" + p.owner
+    if not (System.IO.Directory.Exists filePath) then (System.IO.Directory.CreateDirectory(filePath)) |> ignore
+
+    let filePath = filePath + "\\" + fileName
 
     let fs = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
     stream.CopyTo(fs);
@@ -188,7 +189,9 @@ module Product =
     if not (allowedTypes.Contains fileType) then raise ProductExceptions.MimeTypeNotAllowed
     
     let fileName = p.id.ToString() + "." + mime.Replace(@"/", "_");
-    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\Thumbnails\\" + fileName
+    let filePath = System.AppDomain.CurrentDomain.BaseDirectory + "\\Uploads\\" + p.owner + "\\Thumbnails\\"
+    if not (System.IO.Directory.Exists filePath) then (System.IO.Directory.CreateDirectory(filePath)) |> ignore
+    let filePath = filePath + fileName
 
     let fs = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
     stream.CopyTo(fs);

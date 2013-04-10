@@ -14,6 +14,7 @@ module TestSearch =
       let res = Product.searchProducts "hi"
       res.IsEmpty |> should equal false
     finally
+      printfn "%A" "hejsa"
       Helper.removeTestProduct "hihi"
       Helper.removeTestProduct "search test"
 
@@ -26,4 +27,5 @@ module TestSearch =
       let res = Product.searchProducts "car"
       res.IsEmpty |> should equal false
     finally
+      printfn "%A" "hejsa"
       Helper.removeTestProduct "search test2"

@@ -5,9 +5,9 @@ open System.Security
 
     module Settings = 
         // Database connection
-
-        // Server settings
         (*
+        // Server settings
+        
         let server = "localhost"
         let database = "RENTIT27"
         let userName = "RentIt27db"

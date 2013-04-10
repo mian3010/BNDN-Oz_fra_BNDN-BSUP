@@ -168,7 +168,7 @@ namespace RentIt.Services.Controllers
 
                 ProductTypes.Product product = ControlledProduct.getProductById(invoker, (int) returnData.product);
 
-                if(!ControlledCredits.checkAccessToProduct(invoker, account, product)) return _h.Failure(410);
+                if(ControlledCredits.checkAccessToProduct(invoker, account, product)) return _h.Failure(410);
 
                 var result = Product.getMedia(returnData.product);
 

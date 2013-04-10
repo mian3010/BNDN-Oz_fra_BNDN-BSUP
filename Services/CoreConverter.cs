@@ -108,7 +108,7 @@ namespace RentIt.Services
             return new AccountTypes.ExtraAccInfo(
                 update.name == null ? src.name : new FSharpOption<string>(update.name),
                 Merge(src.address, update),
-                update.birth == null ? src.birth : new FSharpOption<DateTime>(JsonUtility.StringToDate(update.created)),
+                update.birth == null ? src.birth : new FSharpOption<DateTime>(JsonUtility.StringToDate(update.birth)),
                 update.about == null ? src.about : new FSharpOption<string>(update.about),
                 update.credits == null ? src.credits : FSharpOption<int>.Some((int) update.credits)
             );
@@ -149,6 +149,7 @@ namespace RentIt.Services
         {
             return new ProductData
             {
+                id = p.id,
                 title = p.name,
                 description = _h.OrNull(p.description),
                 type = p.productType,

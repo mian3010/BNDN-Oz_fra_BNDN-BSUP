@@ -204,7 +204,7 @@ module ProductPersistence =
   let getAllProductsByType (pType:string) (showPublished:PublishedStatus) =
     let objectName = "Product"
     let filtersQ = ref (getPublishedFilter showPublished)
-    filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "ProductType_Name" pType
+    filtersQ := Persistence.FilterGroup.createFilterGroup !filtersQ objectName "ProductType_Name" pType
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
     convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)
 

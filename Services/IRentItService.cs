@@ -31,14 +31,9 @@ namespace RentIt
         #region Accounts
 
         [OperationContract]
-        [WebGet(UriTemplate = "/accounts",
+        [WebGet(    UriTemplate = "/accounts",
                     ResponseFormat = WebMessageFormat.Json)]
-        Stream DefaultGetAccounts();
-
-        [OperationContract]
-        [WebGet(    UriTemplate = "/accounts?types={types}&info={info}&include_banned={includeBanned}",
-                    ResponseFormat = WebMessageFormat.Json)]
-        Stream GetAccounts(string types, string info, string includeBanned);
+        Stream GetAccounts();
 
         [OperationContract]
         [WebGet(    UriTemplate = "/accounts/{user}",
@@ -69,16 +64,10 @@ namespace RentIt
         #endregion
 
         #region Products
-
         [OperationContract]
         [WebGet(    UriTemplate = "/products",
                     ResponseFormat = WebMessageFormat.Json)]
-        Stream DefaultGetProducts();
-
-        [OperationContract]
-        [WebGet(    UriTemplate = "/products?search={search}&type={type}&info={info}&unpublished={unpublished}",
-                    ResponseFormat = WebMessageFormat.Json)]
-        Stream GetProducts(string search, string type, string info, string unpublished);
+        Stream GetProducts();
 
         [OperationContract]
         [WebGet(    UriTemplate = "/products/{id}",
@@ -262,6 +251,8 @@ namespace RentIt
     [DataContract]
     public class ProductData
     {
+        [DataMember]
+        public int id { get; set; }
         [DataMember]
         public string title { get; set; }
         [DataMember]

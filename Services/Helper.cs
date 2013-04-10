@@ -360,7 +360,9 @@ namespace RentIt.Services
                 result += e + delimiter;
             }
 
-            return result.Substring(0, result.Length-delimiter.Length);
+            var l = result.Length - delimiter.Length;
+
+            return result.Substring(0, l <= 0 ? 0 : l);
         }
 
         #endregion

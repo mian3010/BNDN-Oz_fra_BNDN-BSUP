@@ -4,8 +4,14 @@ open System.Data
     module Helper = 
         /// Takes a query and performs it on the database
         let performSql sql = 
-            let cmd = new SqlClient.SqlCommand(sql, Settings.connDb)
-            cmd.ExecuteReader()
+          let cmd = new SqlClient.SqlCommand(sql, Settings.connDb)
+          cmd.ExecuteReader()
+
+        let performSqlFile filePath =
+          let file = new System.IO.FileInfo(filePath);
+          let sql = file.OpenText().ReadToEnd();
+          let cmd = new SqlClient.SqlCommand(sql, Settings.connDb)
+          cmd.ExecuteNonQuery() |> ignore
 
         //Converts a datetime object to string that can be understood by the persistence layer
         let convertDatetimeToString (date:System.DateTime) =

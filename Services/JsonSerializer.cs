@@ -27,7 +27,7 @@ namespace RentIt.Services
                                                         typeof(MetaData),
                                                         typeof(CreditsData),
                                                         typeof(PurchaseData),
-                                                        typeof(IdData)
+                                                        typeof(IdData),
                                                 };
 
         // Converts an object to JSON format, leaving any null value out
@@ -39,6 +39,7 @@ namespace RentIt.Services
         // Converts an object to JSON format, leaving any null value out. Returns the result as string.
         public string JsonString<T>(T obj)
         {
+            var something = obj.GetType();
             if (!_types.Contains(obj.GetType())) throw new Exception("Could not serialize given object - its class is not supported.");
 
             // Collect all properties to serialize to JSOn
@@ -84,7 +85,7 @@ namespace RentIt.Services
         // Converts multiple objects to JSON format
         public Stream Json<T>(T[] objects)
         {
-            var values = _h.Map(objects, o => Json(o));
+            var values = _h.Map(objects, o => JsonString(o));
 
             return asStream("[" + _h.Join(values, ",") + "]");
         }
@@ -94,7 +95,7 @@ namespace RentIt.Services
         {
             var keepSet = new HashSet<string>(keep);
 
-            var values = _h.Map(objects, o => Json(nullOutBut(o, keepSet)));
+            var values = _h.Map(objects, o => JsonString(nullOutBut(o, keepSet)));
 
             return asStream("[" + _h.Join(values, ",") + "]");
         }
@@ -102,6 +103,12 @@ namespace RentIt.Services
         public Stream Json(string[] strings) 
         {
             return asStream("[" + _h.Join(_h.Map(strings, s => escape(s)), ",") + "]");
+        }
+
+        public Stream Json(List<UInt32> ints)
+        {
+            var list = ints.ToArray();
+            return asStream("[" + _h.Join(list, ",") + "]");
         }
 
         public Stream Json(uint[] intArray)

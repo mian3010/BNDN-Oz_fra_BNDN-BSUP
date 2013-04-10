@@ -2,6 +2,10 @@
 
 module Main = 
 
+  let internal log message = 
+    let now = System.DateTime.Now
+    printfn "%A" ("["+(string now.Year)+"-"+(string now.Month)+"-"+(string now.Day)+" "+(string now.Hour)+":"+(string now.Minute)+":"+(string now.Second)+"."+(string now.Millisecond)+"] "+message)
+
   let internal createDataInForAllowedAction name description =
       [Persistence.DataIn.createDataIn (Persistence.DataIn.createDataIn [] "AllowedAction" "Name" name) "AllowedAction" "Description" description]
 
@@ -30,34 +34,47 @@ module Main =
   let internal createDataInForMimeType pType mType =
       [Persistence.DataIn.createDataIn (Persistence.DataIn.createDataIn [] "MimeType" "ProductType_Name" pType) "MimeType" "Type" mType]
 
+  let internal dropTable table =
+    log ("Dropping "+table)
+    (Persistence.Helper.performSql ("DROP TABLE ["+table+"]")).Close() |> ignore
+
+  let internal dropAllTables () =
+    try
+      dropTable "Transaction" 
+      dropTable "ProductRating" 
+      dropTable "ActionGroup_has_AllowedAction" 
+      dropTable "UserType_has_ActionGroup" 
+      dropTable "Product_has_AllowedAction" 
+      dropTable "AllowedAction" 
+      dropTable "ActionGroup" 
+      dropTable "Log" 
+      dropTable "LogEntryType" 
+      dropTable "MetaData" 
+      dropTable "MetaDataType" 
+      dropTable "Product" 
+      dropTable "User" 
+      dropTable "UserType" 
+      dropTable "Country" 
+      dropTable "Loggable" 
+      dropTable "MimeType" 
+      dropTable "ProductType" 
+    with
+      | _ -> ()
+
   [<EntryPoint>]
   let main argv = 
-    
-    //Truncate data
-    Persistence.Api.delete "Transaction" [] |> ignore
-    Persistence.Api.delete "ProductRating" [] |> ignore
-    Persistence.Api.delete "ActionGroup_has_AllowedAction" [] |> ignore
-    Persistence.Api.delete "UserType_has_ActionGroup" [] |> ignore
-    Persistence.Api.delete "Product_has_AllowedAction" [] |> ignore
-    Persistence.Api.delete "AllowedAction" [] |> ignore
-    Persistence.Api.delete "ActionGroup" [] |> ignore
-    Persistence.Api.delete "Log" [] |> ignore
-    Persistence.Api.delete "LogEntryType" [] |> ignore
-    Persistence.Api.delete "MetaData" [] |> ignore
-    Persistence.Api.delete "MetaDataType" [] |> ignore
-    Persistence.Api.delete "Product" [] |> ignore
-    Persistence.Api.delete "User" [] |> ignore
-    Persistence.Api.delete "UserType" [] |> ignore
-    Persistence.Api.delete "Country" [] |> ignore
-    Persistence.Api.delete "Loggable" [] |> ignore
-    Persistence.Api.delete "MimeType" [] |> ignore
-    Persistence.Api.delete "ProductType" [] |> ignore
-    (Persistence.Helper.performSql "DBCC CHECKIDENT('Loggable', RESEED, 1)").Close() |> ignore
+  
+    dropAllTables ()
+    let file = "Database.sql"
+    log ("Creating database from "+file)
+    Persistence.Helper.performSqlFile file
 
     // Create AllowedAction
     // "Name" "Description"
     let mutable insert:((Persistence.Types.DataIn List) List) = []
     insert <- insert@createDataInForAllowedAction "HAS_CREDITS" "Allows an account to have credits associated"
+    insert <- insert@createDataInForAllowedAction "HAS_CREDITS_OWN" "Allows an account to have credits associated"
+    insert <- insert@createDataInForAllowedAction "HAS_CREDITS_ANY" "Allows an account to have credits associated"
     insert <- insert@createDataInForAllowedAction "BUYABLE" "Allows a Product to bought"
     insert <- insert@createDataInForAllowedAction "RENTABLE" "Allows a Product to be rented"
     insert <- insert@createDataInForAllowedAction "CREATE_PRODUCT_ANY" "Allows an account to create products"
@@ -127,7 +144,7 @@ module Main =
     insert <- insert@createDataInForAllowedAction "EDIT_TYPE_CUSTOMER" "EDIT additional account information"
     insert <- insert@createDataInForAllowedAction "CREATE_TYPE_CUSTOMER" "CREATE account"
 
-    printfn "%A" ("---------- Create " + "AllowedAction" + " ----------")
+    log "Create AllowedAction"
     for i in insert do
       Persistence.Api.create "AllowedAction" i |> ignore
     
@@ -139,7 +156,7 @@ module Main =
     insert <- insert@createDataInForActionGroup "Customer" "Customer"
     insert <- insert@createDataInForActionGroup "Content Provider" "Content provider"
 
-    printfn "%A" ("---------- Create " + "ActionGroup" + " ----------")
+    log "Create ActionGroup"
     for i in insert do
       Persistence.Api.create "ActionGroup" i |> ignore
     
@@ -170,6 +187,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "RESET_PASSWORD_TYPE_Admin"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CREATE_TYPE_Admin"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "READ_TYPE_Admin"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "EDIT_ANY"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "BAN_UNBAN_TYPE_Content Provider"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Admin" "CHANGE_EMAIL_TYPE_Content Provider"
@@ -205,6 +223,8 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Unauth" "CREATE_TYPE_Customer"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDITS"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDITS_ANY" // Delete me
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "HAS_CREDITS_OWN" // Delete me
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "RATE_PRODUCT_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_PRODUCT_ANY"
@@ -222,6 +242,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_AUTH_INFO_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "RESET_PASSWORD_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "READ_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Customer" "EDIT_OWN"
 
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_ANY"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "CREATE_PRODUCT_ANY"
@@ -238,6 +259,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_AUTH_INFO_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "RESET_PASSWORD_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_OWN"
+    insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "EDIT_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "READ_UNPUBLISHED_PRODUCT_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "EDIT_PRODUCT_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "EDIT_UNPUBLISHED_PRODUCT_OWN"
@@ -245,7 +267,7 @@ module Main =
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "UPLOAD_MEDIA_OWN"
     insert <- insert@createDataInForActionGroupHasAllowedAction "Content Provider" "UPLOAD_THUMBNAIL_OWN"
 
-    printfn "%A" ("---------- Create " + "ActionGroup_has_AllowedAction" + " ----------")
+    log "Create ActionGroup_has_AllowedAction"
     for i in insert do
       Persistence.Api.create "ActionGroup_has_AllowedAction" i |> ignore
 
@@ -257,7 +279,7 @@ module Main =
     insert <- insert@createDataInForUserType "Customer"
     insert <- insert@createDataInForUserType "Content Provider"
 
-    printfn "%A" ("---------- Create " + "UserType" + " ----------")
+    log "Create UserType"
     for i in insert do
       Persistence.Api.create "UserType" i |> ignore
 
@@ -269,7 +291,7 @@ module Main =
     insert <- insert@createDataInForUserTypeHasActionGroup "Customer" "Customer"
     insert <- insert@createDataInForUserTypeHasActionGroup "Content Provider" "Content Provider"
     
-    printfn "%A" ("---------- Create " + "UserType_has_ActionGroup" + " ----------")
+    log "Create UserType_has_ActionGroup"
     for i in insert do
       Persistence.Api.create "UserType_has_ActionGroup" i |> ignore
 
@@ -282,12 +304,12 @@ module Main =
 
     insert <- insert@createDataInForCountry "Over the rainbow"
 
-    printfn "%A" ("---------- Create " + "Country" + " ----------")
+    log "Create Country"
     for i in insert do
       Persistence.Api.create "Country" i |> ignore
 
     // User
-    printfn "%A" ("---------- Create " + "User" + " ----------")
+    log "Create User"
     let info = {
                   name = Some "Lynette";
                   address = ({
@@ -314,6 +336,19 @@ module Main =
                }:AccountTypes.ExtraAccInfo
     let user = Account.make "Content Provider" "Claus" "asd@smu" "Claus" info
     Account.persist user
+    let info = {
+                  name = Some "Michael";
+                  address = ({
+                               address = Some "Somewhere";
+                               postal = Some 7738;
+                               country = Some "Over the rainbow";
+                            }:AccountTypes.Address);
+                  birth = Some System.DateTime.Now;
+                  about = None;
+                  credits = Some 42;
+               }:AccountTypes.ExtraAccInfo
+    let user = Account.make "Customer" "Michael" "asd@smu" "Michael" info
+    Account.persist user
 
     // Product types
     let mutable insert:((Persistence.Types.DataIn List) List) = []
@@ -323,7 +358,7 @@ module Main =
     insert <- insert@createDataInForProductType "film"
     insert <- insert@createDataInForProductType "series"
 
-    printfn "%A" ("---------- Create " + "ProductType" + " ----------")
+    log "Create ProductType"
     for i in insert do
       Persistence.Api.create "ProductType" i |> ignore
 
@@ -361,9 +396,8 @@ module Main =
     insert <- insert@createDataInForMimeType "series" "video/H264"
     insert <- insert@createDataInForMimeType "series" "video/x-ms-wmv"
 
-    printfn "%A" ("---------- Create " + " MimeType" + " ----------")
+    log "Create MimeType"
     for i in insert do
       Persistence.Api.create "MimeType" i |> ignore
-
 
     0
