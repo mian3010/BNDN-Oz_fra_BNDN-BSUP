@@ -103,7 +103,7 @@ namespace RentIt {
       return _product.GetProductRating(id);
     }
 
-    public void UpdateProductRating(string id, RatingData data) {
+    public void UpdateProductRating(string id, RatingDataIn data) {
       _product.UpdateProductRating(id, data);
     }
 

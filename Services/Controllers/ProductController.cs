@@ -246,7 +246,7 @@ namespace Services.Controllers
             catch (Exception) { return _h.Failure(500); }
         }
 
-        public void UpdateProductRating(string id, RatingData data)
+        public void UpdateProductRating(string id, RatingDataIn data)
         {
             try
             {
@@ -263,11 +263,11 @@ namespace Services.Controllers
                 else throw new PermissionExceptions.PermissionDenied();
 
                 // Rating is valid
-                if(data == null || (data.score >= -5 && data.score <= 5)) throw new BadRequestException();
+                if(data == null || !(data.rating >= -5 && data.rating <= 5)) throw new BadRequestException();
 
                 // ADD RATING
 
-                Product.rateProduct(pId, user, data.score);
+                Product.rateProduct(pId, user, (int)data.rating);
 
                 // SIGNAL SUCCESS
 
