@@ -67,7 +67,13 @@ module ProductPersistence =
     try
       let updateR = Persistence.Api.update objectName filtersQ dataQ
       if (updateR.Length < 1) then raise NoSuchProduct 
-      else convertFromResult updateR.Head
+      let prod = convertFromResult updateR.Head
+      try 
+        if (prod.buyPrice.IsSome  && prod.buyPrice.Value  > 0) then Permissions.assignPermissionToProduct prod.id "BUYABLE"  |> ignore
+        if (prod.rentPrice.IsSome && prod.rentPrice.Value > 0) then Permissions.assignPermissionToProduct prod.id "RENTABLE" |> ignore
+        prod
+      with
+        | _ -> prod
     with
       | PersistenceExceptions.ReferenceDoesNotExist -> 
         try
