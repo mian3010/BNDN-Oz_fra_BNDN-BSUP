@@ -23,7 +23,13 @@ module ProductPersistence =
     dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Id" ((reader.Item 0).Item "Id")
     try 
       let createR = Persistence.Api.create objectName !dataQ
-      convertFromResult createR.Head
+      let prod = convertFromResult createR.Head
+      try 
+        if (prod.buyPrice.IsSome  && prod.buyPrice.Value  > 0) then Permissions.assignPermissionToProduct prod.id "BUYABLE"  |> ignore
+        if (prod.rentPrice.IsSome && prod.rentPrice.Value > 0) then Permissions.assignPermissionToProduct prod.id "RENTABLE" |> ignore
+        prod
+      with
+        | _ -> raise PersistenceExceptions.PersistenceException
     with
       | PersistenceExceptions.ReferenceDoesNotExist -> 
         try
