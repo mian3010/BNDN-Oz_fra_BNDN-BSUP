@@ -100,7 +100,7 @@ namespace RentIt
         [WebInvoke( Method = "PUT",
                     UriTemplate = "/products/{id}/rating",
                     RequestFormat = WebMessageFormat.Json)]
-        void UpdateProductRating(string id, RatingData data);
+        void UpdateProductRating(string id, RatingDataIn data);
 
         [OperationContract]
         [WebGet(    UriTemplate = "/products/{id}/thumbnail")]
@@ -278,6 +278,13 @@ namespace RentIt
         public uint? buy { get; set; }
         [DataMember]
         public uint? rent { get; set; }
+    }
+
+    [DataContract]
+    public class RatingDataIn
+    {
+        [DataMember]
+        public int? rating { get; set; }
     }
 
     [DataContract]

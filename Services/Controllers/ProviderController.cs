@@ -40,7 +40,7 @@ namespace Services.Controllers
                 var returnProducts = _p.GetProductsHelper(provider, search, type, info, unpublished);
 
                 string[] keep = null;
-                if (info.Equals("more"))
+                if (String.IsNullOrEmpty(info) || info.Equals("more"))
                 {
 
                     keep = !accType.Equals("Admin") ? new[] { "title", "description", "type", "price" }
@@ -55,7 +55,7 @@ namespace Services.Controllers
 
                 _h.Success();
 
-                if (info.Equals("detailed")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
+                if (String.IsNullOrEmpty(info) || info.Equals("detailed")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
                 if (info.Equals("more")) return _j.Json(_h.Map(returnProducts, p => _c.Convert(p)), keep);
                 if (info.Equals("id")) return _j.Json(_h.Map(returnProducts, p => (uint)p.id));  // Only ids are returned
                 throw new BadRequestException(); // Never happens

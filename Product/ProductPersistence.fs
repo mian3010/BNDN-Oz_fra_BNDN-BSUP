@@ -23,7 +23,13 @@ module ProductPersistence =
     dataQ := Persistence.DataIn.createDataIn !dataQ objectName "Id" ((reader.Item 0).Item "Id")
     try 
       let createR = Persistence.Api.create objectName !dataQ
-      convertFromResult createR.Head
+      let prod = convertFromResult createR.Head
+      try 
+        if (prod.buyPrice.IsSome  && prod.buyPrice.Value  > 0) then Permissions.assignPermissionToProduct prod.id "BUYABLE"  |> ignore
+        if (prod.rentPrice.IsSome && prod.rentPrice.Value > 0) then Permissions.assignPermissionToProduct prod.id "RENTABLE" |> ignore
+        prod
+      with
+        | _ -> raise PersistenceExceptions.PersistenceException
     with
       | PersistenceExceptions.ReferenceDoesNotExist -> 
         try
@@ -61,7 +67,13 @@ module ProductPersistence =
     try
       let updateR = Persistence.Api.update objectName filtersQ dataQ
       if (updateR.Length < 1) then raise NoSuchProduct 
-      else convertFromResult updateR.Head
+      let prod = convertFromResult updateR.Head
+      try 
+        if (prod.buyPrice.IsSome  && prod.buyPrice.Value  > 0) then Permissions.assignPermissionToProduct prod.id "BUYABLE"  |> ignore
+        if (prod.rentPrice.IsSome && prod.rentPrice.Value > 0) then Permissions.assignPermissionToProduct prod.id "RENTABLE" |> ignore
+        prod
+      with
+        | _ -> prod
     with
       | PersistenceExceptions.ReferenceDoesNotExist -> 
         try
@@ -197,7 +209,8 @@ module ProductPersistence =
   let getAllProductsByUser (userName:string) (showPublished:PublishedStatus) =
     let objectName = "Product"
     let filtersQ = ref (getPublishedFilter showPublished)
-    filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "User_Username" userName
+    //filtersQ := Persistence.FilterGroup.createSingleFilterGroup (!filtersQ).Head.filters objectName "User_Username" userName
+    filtersQ := Persistence.FilterGroup.createFilterGroup !filtersQ objectName "User_Username" userName
     let fieldsQ = Persistence.ReadField.createReadFieldProc [] "" "" Persistence.ReadField.All
     convertFromResults (Persistence.Api.read fieldsQ objectName [] !filtersQ)
   
