@@ -400,4 +400,42 @@ module Main =
     for i in insert do
       Persistence.Api.create "MimeType" i |> ignore
 
+        //Product
+    log "Create Products"
+    let buyPrice = Some 30
+    let product = Product.make "Claus" "neverending story" "ebook" None buyPrice None
+    let persisted = Product.persist product
+    let stream = System.IO.File.OpenRead "../.././1342172154.pdf"
+    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "application/pdf" stream
+    Product.publishProduct persisted.id true |> ignore
+
+    let buyPrice = Some 100
+    let rentPrice = Some 20
+    let product = Product.make "Claus" "The last stand" "film" None buyPrice rentPrice
+    let persisted = Product.persist product
+    let stream = System.IO.File.OpenRead "../.././small.mp4"
+    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "video/mp4" stream
+    Product.publishProduct persisted.id true |> ignore
+
+    let rentPrice = Some 15
+    let product = Product.make "Claus" "Trolololo" "music" None rentPrice None
+    let persisted = Product.persist product
+    let stream = System.IO.File.OpenRead "../.././1000Hz-5sec.mp3"
+    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "music/mp3" stream
+    Product.publishProduct persisted.id true |> ignore
+
+    let buyPrice = Some 950
+    let product = Product.make "Claus" "MASH" "series" None None buyPrice
+    let persisted = Product.persist product
+    let stream = System.IO.File.OpenRead "../.././small.mp4"
+    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "video/mp4" stream
+
+    let rentPrice = Some 5
+    let buyPrice = Some 25
+    let product = Product.make "Claus" "lecture 1" "audio" None rentPrice buyPrice
+    let persisted = Product.persist product
+    let stream = System.IO.File.OpenRead "../.././1000Hz-5sec.mp3"
+    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "audio/mp3" stream
+    Product.publishProduct persisted.id true |> ignore
+
     0
