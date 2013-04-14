@@ -415,8 +415,6 @@ module Main =
                 None
         let product = Product.make "Claus" ("neverending story " + (System.Convert.ToString i)) "ebook" None rentPrice buyPrice
         let persisted = Product.persist product
-        let stream = System.IO.File.OpenRead "../.././1342172154.pdf"
-        Product.persistMedia (System.Convert.ToUInt32 persisted.id) "application/pdf" stream
         Product.publishProduct persisted.id true |> ignore
         done
 
@@ -424,8 +422,6 @@ module Main =
     let buyPrice = Some 30
     let product = Product.make "Claus" "The Playbook" "ebook" None buyPrice None
     let persisted = Product.persist product
-    let stream = System.IO.File.OpenRead "../.././1342172154.pdf"
-    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "application/pdf" stream
 
     for i=0 to 4 do
         let buyPrice =
@@ -440,8 +436,6 @@ module Main =
                 None
         let product = Product.make "Claus" ("the last stand " + (System.Convert.ToString i)) "film" None rentPrice buyPrice
         let persisted = Product.persist product
-        let stream = System.IO.File.OpenRead "../.././small.mp4"
-        Product.persistMedia (System.Convert.ToUInt32 persisted.id) "video/mp4" stream
         Product.publishProduct persisted.id true |> ignore
         done
 
@@ -449,8 +443,6 @@ module Main =
     let rentPrice = Some 20
     let product = Product.make "Claus" "The last legion" "film" None buyPrice rentPrice
     let persisted = Product.persist product
-    let stream = System.IO.File.OpenRead "../.././small.mp4"
-    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "video/mp4" stream
    
     for i=0 to 4 do
         let buyPrice =
@@ -465,16 +457,12 @@ module Main =
                 None
         let product = Product.make "Claus" ("trolololo " + (System.Convert.ToString i)) "music" None rentPrice buyPrice
         let persisted = Product.persist product
-        let stream = System.IO.File.OpenRead "../.././1000Hz-5sec.mp3"
-        Product.persistMedia (System.Convert.ToUInt32 persisted.id) "music/mp3" stream
         Product.publishProduct persisted.id true |> ignore
         done
 
     let rentPrice = Some 15
     let product = Product.make "Claus" "Chihuahua" "music" None rentPrice None
     let persisted = Product.persist product
-    let stream = System.IO.File.OpenRead "../.././1000Hz-5sec.mp3"
-    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "music/mp3" stream
 
     for i=0 to 4 do
         let buyPrice =
@@ -489,16 +477,12 @@ module Main =
                 None
         let product = Product.make "Claus" ("MASH season " + (System.Convert.ToString i)) "series" None rentPrice buyPrice
         let persisted = Product.persist product
-        let stream = System.IO.File.OpenRead "../.././small.mp4"
-        Product.persistMedia (System.Convert.ToUInt32 persisted.id) "video/mp4" stream
         Product.publishProduct persisted.id true |> ignore
         done
             
     let buyPrice = Some 950
     let product = Product.make "Claus" "MASH Complete Series" "series" None None buyPrice
     let persisted = Product.persist product
-    let stream = System.IO.File.OpenRead "../.././small.mp4"
-    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "video/mp4" stream
 
     for i=0 to 4 do
         let buyPrice =
@@ -513,8 +497,6 @@ module Main =
                 None
         let product = Product.make "Claus" ("lecture " + (System.Convert.ToString i)) "audio" None rentPrice buyPrice
         let persisted = Product.persist product
-        let stream = System.IO.File.OpenRead "../.././1000Hz-5sec.mp3"
-        Product.persistMedia (System.Convert.ToUInt32 persisted.id) "audio/mp3" stream
         Product.publishProduct persisted.id true |> ignore
         done
 
@@ -522,7 +504,5 @@ module Main =
     let buyPrice = Some 25
     let product = Product.make "Claus" "the secret lecture" "audio" None rentPrice buyPrice
     let persisted = Product.persist product
-    let stream = System.IO.File.OpenRead "../.././1000Hz-5sec.mp3"
-    Product.persistMedia (System.Convert.ToUInt32 persisted.id) "audio/mp3" stream
 
     0
