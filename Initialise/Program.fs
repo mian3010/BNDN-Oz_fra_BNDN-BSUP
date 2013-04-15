@@ -400,4 +400,109 @@ module Main =
     for i in insert do
       Persistence.Api.create "MimeType" i |> ignore
 
+        //Product
+    log "Create Products"
+    for i=1 to 4 do
+        let buyPrice =
+            if(i%2=0) then
+                Some 20
+            else
+                None
+        let rentPrice =
+            if(i%2=0) then
+                Some 10
+            else
+                None
+        let product = Product.make "Claus" ("neverending story " + (System.Convert.ToString i)) "ebook" None rentPrice buyPrice
+        let persisted = Product.persist product
+        Product.publishProduct persisted.id true |> ignore
+        done
+
+        
+    let buyPrice = Some 30
+    let product = Product.make "Claus" "The Playbook" "ebook" None buyPrice None
+    let persisted = Product.persist product
+
+    for i=0 to 4 do
+        let buyPrice =
+            if(i%2=0) then
+                Some 45
+            else
+                None
+        let rentPrice =
+            if(i%2=0) then
+                Some 13
+            else
+                None
+        let product = Product.make "Claus" ("the last stand " + (System.Convert.ToString i)) "film" None rentPrice buyPrice
+        let persisted = Product.persist product
+        Product.publishProduct persisted.id true |> ignore
+        done
+
+    let buyPrice = Some 100
+    let rentPrice = Some 20
+    let product = Product.make "Claus" "The last legion" "film" None buyPrice rentPrice
+    let persisted = Product.persist product
+   
+    for i=0 to 4 do
+        let buyPrice =
+            if(i%2=0) then
+                Some 25
+            else
+                None
+        let rentPrice =
+            if(i%2=0) then
+                Some 5
+            else
+                None
+        let product = Product.make "Claus" ("trolololo " + (System.Convert.ToString i)) "music" None rentPrice buyPrice
+        let persisted = Product.persist product
+        Product.publishProduct persisted.id true |> ignore
+        done
+
+    let rentPrice = Some 15
+    let product = Product.make "Claus" "Chihuahua" "music" None rentPrice None
+    let persisted = Product.persist product
+
+    for i=0 to 4 do
+        let buyPrice =
+            if(i%2=0) then
+                Some 25
+            else
+                None
+        let rentPrice =
+            if(i%2=0) then
+                Some 5
+            else
+                None
+        let product = Product.make "Claus" ("MASH season " + (System.Convert.ToString i)) "series" None rentPrice buyPrice
+        let persisted = Product.persist product
+        Product.publishProduct persisted.id true |> ignore
+        done
+            
+    let buyPrice = Some 950
+    let product = Product.make "Claus" "MASH Complete Series" "series" None None buyPrice
+    let persisted = Product.persist product
+
+    for i=0 to 4 do
+        let buyPrice =
+            if(i%2=0) then
+                Some 25
+            else
+                None
+        let rentPrice =
+            if(i%2=0) then
+                Some 5
+            else
+                None
+        let product = Product.make "Claus" ("lecture " + (System.Convert.ToString i)) "audio" None rentPrice buyPrice
+        let persisted = Product.persist product
+        Product.publishProduct persisted.id true |> ignore
+        done
+
+    let rentPrice = Some 5
+    let buyPrice = Some 25
+    let product = Product.make "Claus" "the secret lecture" "audio" None rentPrice buyPrice
+    let persisted = Product.persist product
+
     0

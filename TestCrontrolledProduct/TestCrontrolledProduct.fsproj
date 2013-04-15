@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>d7776eb1-703c-4005-befa-392eabedb0c9</ProjectGuid>
+    <ProjectGuid>5e3c0037-266d-4dcf-870a-6fdfa5b38866</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Initialise</RootNamespace>
-    <AssemblyName>Initialise</AssemblyName>
+    <RootNamespace>TestCrontrolledProduct</RootNamespace>
+    <AssemblyName>TestCrontrolledProduct</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>Initialise</Name>
+    <Name>TestCrontrolledProduct</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Initialise.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\TestCrontrolledProduct.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -32,25 +32,31 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Initialise.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\TestCrontrolledProduct.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
+    <None Include="App.config" />
+    <Compile Include="TestMake.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FsUnit.Xunit">
+      <HintPath>..\packages\FsUnit.xUnit.1.2.1.2\Lib\Net40\FsUnit.Xunit.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Program.fs" />
-    <None Include="App.config" />
-    <None Include="Database.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Reference Include="xunit">
+      <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Account\Account.fsproj">
@@ -58,14 +64,19 @@
       <Project>{7ee274b7-c8a3-4299-b766-e00862b8ad5e}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Auth\Auth.fsproj">
+      <Name>Auth</Name>
+      <Project>{9d128b8a-2409-4c31-8ca5-159fca30b55b}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Common\Common.fsproj">
       <Name>Common</Name>
       <Project>{1a2ef8ab-e695-43ca-a3db-e9c0d71ee5be}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Persistence\Persistence.fsproj">
-      <Name>Persistence</Name>
-      <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
+    <ProjectReference Include="..\Permissions\Permissions.fsproj">
+      <Name>Permissions</Name>
+      <Project>{04a74c01-2866-459b-9a7f-84a3608a485a}</Project>
       <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\Product\Product.fsproj">
@@ -73,11 +84,12 @@
       <Project>{5946ee56-1b91-4632-82be-5c681d3c6c87}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\TestHelpers\TestHelpers.fsproj">
+      <Name>TestHelpers</Name>
+      <Project>{22854d1d-95b5-410e-a494-4cf02f662f7e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
-  <PropertyGroup>
-    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
-  </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

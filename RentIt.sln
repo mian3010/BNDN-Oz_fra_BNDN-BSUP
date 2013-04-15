@@ -31,6 +31,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestCredits", "TestCredits\
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestPermissions", "TestPermissions\TestPermissions.fsproj", "{3B15AC39-F35E-4BF3-A961-550B72E3929C}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestCrontrolledProduct", "TestCrontrolledProduct\TestCrontrolledProduct.fsproj", "{5E3C0037-266D-4DCF-870A-6FDFA5B38866}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,10 @@ Global
 		{3B15AC39-F35E-4BF3-A961-550B72E3929C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B15AC39-F35E-4BF3-A961-550B72E3929C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B15AC39-F35E-4BF3-A961-550B72E3929C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E3C0037-266D-4DCF-870A-6FDFA5B38866}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E3C0037-266D-4DCF-870A-6FDFA5B38866}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E3C0037-266D-4DCF-870A-6FDFA5B38866}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E3C0037-266D-4DCF-870A-6FDFA5B38866}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
