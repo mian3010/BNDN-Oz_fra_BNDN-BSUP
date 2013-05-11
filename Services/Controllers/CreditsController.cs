@@ -68,7 +68,7 @@ namespace RentIt.Services.Controllers
                 else                            { return _h.Failure(400); }
 
                 _h.Success();
-                if (info.Equals("id")) return _j.Json(_h.Map(rentOrBuys, rb => rb.IsBuy ? ((CreditsTypes.RentOrBuy.Buy) rb).Item.item.id : ((CreditsTypes.RentOrBuy.Rent) rb).Item.item.id));
+                if (info.Equals("id")) return _j.Json(_h.Map(rentOrBuys, rb => rb.IsBuy ? (uint)((CreditsTypes.RentOrBuy.Buy) rb).Item.item.id : (uint)((CreditsTypes.RentOrBuy.Rent) rb).Item.item.id));
                 else if (info.Equals("more")) return _j.Json(_h.Map(rentOrBuys, rb => _c.Convert(rb)));
                 else { return _h.Failure(400); }
             }
