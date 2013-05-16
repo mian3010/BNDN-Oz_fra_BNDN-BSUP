@@ -206,7 +206,7 @@ module Product =
     let product = getProductById (int id)
     let info = getLocalProductFile (int id) product.owner
     try
-      System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+      System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1).Replace("_", "/")
     with
       | :? System.IO.FileNotFoundException -> raise ProductExceptions.NoSuchMedia
 
@@ -218,7 +218,7 @@ module Product =
     let product = getProductById (int id)
     let info = getLocalThumbnailFile (int id) product.owner
     try
-      System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1)
+      System.IO.File.OpenRead(info.FullName), info.Extension.Substring(1).Replace("_", "/")
     with
       | :? System.IO.FileNotFoundException -> raise ProductExceptions.NoSuchMedia
 

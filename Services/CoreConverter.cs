@@ -325,6 +325,7 @@ namespace RentIt.Services
             CreditsTypes.Rent r = rb.IsRent ? ((CreditsTypes.RentOrBuy.Rent) rb).Item : null;
 
             return new PurchaseData {
+                id = (uint)t.id,
                 purchased = JsonUtility.DateTimeToString(t.purchased),
                 paid = (uint) t.paid,
                 expires = rb.IsRent ? JsonUtility.DateTimeToString(r.expires) : null,

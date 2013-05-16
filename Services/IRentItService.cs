@@ -316,6 +316,8 @@ namespace RentIt
     public class PurchaseData
     {
         [DataMember]
+        public uint id { get; set; }
+        [DataMember]
         public string purchased { get; set; }
         [DataMember]
         public uint paid { get; set; }

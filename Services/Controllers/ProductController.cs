@@ -40,12 +40,12 @@ namespace Services.Controllers
                 string[] keep = null;
                 if (String.IsNullOrEmpty(info) || info.Equals("more")) {
 
-                  keep = !accType.Equals("Admin")
+                  keep = accType.Equals("Customer")
                             ? new[] {"id", "title", "description", "type", "price", "owner"}
                             : new[] {"id", "title", "description", "type", "price", "owner", "published"};
                 } else if (info.Equals("detailed")) {
 
-                  keep = !accType.Equals("Admin")
+                  keep = accType.Equals("Customer")
                             ? new[] {"id", "title", "description", "type", "price", "rating", "owner", "meta"}
                             : new[] {"id", "title", "description", "type", "price", "rating", "owner", "meta", "published"};
                 }
@@ -85,7 +85,7 @@ namespace Services.Controllers
                 // PRODUCE RESPONSE
 
                 // Normal users do not get the publish status of products
-                if (!Ops.compareUsernames(user, product.owner) && !accType.Equals("Admin")) product.published = null;
+                if (!Ops.compareUsernames(user, product.owner) && accType.Equals("Customer")) product.published = null;
 
                 _h.Success();
 
@@ -302,7 +302,7 @@ namespace Services.Controllers
 
                 _h.SetHeader("Content-Length", result.Item1.Length.ToString());
                 _h.Success(200, result.Item2);
-
+                
                 return result.Item1;
             }
             catch (BadRequestException) { return _h.Failure(400); }
