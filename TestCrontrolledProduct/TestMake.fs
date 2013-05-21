@@ -35,10 +35,10 @@ module ControlledProductTest =
 
     let token = ControlledAuth.authenticate acc.user acc.accType 
     
-    let invoker = PermissionUtil.Invoker.newAuth token.token
+    (*let invoker = PermissionsUtil.Invoker.newAuth token.token
 
     [<Fact>]
     let ``ContentProvider should work´´() =
         let p = ControlledProduct.make invoker 
-            
+            *)
 
