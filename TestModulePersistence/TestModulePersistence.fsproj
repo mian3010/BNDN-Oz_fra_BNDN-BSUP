@@ -82,6 +82,11 @@
       <Project>{a958b288-1d10-40bf-bd61-8dec714bc639}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Product\Product.fsproj">
+      <Name>Product</Name>
+      <Project>{5946ee56-1b91-4632-82be-5c681d3c6c87}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\TestHelpers\TestHelpers.fsproj">
       <Name>TestHelpers</Name>
       <Project>{22854d1d-95b5-410e-a494-4cf02f662f7e}</Project>

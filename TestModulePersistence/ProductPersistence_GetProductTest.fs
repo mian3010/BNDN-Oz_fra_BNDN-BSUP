@@ -3,6 +3,7 @@
   open FsUnit.Xunit
   open RentIt.ProductTypes
   open RentIt.ProductPersistence
+  open RentIt.ProductExceptions
 
   module TestGetProduct =
     [<Fact>]
@@ -19,7 +20,6 @@
         getProd.rating.IsNone |> should equal true
         getProd.published |> should equal testProd.published
         getProd.id |> should be (greaterThan 0)
-        getProd.thumbnailPath.IsNone |> should equal true
         getProd.metadata.IsNone |> should equal true
         getProd.description.Value |> should equal testProd.description.Value
         getProd.rentPrice.Value |> should equal testProd.rentPrice.Value
@@ -41,7 +41,6 @@
         getProd.rating.IsNone |> should equal true
         getProd.published |> should equal testProd.published
         getProd.id |> should be (greaterThan 0)
-        getProd.thumbnailPath.IsNone |> should equal true
         getProd.metadata.IsNone |> should equal true
         getProd.description.Value |> should equal testProd.description.Value
         getProd.rentPrice.Value |> should equal testProd.rentPrice.Value
@@ -63,7 +62,6 @@
         getProd.rating.IsNone |> should equal true
         getProd.published |> should equal testProd.published
         getProd.id |> should be (greaterThan 0)
-        getProd.thumbnailPath.IsNone |> should equal true
         getProd.metadata.IsNone |> should equal true
         getProd.description.Value |> should equal testProd.description.Value
         getProd.rentPrice.Value |> should equal testProd.rentPrice.Value
