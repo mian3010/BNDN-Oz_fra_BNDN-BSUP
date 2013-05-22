@@ -622,7 +622,7 @@ ADD CONSTRAINT [FK_product_has_allowedaction_product]
     FOREIGN KEY ([product_Id])
     REFERENCES [dbo].[product]
         ([Id])
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
+    ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- Creating non-clustered index for FOREIGN KEY 'FK_product_has_allowedaction_product'
 CREATE INDEX [IX_FK_product_has_allowedaction_product]

@@ -3,6 +3,7 @@
   open FsUnit.Xunit
   open RentIt.ProductTypes
   open RentIt.ProductPersistence
+  open RentIt.ProductExceptions
 
   module TestUpdateProduct =
     [<Fact>]
@@ -103,25 +104,6 @@
         testProd := {!testProd with published = prev}
         testProd := updateProduct !testProd
         (!testProd).published |> should equal prev
-      finally
-        //Clean up testdata
-        Helper.removeTestProduct test
-
-    [<Fact>]
-    let ``Test update product thumbnail path``() =
-      let test = "TestUpdateProductThumbnailPath"
-      try
-        //Create test data
-        let testProd = ref (Helper.createTestProduct test)
-        let update = Some "NewThumbnailPath"
-        //Change to updated name and test for change
-        testProd := {!testProd with thumbnailPath = update}
-        testProd := updateProduct !testProd
-        (!testProd).thumbnailPath |> should equal update
-        //Change back to prev and test for change
-        testProd := {!testProd with thumbnailPath = None}
-        testProd := updateProduct !testProd
-        (!testProd).thumbnailPath.IsNone |> should equal true
       finally
         //Clean up testdata
         Helper.removeTestProduct test
